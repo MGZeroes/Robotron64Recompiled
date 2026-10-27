@@ -2,6 +2,39 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-10-27 — ONE PLAYER starts: three runtime timing fixes
+
+The user confirmed that ONE PLAYER now works. Each problem was diagnosed from evidence: WER crash records,
+`llvm-symbolizer` on the faulting RVA, and thread stacks from WinDbg's `cdbX64 -pv` (a non-invasive attach). LLVM's
+`lldb` can't start here because it needs `python311.dll`. All fixes are `[[patches.hook]]`s in
+`robotron64.us.toml`.
+
+1. **Crash pressing Start (sometimes).** `0xC0000005` in `func_80050BD0` (graphics scheduler thread).
+   - Cause: it dereferences `D_8014BE40`, the profiling slot that the retrace thread sets on the first VI
+     (decomp `scheduler.c:79-87`). On hardware a VI always comes first; under the runtime a task can.
+     The audio scheduler (`func_80050928`) has the same dereference.
+   - **Failed first fix:** a hook that waited with `yield_self_1ms` until the pointer was set *deadlocked* at
+     Start (all game threads idle).
+   - Final fix: if it's NULL, point it at slot 0 (`0x8014B9E0`), which is what the first retrace does anyway.
+2. **Crash a little later.** `0xC0000005` in host `queue_samples` (`main.cpp`).
+   - Cause: the game sizes each audio frame as `D_801901F4 - osAiGetLength()/4 + D_8008D834`
+     (`audio_task_build.c`). The runtime reports the host audio queue, which is much larger than real hardware
+     would report (logged: up to 6821 bytes against 2112), so the result wraps to about 0xFFF0 frames.
+   - Fix: clamp the value `osAiGetLength` returns, in `func_800521C8`. As a backstop, `queue_samples` also drops
+     chunks over 0x8000 samples.
+3. **Freeze on ONE PLAYER.** The WinDbg stacks showed every game thread in `osRecvMesg` except MAIN, which was
+   executing in `func_80053CC0` called from `func_80051680`.
+   - Cause: a busy-wait for the audio thread to stop the old music, `while (func_80053CC0(id) == 3) {}`
+     (`audio_generation.c:61-64`). Game threads are scheduled cooperatively, so the audio thread never runs.
+   - Fix: `yield_self` in the loop.
+
+**Known issue: a slow Start after a long time in the launcher.**
+- Stacks showed the host Gfx thread working through `send_dummy_workload` (RecompFrontend), with a `fullSync`
+  each time, while MAIN waited for its first graphics task.
+- The VI thread queues one dummy workload per VI while the launcher is shown. They pile up when processing is
+  slower than 60/s, and the delay after Start grows with launcher time. It doesn't hang; it drains eventually.
+- To fix in our code (not the submodules), e.g. by wrapping the render context to skip stale dummy workloads.
+
 ## 2026-10-27 — Milestone v0.1-title: boots to the title menu
 
 **Confirmed by the user's screenshots**

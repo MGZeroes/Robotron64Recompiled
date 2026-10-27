@@ -34,3 +34,47 @@ ignored = [
     "__osPfsReleasePages",
     "__osBlockSum",
 ]
+
+# Scheduler startup race (docs/NOTES.md). D_8014BE40, the current frame's profiling slot, stays
+# NULL until the retrace thread handles the first VI (decomp src/boot/scheduler.c:79-87). On
+# hardware a retrace always arrives before the first task; under the runtime the first graphics or
+# audio task can come first, and the scheduler then dereferences NULL. If it is still NULL, point
+# it at profiling slot 0 (D_8014B9E0, zeroed BSS), as the first retrace would; the first real
+# retrace then advances to slot 1 as usual. The slots only hold timing statistics.
+# (A first version waited with yield_self_1ms until the retrace thread set it; that deadlocked at
+# game start.) Both hook addresses are branch labels, not delay slots.
+
+# Audio task thread: 0x800509DC is `lw $t6, 0($s5)`, with $s5 = &D_8014BE40.
+[[patches.hook]]
+func = "func_80050928"
+before_vram = 0x800509DC
+text = "if (MEM_W(0, ctx->r21) == 0) { MEM_W(0, ctx->r21) = (int32_t)0x8014B9E0; }"
+
+# Music switch busy-wait (decomp src/game/audio_generation.c:61-64, func_80051680):
+#   func_80053EBC(id); while (func_80053CC0(id) == 3) { }
+# The main thread waits for the audio thread to finish stopping the old music. On hardware the
+# audio thread preempts it; the runtime schedules game threads cooperatively, so the loop never
+# ends (froze on choosing ONE PLAYER). Yield each iteration so the audio thread can run.
+# 0x80051758 is the loop's branch target (`lw $a0, 0($s3)`), not a delay slot.
+[[patches.hook]]
+func = "func_80051680"
+before_vram = 0x80051758
+text = "{ void yield_self(uint8_t*); yield_self(rdram); }"
+
+# Audio frame size (decomp src/game/audio_task_build.c, func_800521C8):
+#   count = ((D_801901F4 - osAiGetLength() / 4 + D_8008D834) & 0xFFF0) + 0x10
+# Real hardware never reports more than the game has submitted, but the runtime reports the host
+# audio queue, which can be larger. The subtraction then wraps and count becomes up to 0xFFF0
+# frames, overflowing the audio buffers (crashed in the host's queue_samples). Clamp the reported
+# length (v0) to what keeps count >= 0x10; the first 20 clamps are logged. Confirmed 2026-10-27:
+# the runtime reported up to 6821 bytes against a limit of 2112.
+[[patches.hook]]
+func = "func_800521C8"
+before_vram = 0x80052218
+text = "{ int printf(const char*, ...); int fflush(void*); static int clamp_logs; uint32_t lim = ((uint32_t)MEM_W(0, (gpr)(int32_t)0x801901F4) + (uint32_t)MEM_W(0, (gpr)(int32_t)0x8008D834)) * 4; if ((uint32_t)ctx->r2 > lim) { if (clamp_logs++ < 20) { printf(\"[robotron] osAiGetLength %u > %u, clamped\\n\", (unsigned)(uint32_t)ctx->r2, lim); fflush(0); } ctx->r2 = lim; } }"
+
+# Graphics task thread: 0x80050C6C is `lw $t8, 0($s2)`, with $s2 = &D_8014BE40.
+[[patches.hook]]
+func = "func_80050BD0"
+before_vram = 0x80050C6C
+text = "if (MEM_W(0, ctx->r18) == 0) { MEM_W(0, ctx->r18) = (int32_t)0x8014B9E0; }"

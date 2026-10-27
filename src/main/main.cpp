@@ -214,6 +214,18 @@ static uint32_t discarded_output_frames;
 constexpr uint32_t bytes_per_frame = input_channels * sizeof(float);
 
 void queue_samples(int16_t* audio_data, size_t sample_count) {
+    // An N64 audio buffer is a few thousand samples. Anything far larger means the game computed a
+    // bad size (see the osAiGetLength hook in robotron64.us.toml); drop it instead of reading past
+    // the buffer, and log it while that is being investigated.
+    constexpr size_t max_sane_sample_count = 0x8000;
+    if (sample_count > max_sane_sample_count) {
+        static int bad_chunk_logs = 0;
+        if (bad_chunk_logs++ < 20) {
+            fprintf(stderr, "[robotron] dropped audio chunk: %zu samples\n", sample_count);
+        }
+        return;
+    }
+
     // Buffer for holding the output of swapping the audio channels. This is reused across
     // calls to reduce runtime allocations.
     static std::vector<float> swap_buffer;
