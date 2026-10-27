@@ -45,7 +45,7 @@ several minutes (decomp build + a thorough n64sym scan); later runs are incremen
 
 ### 2. Native build (Windows)
 ```powershell
-.	oolsuild.ps1        # VS 2022 env + LLVM clang-cl + Ninja -> build-cmake\Robotron64Recompiled.exe
+.\tools\build.ps1        # VS 2022 env + LLVM clang-cl + Ninja -> build-cmake\Robotron64Recompiled.exe
 ```
 The default is RelWithDebInfo with a console window for logs; `-Config Release -NoConsole` for a normal build.
 
