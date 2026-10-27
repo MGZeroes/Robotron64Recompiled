@@ -31,12 +31,26 @@ Facts as we learn them, each with a source. "Decomp" = frankischilling/robotron6
 |---|---|---|
 | Graphics | F3DEX 1.21 (string @ ROM `0x96E80`) and F3DLP.Rej 1.21 (@ `0x97680`) | decomp issue #6 |
 | rspboot | candidate ROM `0x70040`–`0x70110` | decomp issue #6 |
-| Audio | **unknown** — to identify in Phase 2 | — |
+| F3DEX 1.21 | text `0x8006F510` (ROM `0x70110`), data `0x80095FD0` (ROM `0x96BD0`) | decomp `docs/graphics-tasks.md` |
+| F3DLP.Rej 1.21 | text `0x80070940` (ROM `0x71540`), data `0x800967D0` (ROM `0x973D0`) | same |
+| Graphics ucode select | table at `0x8008D560`, index 0 = F3DEX, 1 = F3DLP.Rej, set by `func_800498E0` | same |
+| RT64 support | both listed in `rt64/src/gbi/rt64_gbi.cpp` (F3DLP 1.21.Rej marked "Needs confirmation") | rt64 `d9817c6` |
+| Audio | **stock `aspMain`**: text `0x80071D10` (ROM `0x72910`, size `0xE20`), data `0x80096FD0` (ROM `0x97BD0`, `0x800`). Dispatch table at data+0x10 is the standard 16 entries | decomp `docs/audio-generation.md`; ROM check 2026-10-27 |
+
+## Code inventory (Phase 2)
+
+| Fact | Value | Source |
+|---|---|---|
+| Functions | 1,539 in `0x80000400`–`0x8006F440` (1,467 decomp-known) | `tools/gen_syms.py` |
+| libultra block | `0x8005FBB0`–`0x8006F440` (contiguous); 216 functions named via n64sym | n64sym `ccf4600` |
+| libultra contents | `osPfs*`, `osMotor*` (rumble), 64DD init/interrupt (unused), classic `al*` audio library | n64sym hits in the block |
+| Game calls not provided by runtime | `osPiRawReadIo`, `osPiWriteIo`, `osPfsIsPlug`, pak internals via `func_800617A0` | N64Recomp output check |
 
 ## Runtime behaviour
 
 | Fact | Value | Source |
 |---|---|---|
 | Save | Controller Pak, one 4 KiB file | decomp `docs/save-game.md` |
+| Runtime Pak support | none yet: N64ModernRuntime `librecomp/src/pak.cpp` returns `PFS_ERR_NOPACK` for every `osPfs*` call | runtime `cdf5abb` |
 | Threads | main (pri 10), PI manager (150), game loop (10), thread @ `0x80051380` (110), 3 scheduler threads | decomp `docs/startup.md` |
 | Odd PI reads | 16 reads from `0x00FFB000`–`0x00FFB03C` at startup, results unused | decomp `docs/startup.md` |

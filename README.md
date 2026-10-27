@@ -30,7 +30,17 @@ git clone --recurse-submodules <this repo>
 ```
 
 ## Build
-Not yet available — will be documented here once tested.
+### 1. Recompile (needs Docker Desktop)
+```powershell
+.\tools\build_elf.ps1                          # decomp ELF (make verify must pass), spimdisasm + n64sym -> build-elf/
+python tools\gen_syms.py                       # -> syms/robotron64.us.syms.toml
+.\tools\build_elf.ps1 -Script tools/recomp.sh  # -> RecompiledFuncs/, rsp/aspMain.cpp
+```
+All outputs are derived from your ROM and are gitignored. The first `build_elf.ps1` run takes
+several minutes (decomp build + a thorough n64sym scan); later runs are incremental.
+
+### 2. Native build
+Not yet available (Phase 3).
 
 ## License
 GPL-3.0 (see [LICENSE](LICENSE)). Credits: [CREDITS.md](CREDITS.md).

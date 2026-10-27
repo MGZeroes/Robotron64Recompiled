@@ -347,12 +347,12 @@ bool reset_audio(uint32_t output_freq) {
     return true;
 }
 
-extern RspUcodeFunc n_aspMain;
+extern RspUcodeFunc aspMain;
 
 RspUcodeFunc* get_rsp_microcode(const OSTask* task) {
     switch (task->t.type) {
     case M_AUDTASK:
-        return n_aspMain;
+        return aspMain;
 
     default:
         fprintf(stderr, "Unknown task: %" PRIu32 "\n", task->t.type);

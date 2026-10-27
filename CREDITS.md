@@ -23,3 +23,8 @@ Robotron 64: Recompiled stands entirely on other people's work.
 ## The game
 Robotron 64 © 1998 Crave Entertainment / Player 1; Robotron: 2084 © Williams Electronics.
 This project contains no game code or assets; you must supply your own legally obtained ROM.
+
+## Build tooling
+- **[spimdisasm](https://github.com/Decompollaborate/spimdisasm)** and **[rabbitizer](https://github.com/Decompollaborate/rabbitizer)** by Decompollaborate — function boundaries (run through the decomp's `make analyze`).
+- **[n64sym](https://github.com/shygoo/n64sym)** by shygoo — libultra function identification (MIT).
+- The aspMain RSPRecomp dispatch table was cross-checked against **[drmario64_recomp](https://github.com/AngheloAlf/drmario64_recomp)** and **[Quest64-Recomp](https://github.com/Rainchus/Quest64-Recomp)**.

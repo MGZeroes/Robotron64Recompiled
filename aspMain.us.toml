@@ -1,0 +1,14 @@
+# RSPRecomp config for Robotron 64's audio microcode: stock libultra aspMain.
+# Text at VRAM 0x80071D10 / ROM 0x72910, data at ROM 0x97BD0 (decomp docs/audio-generation.md).
+# The 16-entry command dispatch table at data+0x10 and the 0xE20 text size are identical to the
+# aspMain configs of drmario64_recomp and Quest64-Recomp (checked 2026-10-27, see docs/GAME.md).
+text_offset = 0x72910
+text_size = 0xE20
+text_address = 0x04001080
+rom_file_path = "baserom.us.z64"
+output_file_path = "rsp/aspMain.cpp"
+output_function_name = "aspMain"
+extra_indirect_branch_targets = [
+    0x1118, 0x1470, 0x11DC, 0x1B38, 0x1214, 0x187C, 0x1254, 0x12D0,
+    0x12EC, 0x1328, 0x140C, 0x1294, 0x1E24, 0x138C, 0x170C, 0x144C,
+]
