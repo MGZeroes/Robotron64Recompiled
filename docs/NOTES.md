@@ -2,6 +2,24 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-10-27 — Milestone v0.1-title: boots to the title menu
+
+**Confirmed by the user's screenshots**
+- The launcher accepts `baserom.us.z64` (XXH3 `rom_hash` matches).
+- The game shows "WARNING: NO CONTROLLER PAK. THE GAME CANNOT BE SAVED / OK". That is the expected result of
+  our "no pak" stubs (`osPfsIsPlug`, `__osGetId`, runtime `osPfs*`).
+- Then the title menu: a rotating 3D head with ONE PLAYER / TWO PLAYER GAME / LOAD GAME / SETUP.
+- RT64 renders the F3DEX/F3DLP.Rej display lists correctly, and menu input works.
+
+**Fixed: aborts when double-clicked**
+- The first attempts died with `0xC0000409` in `ucrtbase.dll`, fast-fail 7, i.e. `abort()`.
+- The exe was double-clicked in `build-cmake\`. RecompFrontend resolves `assets/` and `recompcontrollerdb.txt`
+  against the working directory (`recompui/src/util/file.cpp`, `get_program_path()` returns `""` on Windows).
+- Fix: a POST_BUILD step copies both next to the exe. Tested: launching with cwd `build-cmake\` reaches the
+  launcher, with no crash event.
+
+**Known issue:** the game freezes after choosing ONE PLAYER. Not diagnosed yet; next step.
+
 ## 2026-10-27 — Phase 3: native Windows build links
 
 Toolchain: VS 2022 Build Tools 17.14.37806.7, Windows SDK 10.0.26100, LLVM 22.1.8 (`clang-cl`), Ninja.

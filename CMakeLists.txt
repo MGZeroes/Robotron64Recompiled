@@ -278,6 +278,14 @@ if (WIN32)
             "${CMAKE_SOURCE_DIR}/lib/rt64/src/contrib/dxc/bin/x64/dxcompiler.dll"
             $<TARGET_FILE_DIR:Robotron64Recompiled>)
 
+    # The UI resolves assets/ and the controller database against the working directory, so put
+    # them next to the exe too; then launching it from its own folder (double-click) works.
+    add_custom_command(TARGET Robotron64Recompiled POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+            "${CMAKE_SOURCE_DIR}/assets" "$<TARGET_FILE_DIR:Robotron64Recompiled>/assets"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_SOURCE_DIR}/recompcontrollerdb.txt" $<TARGET_FILE_DIR:Robotron64Recompiled>)
+
     set_target_properties(
         Robotron64Recompiled
         PROPERTIES
