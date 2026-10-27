@@ -1,0 +1,51 @@
+# Config file for Robotron 64 (USA) Recompilation.
+
+[input]
+# User Task: Set the game entry point
+entrypoint = 0x00000000
+
+# Paths are relative to the location of this config file.
+output_func_path = "RecompiledFuncs"
+
+# Used after symbols are dumped. Elf is used until symbols are dumped and rom is usable
+# rom_file_path = "robotron64.us.z64"
+
+# Used after symbols are dumped. Elf file is required to get started
+# symbols_file_path = "syms/robotron64.us.syms.toml"
+
+# Enabled until the context is dumped with "--dump-context" and the recompiler is pointed to the symbols
+elf_path = "robotron64.us.elf"
+
+# Enable only when debugging recompilation issues.
+# trace_mode = true
+
+# Treat sections ending in "_bss" as zero-initialized BSS RAM.
+bss_section_suffix = "_bss"
+
+manual_funcs = []
+
+[patches]
+
+ignored = []
+
+renamed = []
+
+stubs = []
+
+# Single-instruction patches
+
+# Insert a manual function at a certain location based on vram. Useful for solving idle threads. 
+# Two examples including a pause_wait and yield_wait:
+# [[patches.hook]]
+# What function does the patch go in? Look in the recompiled functions for the name of the function that contains the vram you want to patch.
+# func = "func_name"
+# Example function to yield in a spinning wait. Replace the original pause_self with yield_self to allow other threads to run.
+# text = "pause_self(rdram);"
+# VRAM location is found in the recompiled functions.
+# before_vram = 0x80000000
+
+# Yield in spinning wait.
+[[patches.hook]]
+# func = "func_name"
+# text = "yield_self(rdram);"
+# before_vram = 0x80000000

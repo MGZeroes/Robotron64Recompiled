@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Robotron: Recompiled
+Exec=/app/bin/Robotron64Recompiled
+Type=Application
+Icon=io.github.robotron64recomp.robotron64recompiled
+Categories=Game;
+Comment=Static recompilation of Robotron for PC.
+MimeType=x-scheme-handler/robotron64

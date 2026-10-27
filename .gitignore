@@ -1,0 +1,90 @@
+# VSCode file settings
+.vscode/settings.json
+.vscode/c_cpp_properties.json
+.vscode/launch.json
+
+# Input elf and rom files
+*.elf
+*.z64
+
+# Output C files
+RecompiledFuncs/
+RecompiledPatches/
+
+# Linux build output
+build/
+build-cmake/
+*.o
+
+# Flatpak build process
+repo/
+
+# Windows build output
+*.exe
+*.dll
+*.lib
+*.pdb
+
+# Nix build output
+/result/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+out/
+
+# Visual Studio 2015/2017 cache/options directory
+.vs/
+vcpkg_installed/
+
+# clangd cache
+/.cache/
+
+# Runtime files
+imgui.ini
+rt64.log
+
+node_modules/
+
+# Recompiler Linux binary
+N64Recomp
+RSPRecomp
+.DS_Store
+
+# Controller mappings file
+gamecontrollerdb.txt
+
+# --- Robotron 64 Recompiled additions (CLAUDE.md hard rule 1: no copyrighted/derived material) ---
+# ROMs in any byte order
+*.z64
+*.n64
+*.v64
+baserom*
+# Decomp build output and anything derived from it (ELF, map, symbol dumps)
+*.map
+syms/
+build-elf/
+# Generated RSP recompiler output
+rsp/*.cpp
+# Python
+.venv/
+__pycache__/

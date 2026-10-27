@@ -1,0 +1,25 @@
+# Credits
+
+Robotron 64: Recompiled stands entirely on other people's work.
+
+## Recompilation toolchain
+- **[N64Recomp](https://github.com/N64Recomp/N64Recomp)** by Wiseguy (Mr-Wiseguy) and contributors — static recompiler (MIT).
+- **[N64ModernRuntime](https://github.com/N64Recomp/N64ModernRuntime)** (ultramodern + librecomp) by Wiseguy and contributors — runtime (GPL-3.0).
+- **[RT64](https://github.com/rt64/rt64)** by Dario (DarioSamo) and contributors — N64 graphics renderer (MIT).
+- **[RecompFrontend](https://github.com/N64Recomp/RecompFrontend)** by the N64Recomp contributors — shared menus and input (GPL-3.0).
+
+## Project template
+- **[N64RecompGameTemplate](https://github.com/SrBananaMan/N64RecompGameTemplate)** by SrBananaMan — the base of this repository's host code.
+- **[HarvestMoon64Recomp](https://github.com/HarvestMoon64Recomp/HarvestMoon64Recomp)** — the port the template was derived from (GPL-3.0).
+- **[Zelda64Recomp](https://github.com/Zelda64Recomp/Zelda64Recomp)** — the reference port that the whole ecosystem's host code descends from.
+
+## Game research
+- **[frankischilling/robotron64](https://github.com/frankischilling/robotron64)** — the matching decompilation of Robotron 64 that supplies symbols, function boundaries and documentation of the game's internals. Used as a git submodule; nothing from it is redistributed here.
+
+## Bundled third-party assets (from the template)
+- Inter, Noto Emoji, Suplexmentary Comic NC fonts and PromptFont — see `assets/` (PromptFont license in `assets/promptfont/LICENSE.txt`).
+- SlotMap — `lib/SlotMap/`.
+
+## The game
+Robotron 64 © 1998 Crave Entertainment / Player 1; Robotron: 2084 © Williams Electronics.
+This project contains no game code or assets; you must supply your own legally obtained ROM.

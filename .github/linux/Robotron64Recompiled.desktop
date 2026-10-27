@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Robotron: Recompiled
+Type=Application
+Terminal=false
+Exec=Robotron64Recompiled
+Categories=Game;
+Comment=Static recompilation of Robotron for PC.
+
