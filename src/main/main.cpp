@@ -366,17 +366,17 @@ gpr get_entrypoint_address();
 // array of supported GameEntry objects
 std::vector<recomp::GameEntry> supported_games = {
     {
-        // User Task: Set the ROM hash for the supported game version.
-        .rom_hash = 0x0000000000000000ULL,
-        // User Task: Set all the names based on the rom's metadata and set a short mod id.
+        // XXH3-64 of Robotron 64 (USA) rev 0, SHA-1 44d158bc2aeefb111a620b61e043b2703e6c5808 (docs/GAME.md).
+        .rom_hash = 0x41CAB16167C1368CULL,
         .internal_name = "ROBOTRON-64",
         .display_name = "Robotron 64",
         .game_id = u8"robotron64.us",
         .mod_game_id = "robotron64",
-        // User Task: Set .save_type to the save type used by the game.
+        // The game only saves to the Controller Pak (docs/GAME.md); no cartridge save hardware.
+        .save_type = recomp::SaveType::None,
         // TODO icon
         // .thumbnail_bytes = std::span<const char>(icon_bytes),
-        .is_enabled = false,
+        .is_enabled = true,
         .decompression_routine = nullptr,
         .has_compressed_code = false,
         .entrypoint_address = get_entrypoint_address(),
@@ -387,60 +387,35 @@ std::vector<recomp::GameEntry> supported_games = {
 
 // TODO: move somewhere else
 namespace robotron64 {
+    // Thread IDs from the decomp: src/boot/startup.c, src/boot/scheduler.c,
+    // src/game/audio_startup.c, src/game/controller_service_setup.c.
     std::string get_game_thread_name(const OSThread* t) {
         std::string name = "[Game] ";
 
         switch (t->id) {
             case 0:
-                switch (t->priority) {
-                    case 150:
-                        name += "PIMGR";
-                        break;
-
-                    case 80:
-                        name += "VIMGR";
-                        break;
-
-                    default:
-                        name += std::to_string(t->id);
-                        break;
-                }
+                name += t->priority == 150 ? "PIMGR" : "VIMGR";
                 break;
             case 1:
-                name += "IDLE";
-                break;
-            case 2:
-                name += "CRASH";
+                name += "BOOT";
                 break;
             case 3:
-                switch (t->priority) {
-                    case 10:
-                        name += "MAIN";
-                        break;
-
-                    case 70:
-                        name += "AUDIO";
-                        break;
-
-                    default:
-                        name += std::to_string(t->id);
-                        break;
-                }
+                name += "MAIN";
                 break;
-            case 4:
-                name += "GFX";
-                break;
-            case 5:
-                name += "TASKMGR";
+            case 8:
+                name += "CONTROLLER";
                 break;
             case 17:
-                name += "NUGFX";
+                name += "SCHED_17";
                 break;
             case 18:
-                name += "NUAUDIO";
+                name += "SCHED_18";
                 break;
             case 19:
-                name += "NUSCHED";
+                name += "SCHED_19";
+                break;
+            case 110:
+                name += "AUDIO";
                 break;
             default:
                 name += std::to_string(t->id);
@@ -776,18 +751,20 @@ int main(int argc, char** argv) {
     // Register the .rtz texture pack file format with the previous content type as its only allowed content type.
     recomp::mods::register_mod_container_type("rtz", std::vector{ texture_pack_content_type_id }, false);
 
-    recomp::start(
-        project_version,
-        {},
-        rsp_callbacks,
-        renderer_callbacks,
-        audio_callbacks,
-        input_callbacks,
-        gfx_callbacks,
-        thread_callbacks,
-        error_handling_callbacks,
-        threads_callbacks
-    );
+    recomp::start({
+        .argc = argc,
+        .argv = argv,
+        .project_version = project_version,
+        .window_handle = {},
+        .rsp_callbacks = rsp_callbacks,
+        .renderer_callbacks = renderer_callbacks,
+        .audio_callbacks = audio_callbacks,
+        .input_callbacks = input_callbacks,
+        .gfx_callbacks = gfx_callbacks,
+        .events_callbacks = thread_callbacks,
+        .error_handling_callbacks = error_handling_callbacks,
+        .threads_callbacks = threads_callbacks,
+    });
 
     NFD_Quit();
 

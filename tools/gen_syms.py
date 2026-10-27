@@ -42,6 +42,13 @@ OVERRIDES = {
     # Si vs Sp raw IO: both call 0x8006DBF0 (__osSiDeviceBusy), so they are the SI variants.
     0x800669B0: "__osSiRawReadIo",
     0x80066A00: "__osSiRawWriteIo",
+    # n64sym says osPiWriteIo, but the game reads ROM words with it
+    # (decomp src/game/rom_files.c: func_80063560(deviceAddress, &word)).
+    0x80063560: "osPiReadIo",
+    # n64sym matches __osGetId twice. This one is called by game code and its body reads,
+    # checks and repairs the pak ID (decomp src/sdk/pfs_repair_id.c); the other has no callers.
+    0x800617A0: "__osGetId",
+    0x80068F44: None,
 }
 
 
@@ -101,7 +108,9 @@ def main():
     resolved = {}
     for vram, names in candidates.items():
         if vram in OVERRIDES:
-            report.append(f"override {vram:08X} {','.join(sorted(names))} -> {OVERRIDES[vram]}")
+            report.append(f"override {vram:08X} {','.join(sorted(names))} -> {OVERRIDES[vram] or 'unnamed'}")
+            if OVERRIDES[vram] is None:
+                continue
             names = {OVERRIDES[vram]}
         if len(names) > 1:
             # Drop alternatives that are uniquely identified at another address.

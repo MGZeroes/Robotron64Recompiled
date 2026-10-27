@@ -21,6 +21,12 @@ if (WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR")
 endif()
 
+# SDL2's SDL_endian.h (up to 2.32.10) defines _m_prefetch for clang on Windows unless the
+# prfchwintrin.h guard is set; Clang 22 makes _m_prefetch a builtin and rejects the redefinition.
+if (WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    add_compile_definitions(__PRFCHWINTRIN_H)
+endif()
+
 if (APPLE)
     enable_language(OBJC OBJCXX)
 endif()
@@ -103,20 +109,55 @@ target_sources(PatchesLib PRIVATE
 
 set_source_files_properties(${CMAKE_SOURCE_DIR}/RecompiledPatches/patches.c PROPERTIES COMPILE_FLAGS -fno-strict-aliasing)
 
-# Build patches elf
-if(NOT DEFINED PATCHES_C_COMPILER)
-    set(PATCHES_C_COMPILER clang)
-endif()
+# Build patches elf directly with clang (MIPS target) and ld.lld, so no make is needed.
+# The flags mirror patches/Makefile. The official Windows LLVM release has no MIPS backend, so
+# tools/build.ps1 turns this off and tools/recomp.sh builds patches/patches.elf in Docker instead.
+option(PATCHES_BUILD_ELF "Build patches/patches.elf with a MIPS-capable clang" ON)
+if (NOT PATCHES_BUILD_ELF)
+    if (NOT EXISTS ${CMAKE_SOURCE_DIR}/patches/patches.elf)
+        message(FATAL_ERROR "patches/patches.elf is missing; run tools/recomp.sh (README) or enable PATCHES_BUILD_ELF")
+    endif()
+else()
+    if(NOT DEFINED PATCHES_C_COMPILER)
+        # Use the GNU-style clang driver from the same LLVM install (the host build may use clang-cl).
+        get_filename_component(HOST_C_COMPILER_DIR ${CMAKE_C_COMPILER} DIRECTORY)
+        find_program(PATCHES_C_COMPILER clang HINTS ${HOST_C_COMPILER_DIR} REQUIRED)
+    endif()
 
-if(NOT DEFINED PATCHES_LD)
-    set(PATCHES_LD ld.lld)
-endif()
+    if(NOT DEFINED PATCHES_LD)
+        get_filename_component(PATCHES_C_COMPILER_DIR ${PATCHES_C_COMPILER} DIRECTORY)
+        find_program(PATCHES_LD ld.lld HINTS ${PATCHES_C_COMPILER_DIR} REQUIRED)
+    endif()
 
-add_custom_target(PatchesBin
-    COMMAND ${CMAKE_COMMAND} -E env CC=${PATCHES_C_COMPILER} LD=${PATCHES_LD} make
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/patches
-    BYPRODUCTS ${CMAKE_SOURCE_DIR}/patches/patches.elf
-)
+    set(PATCHES_CFLAGS
+        -target mips -mips2 -mabi=32 -O2 -G0 -mno-abicalls -mno-odd-spreg
+        -fomit-frame-pointer -ffreestanding -Wall -Wextra
+        -DMIPS
+        -I${CMAKE_SOURCE_DIR}/decomp/include
+        -I${CMAKE_SOURCE_DIR}/decomp/src
+        -I${CMAKE_SOURCE_DIR}/decomp
+    )
+
+    file(GLOB PATCHES_C_SOURCES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/patches/*.c)
+    set(PATCHES_OBJECTS "")
+    foreach(PATCH_SOURCE ${PATCHES_C_SOURCES})
+        get_filename_component(PATCH_NAME ${PATCH_SOURCE} NAME_WE)
+        set(PATCH_OBJECT ${CMAKE_BINARY_DIR}/patches/${PATCH_NAME}.o)
+        add_custom_command(OUTPUT ${PATCH_OBJECT}
+            COMMAND ${PATCHES_C_COMPILER} ${PATCHES_CFLAGS} -MMD -MF ${PATCH_OBJECT}.d -c ${PATCH_SOURCE} -o ${PATCH_OBJECT}
+            DEPENDS ${PATCH_SOURCE}
+            DEPFILE ${PATCH_OBJECT}.d
+        )
+        list(APPEND PATCHES_OBJECTS ${PATCH_OBJECT})
+    endforeach()
+
+    add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/patches/patches.elf
+        COMMAND ${PATCHES_LD} ${PATCHES_OBJECTS} -nostdlib -T patches.ld -Map ${CMAKE_BINARY_DIR}/patches/patches.map
+                --unresolved-symbols=ignore-all --emit-relocs -o patches.elf
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/patches
+        DEPENDS ${PATCHES_OBJECTS} ${CMAKE_SOURCE_DIR}/patches/patches.ld
+    )
+endif()
 
 # Generate patches_bin.c from patches.bin
 add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/RecompiledPatches/patches_bin.c
@@ -130,10 +171,10 @@ add_custom_command(OUTPUT
                        ${CMAKE_SOURCE_DIR}/RecompiledPatches/patches.c
                        ${CMAKE_SOURCE_DIR}/RecompiledPatches/recomp_overlays.inl
                        ${CMAKE_SOURCE_DIR}/RecompiledPatches/funcs.h
-                   # TODO: Look into why modifying patches requires two builds to take
-                   COMMAND ./N64Recomp patches.toml
+                   COMMAND N64RecompCLI patches.toml
                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-                   DEPENDS ${CMAKE_SOURCE_DIR}/patches/patches.elf
+                   DEPENDS ${CMAKE_SOURCE_DIR}/patches/patches.elf ${CMAKE_SOURCE_DIR}/patches.toml
+                           ${CMAKE_SOURCE_DIR}/syms/robotron64.us.syms.toml N64RecompCLI
 )
 
 # Main executable
@@ -152,6 +193,7 @@ set (SOURCES
     ${CMAKE_SOURCE_DIR}/src/game/recomp_extension_api.cpp
     ${CMAKE_SOURCE_DIR}/src/game/recomp_data_api.cpp
     ${CMAKE_SOURCE_DIR}/src/game/rom_decompression.cpp
+    ${CMAKE_SOURCE_DIR}/src/game/ultra_extensions.cpp
 
     ${CMAKE_SOURCE_DIR}/rsp/aspMain.cpp
 )
@@ -244,6 +286,16 @@ if (WIN32)
             LINK_FLAGS_RELWITHDEBINFO  "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup"
             LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup"
     )
+
+    # Keep a console window in optimized builds while bringing the game up (stderr logging).
+    option(ROBOTRON_CONSOLE "Link optimized builds as console applications" OFF)
+    if (ROBOTRON_CONSOLE)
+        set_target_properties(Robotron64Recompiled PROPERTIES
+            LINK_FLAGS_RELEASE "/SUBSYSTEM:CONSOLE"
+            LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:CONSOLE"
+            LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:CONSOLE"
+        )
+    endif()
 
     # target_sources(Robotron64Recompiled PRIVATE ${CMAKE_SOURCE_DIR}/icons/app.rc)
     target_link_libraries(Robotron64Recompiled PRIVATE SDL2 Winmm.lib)

@@ -2,6 +2,44 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-10-27 — Phase 3: native Windows build links
+
+Toolchain: VS 2022 Build Tools 17.14.37806.7, Windows SDK 10.0.26100, LLVM 22.1.8 (`clang-cl`), Ninja.
+`tools/build.ps1` imports `vcvars64.bat` and builds `build-cmake/Robotron64Recompiled.exe`.
+
+**Recomp input fixes**
+- n64sym misnamed `0x80063560` as `osPiWriteIo`. The game reads ROM words with it
+  (decomp `rom_files.c`), so it is `osPiReadIo`.
+- `0x800617A0` is `__osGetId` (decomp `pfs_repair_id.c`); the second match at `0x80068F44` stays unnamed.
+- Both are `OVERRIDES` in `gen_syms.py`. Unresolved calls are now exactly the host functions in
+  `src/game/ultra_extensions.cpp`: `osPiRawReadIo` (bounds-checked; boot reads past the ROM end return 0),
+  `osPfsIsPlug` (no pak), `__osGetId` (`PFS_ERR_NOPACK`).
+- My unresolved-call check only scanned the runtime, not the template. The template already defines
+  `osPiReadIo_recomp` (`src/game/recomp_api.cpp`), which gave a duplicate-symbol link error; mine was removed.
+
+**Build failures, in order**
+1. GNU `clang++` driver: `clang++: error: no such file or directory: '/W4'`. The template's CMake adds MSVC
+   flags (`/W4`, `/SUBSYSTEM`) whenever clang simulates MSVC; it targets `clang-cl` (its `CMakeSettings.json`
+   uses `clang_cl_x64`). Switched to `clang-cl`, which also accepts `-march=nehalem` etc.
+2. `vcvars64.bat`: "vswhere.exe not found". It calls vswhere from PATH; added the Installer dir to PATH.
+3. Patch ELF: `Unknown command line argument '-mips-ssection-threshold=0'`. **The LLVM 22.1.8 Windows release
+   has no MIPS backend** (`clang --print-targets`), so no MIPS code at all.
+   - Fix: the patch ELF is built in Docker by `tools/recomp.sh` (`make -C patches`, Ubuntu clang/lld).
+   - CMake option `PATCHES_BUILD_ELF` (OFF in `build.ps1`) then only recompiles it with the native
+     `N64RecompCLI`.
+   - `make` is no longer needed on Windows. The patch steps are proper custom commands now, which also removes
+     the template's "two builds needed" TODO.
+4. SDL 2.30.3 `SDL_endian.h`: `definition of builtin function '_m_prefetch'`. Still the same in SDL 2.32.10.
+   Clang 22 made it a builtin. Fix: define `__PRFCHWINTRIN_H` (the guard SDL checks) for clang on Windows.
+5. `recomp::start` API changed with the runtime pin bump (ADR 002): it now takes one
+   `recomp::Configuration`. `main.cpp` was ported; `argc`/`argv` are now passed through.
+
+**Host glue**
+- `rom_hash = 0x41CAB16167C1368C` (XXH3-64, computed with python3-xxhash in the Docker image).
+- `save_type = None`, `is_enabled = true`.
+- Thread names from the decomp's `osCreateThread` calls.
+- Control descriptions from decomp `docs/controller-input-mapping.md`.
+
 ## 2026-10-27 — Phase 2: ELF, symbols, recompilers
 
 **Docker image** (`tools/docker/Dockerfile`, ubuntu:24.04 + n64sym `ccf4600`). It builds in about a minute.

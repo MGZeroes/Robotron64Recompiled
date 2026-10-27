@@ -15,6 +15,11 @@ cmake --build "$TOOLS" --target N64Recomp RSPRecomp
 echo "== RSPRecomp aspMain.us.toml"
 "$TOOLS/RSPRecomp" aspMain.us.toml
 
+# The patch ELF needs a clang with the MIPS backend; the Windows LLVM release has none, so it is
+# built here and the native CMake build only recompiles it (PATCHES_BUILD_ELF=OFF).
+echo "== patches/patches.elf"
+make -C patches CC=clang LD=ld.lld
+
 echo "== N64Recomp robotron64.us.toml"
 rm -rf RecompiledFuncs
 "$TOOLS/N64Recomp" robotron64.us.toml

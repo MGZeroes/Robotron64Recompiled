@@ -5,10 +5,11 @@ FROM ubuntu:24.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        python3 python3-venv python3-pip \
+        python3 python3-venv python3-pip python3-xxhash \
         make git ca-certificates \
         binutils-mips-linux-gnu \
         cmake ninja-build g++ \
+        clang lld \
     && rm -rf /var/lib/apt/lists/*
 
 # n64sym (shygoo, MIT): signature-based libultra identification. Pinned; see ADR 004.

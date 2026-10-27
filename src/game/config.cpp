@@ -51,26 +51,27 @@ static void set_control_defaults() {
 }
 
 static void set_control_descriptions() {
-    // @User Task: Set control descriptions for each game input. These descriptions will be shown in the UI when the
-    // user is rebinding controls, so they should be clear and concise.
-    recompinput::set_game_input_description(recompinput::GameInput::Y_AXIS_POS, "Add description");
-    recompinput::set_game_input_description(recompinput::GameInput::Y_AXIS_NEG, "Add description");
-    recompinput::set_game_input_description(recompinput::GameInput::X_AXIS_NEG, "Add description");
-    recompinput::set_game_input_description(recompinput::GameInput::X_AXIS_POS, "Add description");
-    recompinput::set_game_input_description(recompinput::GameInput::A,          "Add description");
-    recompinput::set_game_input_description(recompinput::GameInput::B,          "Add description");
-    recompinput::set_game_input_description(recompinput::GameInput::Z,          "Add description");
-    recompinput::set_game_input_description(recompinput::GameInput::L,          "Add description");
-    recompinput::set_game_input_description(recompinput::GameInput::R,          "Add description");
-    recompinput::set_game_input_description(recompinput::GameInput::START,      "Add description");
-    recompinput::set_game_input_description(recompinput::GameInput::C_UP,       "Add description");
-    recompinput::set_game_input_description(recompinput::GameInput::C_DOWN,     "Add description");
-    recompinput::set_game_input_description(recompinput::GameInput::C_LEFT,     "Add description");
-    recompinput::set_game_input_description(recompinput::GameInput::C_RIGHT,    "Add description");
-    recompinput::set_game_input_description(recompinput::GameInput::DPAD_UP,    "Add description");
-    recompinput::set_game_input_description(recompinput::GameInput::DPAD_DOWN,  "Add description");
-    recompinput::set_game_input_description(recompinput::GameInput::DPAD_LEFT,  "Add description");
-    recompinput::set_game_input_description(recompinput::GameInput::DPAD_RIGHT, "Add description");
+    // Mapping from the decomp (docs/controller-input-mapping.md, func_8003C1A8): the stick, D-pad and
+    // C buttons feed the movement/firing direction groups; Start, A and B are separate bits; an L or R
+    // press toggles a game flag. Refine as play-testing confirms what each input does.
+    recompinput::set_game_input_description(recompinput::GameInput::Y_AXIS_POS, "Move up");
+    recompinput::set_game_input_description(recompinput::GameInput::Y_AXIS_NEG, "Move down");
+    recompinput::set_game_input_description(recompinput::GameInput::X_AXIS_NEG, "Move left");
+    recompinput::set_game_input_description(recompinput::GameInput::X_AXIS_POS, "Move right");
+    recompinput::set_game_input_description(recompinput::GameInput::A,          "A button");
+    recompinput::set_game_input_description(recompinput::GameInput::B,          "B button");
+    recompinput::set_game_input_description(recompinput::GameInput::Z,          "Z trigger");
+    recompinput::set_game_input_description(recompinput::GameInput::L,          "Toggle (L)");
+    recompinput::set_game_input_description(recompinput::GameInput::R,          "Toggle (R)");
+    recompinput::set_game_input_description(recompinput::GameInput::START,      "Start / pause");
+    recompinput::set_game_input_description(recompinput::GameInput::C_UP,       "Fire up");
+    recompinput::set_game_input_description(recompinput::GameInput::C_DOWN,     "Fire down");
+    recompinput::set_game_input_description(recompinput::GameInput::C_LEFT,     "Fire left");
+    recompinput::set_game_input_description(recompinput::GameInput::C_RIGHT,    "Fire right");
+    recompinput::set_game_input_description(recompinput::GameInput::DPAD_UP,    "D-pad up");
+    recompinput::set_game_input_description(recompinput::GameInput::DPAD_DOWN,  "D-pad down");
+    recompinput::set_game_input_description(recompinput::GameInput::DPAD_LEFT,  "D-pad left");
+    recompinput::set_game_input_description(recompinput::GameInput::DPAD_RIGHT, "D-pad right");
 }
 
 void robotron64::init_config() {

@@ -7,6 +7,7 @@ Facts as we learn them, each with a source. "Decomp" = frankischilling/robotron6
 | Fact | Value | Source |
 |---|---|---|
 | Supported dump | Robotron 64 (USA) rev 0, `NRXE`, 8 MiB, big-endian | `decomp/config/target.json`, local check |
+| XXH3-64 (runtime `rom_hash`) | `0x41CAB16167C1368C` | python3-xxhash, 2026-10-27 |
 | SHA-1 | `44d158bc2aeefb111a620b61e043b2703e6c5808` | same; verified with `tools/check_rom.ps1` |
 | Header CRC1/CRC2 | `AC8E4B32` / `E7B47326` | ROM header 0x10/0x14 |
 | Known bad dump | SHA-1 `285c720f642649790faaaa02c33636cf1b33d7db` (same header + CRCs; 227 bytes differ in ROM `0x4726BC`–`0x47ADFF`, asset area — code identical) | local diff, 2026-10-27 |
