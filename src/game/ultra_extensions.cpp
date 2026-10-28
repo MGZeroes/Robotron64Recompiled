@@ -39,20 +39,34 @@ extern "C" void osPiRawReadIo_recomp(uint8_t* rdram, recomp_context* ctx) {
 // to about 2.1:1.
 constexpr float background_overscan = 1.06f;
 
+// How much wider than 4:3 the view is: 1 for Original, window aspect / (4/3) for Expand.
+static float view_widening() {
+    if (ultramodern::renderer::get_graphics_config().ar_option == ultramodern::renderer::AspectRatio::Expand) {
+        int width, height;
+        recompui::get_window_size(width, height);
+        if (height > 0) {
+            return std::max(1.0f, (static_cast<float>(width) / height) / (4.0f / 3.0f));
+        }
+    }
+    return 1.0f;
+}
+
 static int32_t clamp_extent(float value) {
     return static_cast<int32_t>(std::min(value, 32767.0f));
 }
 
 extern "C" int32_t robotron64_background_extent_x(int32_t extent) {
-    float scale = background_overscan;
-    if (ultramodern::renderer::get_graphics_config().ar_option == ultramodern::renderer::AspectRatio::Expand) {
-        int width, height;
-        recompui::get_window_size(width, height);
-        if (height > 0) {
-            scale *= std::max(1.0f, (static_cast<float>(width) / height) / (4.0f / 3.0f));
-        }
-    }
-    return clamp_extent(extent * scale);
+    return clamp_extent(extent * background_overscan * view_widening());
+}
+
+// Object culling, called from the three draw-routine hooks (robotron64.us.toml) with abs(camera x).
+// Dividing it by the widening factor widens the game's horizontal cull cone to match the view. The
+// test uses the object's centre, so objects vanished while still half on screen (hidden by TV
+// overscan on hardware); the margin keeps them drawn until they have left the view.
+constexpr float cull_margin = 1.2f;
+
+extern "C" int32_t robotron64_cull_abs_x(int32_t abs_x) {
+    return static_cast<int32_t>(abs_x / (view_widening() * cull_margin));
 }
 
 extern "C" int32_t robotron64_background_extent_y(int32_t extent) {

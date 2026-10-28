@@ -84,6 +84,27 @@ func = "func_800400D0"
 before_vram = 0x80040190
 text = "{ int32_t robotron64_background_extent_x(int32_t); int32_t robotron64_background_extent_y(int32_t); MEM_W(0, (gpr)(int32_t)0x8007CCA8) = robotron64_background_extent_x(MEM_W(0, (gpr)(int32_t)0x8007CCA8)); MEM_W(0, (gpr)(int32_t)0x8007CCAC) = robotron64_background_extent_y(MEM_W(0, (gpr)(int32_t)0x8007CCAC)); }"
 
+# Object view culling (widescreen). Three model draw routines (binary fallbacks in the decomp,
+# read from its disassembly) skip an object unless, in camera space, z+500 >= 2|x| and
+# z+500 >= 2|y|: a fixed square cone that matches the 4:3 view, so objects near the edges of an
+# Expand view vanish. Each hook runs right after the abs(x) call returns (the instruction after the
+# jal's delay slot, `lw $t3, 0x30($s0)`, followed by `sll $t2, $v0, 1`) and shrinks |x| in v0 by the
+# view widening factor (ultra_extensions.cpp). The y and behind-camera checks are unchanged.
+[[patches.hook]]
+func = "func_8003D43C"
+before_vram = 0x8003D5D0
+text = "{ int32_t robotron64_cull_abs_x(int32_t); ctx->r2 = (gpr)(int32_t)robotron64_cull_abs_x((int32_t)ctx->r2); }"
+
+[[patches.hook]]
+func = "func_8003D7F4"
+before_vram = 0x8003D988
+text = "{ int32_t robotron64_cull_abs_x(int32_t); ctx->r2 = (gpr)(int32_t)robotron64_cull_abs_x((int32_t)ctx->r2); }"
+
+[[patches.hook]]
+func = "func_8003E220"
+before_vram = 0x8003E458
+text = "{ int32_t robotron64_cull_abs_x(int32_t); ctx->r2 = (gpr)(int32_t)robotron64_cull_abs_x((int32_t)ctx->r2); }"
+
 # Graphics task thread: 0x80050C6C is `lw $t8, 0($s2)`, with $s2 = &D_8014BE40.
 [[patches.hook]]
 func = "func_80050BD0"

@@ -2,6 +2,23 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-10-28 — Widescreen object culling
+
+- **Cause:** three model draw routines skip an object unless `z+500 >= 2|x|` and `z+500 >= 2|y|` in camera space.
+  - The routines are `func_8003D43C`, `func_8003D7F4` and `func_8003E220`, binary fallbacks in the decomp
+    (read from its disassembly, `build/analysis/cpu/baserom_80000400.text.s`).
+  - The check is a fixed square cone that matches the 4:3 view. No global feeds it.
+- **Fix:**
+  - A hook in each routine, placed right after its `abs(x)` call returns (`0x8003D5D0`, `0x8003D988`,
+    `0x8003E458`, each a `lw $t3` that is followed by `sll $t2, $v0, 1`).
+  - Each passes `|x|` through `robotron64_cull_abs_x` (`ultra_extensions.cpp`), which divides it by the view
+    widening factor (1 in Original) and a 1.2 margin.
+  - The y and behind-camera checks are unchanged.
+- **First try (no margin):** objects still vanished in the last few pixels. The test uses the object's centre,
+  so on hardware the pop-out was hidden in TV overscan. The 1.2 margin fixed it.
+- **Tested by the user:** in Expand, enemies, humans and items are visible to the edges, with no other rendering
+  issues seen. Original works.
+
 ## 2026-10-28 — Widescreen background
 
 - **Cause of the "box":**
