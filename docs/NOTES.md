@@ -2,6 +2,25 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-10-28 — Controller Pak saving
+
+- **Why:** the runtime's `osPfs*` functions are stubs that return `PFS_ERR_NOPACK`, so the game warned "NO CONTROLLER
+  PAK" and couldn't save.
+- **What:** `src/game/controller_pak.cpp` implements the libultra file API the game calls (GAME.md lists them) for
+  channel 0. It works at the note level, not as a raw 32 KiB PFS image. That was simpler to get right without a
+  reference implementation to check against. The catch: the file isn't an emulator `.mpk`, and a converter could
+  be added later.
+  - Storage: `<config>/saves/robotron64.us.controller_pak_1.bin`, written with the runtime's
+    `open_output_file_with_backup` / `finalize_output_file_with_backup` (it keeps a `.bak`).
+  - The file defines all ten `_recomp` symbols from librecomp's `pak.cpp`, so the static library never links that
+    object, and there was no duplicate-symbol error. `osPfsIsPlug` and `__osGetId` moved there from
+    `ultra_extensions.cpp`. IsPlug now reports a pak in port 1, and `__osGetId` returns 0.
+- **Tested by the user:**
+  - the warning is gone;
+  - saving and loading work;
+  - after quitting completely and restarting, LOAD GAME lists the save and loads it;
+  - the file is about 5 KB, as expected for one 4 KiB note plus the header.
+
 ## 2026-10-28 — Analog aiming via the game's two-controller mode
 
 **Finding.** The game already supports analog aiming (decomp `src/game/player/behavior.c`). Player 1 moves with

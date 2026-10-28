@@ -6,7 +6,7 @@ statically recompiled to C and runs on [N64ModernRuntime](https://github.com/N64
 rendered by [RT64](https://github.com/rt64/rt64), with menus/input from
 [RecompFrontend](https://github.com/N64Recomp/RecompFrontend).
 
-**Status: early work in progress. Playable: play-tested through wave 26 (35 min, bonus stage, game over); no saving yet.** Progress log: [docs/NOTES.md](docs/NOTES.md).
+**Status: early work in progress. Playable: play-tested through wave 26 (35 min, bonus stage, game over), with saving and analog aiming.** Progress log: [docs/NOTES.md](docs/NOTES.md).
 
 This repository contains **no game code or assets**. You need your own Robotron 64 (USA) ROM.
 
@@ -51,7 +51,11 @@ The default is RelWithDebInfo with a console window for logs; `-Config Release -
 
 ### 3. Run
 Double-click `build-cmake\Robotron64Recompiled.exe` (or start it from any folder). On first launch, select
-`baserom.us.z64` in the launcher. Saving is not supported yet (the game reports no Controller Pak).
+`baserom.us.z64` in the launcher.
+
+Saving works through an emulated Controller Pak in controller port 1. It's stored in
+`%LOCALAPPDATA%\Robotron64Recompiled\saves\robotron64.us.controller_pak_1.bin`, with a `.bak` copy of the
+previous version.
 
 ## Controls
 Twin-stick works out of the box: the **left stick moves** and the **right stick aims and fires** at its exact

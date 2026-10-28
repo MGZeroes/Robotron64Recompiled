@@ -6,8 +6,6 @@
 #include "librecomp/game.hpp"
 #include "librecomp/helpers.hpp"
 
-constexpr s32 PFS_ERR_NOPACK = 1;
-
 // Reads one big-endian word from cartridge ROM. The game reads 16 words from 0x00FFB000 at
 // boot (decomp src/boot/startup.c), past the end of the 8 MiB ROM, and ignores the results,
 // so out-of-range reads return 0 instead of the hardware's open-bus value.
@@ -29,15 +27,4 @@ extern "C" void osPiRawReadIo_recomp(uint8_t* rdram, recomp_context* ctx) {
     read_rom_word(rdram, ctx);
 }
 
-// No Controller Pak support yet: the runtime's osPfs* stubs (librecomp/src/pak.cpp) report
-// PFS_ERR_NOPACK, so report every port as empty here too.
-extern "C" void osPfsIsPlug_recomp(uint8_t* rdram, recomp_context* ctx) {
-    PTR(u8) pattern = _arg<1, PTR(u8)>(rdram, ctx);
-    MEM_B(0, pattern) = 0;
-    _return<s32>(ctx, 0);
-}
-
-// Called directly by the game's legacy pak menu (func_8004C0B0).
-extern "C" void __osGetId_recomp(uint8_t* rdram, recomp_context* ctx) {
-    _return<s32>(ctx, PFS_ERR_NOPACK);
-}
+// The Controller Pak functions (osPfs*, __osGetId) are in controller_pak.cpp.

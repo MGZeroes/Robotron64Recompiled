@@ -47,4 +47,8 @@ wave-20 bonus stage. Good for testing later waves quickly.
 - ❌ Expand aspect: background box (known, needs a widescreen patch; docs/GAME.md)
 
 ## Saving
-- ❌ Controller Pak: not implemented yet (runtime stubs report no pak)
+- ✅ No "NO CONTROLLER PAK" warning at boot
+- ✅ Save, then load in the same session
+- ✅ Save survives a full restart (LOAD GAME lists and loads it)
+- ⬜ Pak manager: delete a note
+- ⬜ Damaged or missing save file falls back to an empty pak (the `.bak` copy is used first)
