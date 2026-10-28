@@ -73,6 +73,17 @@ func = "func_800521C8"
 before_vram = 0x80052218
 text = "{ uint32_t lim = ((uint32_t)MEM_W(0, (gpr)(int32_t)0x801901F4) + (uint32_t)MEM_W(0, (gpr)(int32_t)0x8008D834)) * 4; if ((uint32_t)ctx->r2 > lim) { ctx->r2 = lim; } }"
 
+# Background size (decomp src/game/renderer_surfaces/background_dispatch.c:44-50, func_800400D0).
+# The background gradient is a 3D quad at Z=32000 with half-extents D_8007CCA8 (X) / D_8007CCAC (Y),
+# reset every frame to 19200 x 14400 (or 19200 x 11000), which covers only ~96% of the 4:3 view, and
+# RT64's Expand aspect ratio widens the view but not the quad, leaving a box. Scale both extents in
+# host code (ultra_extensions.cpp). 0x80040190 is label L_80040190, where both extent-setting paths
+# join (not a delay slot); $v0 is live here but untouched.
+[[patches.hook]]
+func = "func_800400D0"
+before_vram = 0x80040190
+text = "{ int32_t robotron64_background_extent_x(int32_t); int32_t robotron64_background_extent_y(int32_t); MEM_W(0, (gpr)(int32_t)0x8007CCA8) = robotron64_background_extent_x(MEM_W(0, (gpr)(int32_t)0x8007CCA8)); MEM_W(0, (gpr)(int32_t)0x8007CCAC) = robotron64_background_extent_y(MEM_W(0, (gpr)(int32_t)0x8007CCAC)); }"
+
 # Graphics task thread: 0x80050C6C is `lw $t8, 0($s2)`, with $s2 = &D_8014BE40.
 [[patches.hook]]
 func = "func_80050BD0"

@@ -65,9 +65,8 @@ C buttons and fires in 8 directions. The D-pad, C buttons and keyboard (arrow ke
 directions. Remap under Settings → Controls.
 
 ## Recommended settings
-- **Aspect Ratio: Original** gives the picture closest to the N64. With **Expand**, the 3D scene widens
-  but the game's 2D background and fade rectangles stay 4:3, so a box shows in the middle. Proper
-  widescreen needs a game patch (planned).
+- **Aspect Ratio:** Original gives the picture closest to the N64. Expand fills the window, but objects near the
+  left and right edges aren't drawn yet, because the game culls against its 4:3 view (fix planned).
 - **Framerate: Original** if transitions look smeared. The game has its own trail effect, and it hasn't
   been checked yet at higher frame rates.
 - Resolution and anti-aliasing can be raised freely.

@@ -2,6 +2,23 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-10-28 — Widescreen background
+
+- **Cause of the "box":**
+  - The background gradient is a 3D quad at Z = 32000 with half-extents `D_8007CCA8`/`D_8007CCAC`.
+    `func_800400D0` sets them every frame to 19200 × 14400 (decomp
+    `renderer_surfaces/background_dispatch.c`).
+  - In the game's 4:3 projection that covers about 96% of the view; on a TV the edge was hidden in overscan.
+  - RT64's Expand widens the view, not the quad.
+- **Not the cause:** a 2D or fade rectangle. The colour buffer is cleared every frame.
+- **Fix:**
+  - A hook at `0x80040190` (`L_80040190`, where both extent paths join) passes the extents through
+    `robotron64_background_extent_x/y` (`ultra_extensions.cpp`).
+  - These grow the quad by 6%, and in Expand also multiply X by `window aspect / (4/3)`.
+  - The result is clamped to s16; that's enough up to about 2.1:1.
+- **Tested by the user:** with Expand the gradient fills the window; Original still looks right.
+- **Next issue:** objects near the left/right edges disappear in Expand. The game culls against its 4:3 view.
+
 ## 2026-10-28 — Controller Pak saving
 
 - **Why:** the runtime's `osPfs*` functions are stubs that return `PFS_ERR_NOPACK`, so the game warned "NO CONTROLLER

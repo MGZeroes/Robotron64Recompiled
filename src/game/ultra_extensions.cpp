@@ -2,9 +2,13 @@
 // N64Recomp skips these by name (ignored/reimplemented lists), so the recompiled code calls
 // the *_recomp versions below. See docs/NOTES.md (Phase 2/3) for how each was identified.
 
+#include <algorithm>
+
 #include "recomp.h"
 #include "librecomp/game.hpp"
 #include "librecomp/helpers.hpp"
+#include "recompui/recompui.h"
+#include "ultramodern/config.hpp"
 
 // Reads one big-endian word from cartridge ROM. The game reads 16 words from 0x00FFB000 at
 // boot (decomp src/boot/startup.c), past the end of the 8 MiB ROM, and ignores the results,
@@ -28,3 +32,29 @@ extern "C" void osPiRawReadIo_recomp(uint8_t* rdram, recomp_context* ctx) {
 }
 
 // The Controller Pak functions (osPfs*, __osGetId) are in controller_pak.cpp.
+
+// Background quad size, called from the func_800400D0 hook (robotron64.us.toml). The game's quad
+// covers ~96% of the 4:3 view; grow it 6% so it fills the frame, and in Expand mode widen it by the
+// window's aspect ratio relative to 4:3. Vertex positions are s16, so clamp; that covers windows up
+// to about 2.1:1.
+constexpr float background_overscan = 1.06f;
+
+static int32_t clamp_extent(float value) {
+    return static_cast<int32_t>(std::min(value, 32767.0f));
+}
+
+extern "C" int32_t robotron64_background_extent_x(int32_t extent) {
+    float scale = background_overscan;
+    if (ultramodern::renderer::get_graphics_config().ar_option == ultramodern::renderer::AspectRatio::Expand) {
+        int width, height;
+        recompui::get_window_size(width, height);
+        if (height > 0) {
+            scale *= std::max(1.0f, (static_cast<float>(width) / height) / (4.0f / 3.0f));
+        }
+    }
+    return clamp_extent(extent * scale);
+}
+
+extern "C" int32_t robotron64_background_extent_y(int32_t extent) {
+    return clamp_extent(extent * background_overscan);
+}

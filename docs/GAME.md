@@ -71,7 +71,8 @@ Facts as we learn them, each with a source. "Decomp" = frankischilling/robotron6
 
 | Fact | Value | Source |
 |---|---|---|
-| Background vs 3D area | The background and full-screen fade are 2D rectangles slightly smaller than the area the 3D scene draws into; the floor sticks out past them at the bottom corners. On a TV that border falls into overscan. Not yet traced to code. | play test 2026-10-28, compared with N64 footage the user supplied |
-| Expand aspect ratio | RT64 widens the 3D but not those 2D rectangles, so a 4:3 box shows. Needs a patch to the rectangle draws (RT64 extended GBI). | same |
+| Background gradient | A 3D quad at Z = 32000 with half-extents `D_8007CCA8`/`D_8007CCAC`, which `func_800400D0` resets every frame to 19200 × 14400 (or 19200 × 11000). Drawn by `func_80040F5C` and `func_80041180` with the game's 4:3 perspective (`func_800493F4`). It covers about 96% of the view; on a TV the rest was hidden in overscan. Our hook grows it and widens it for Expand. | decomp `renderer_surfaces/background_dispatch.c`, `color_gradient.c`, `border_gradient.c`, `boot/frame_projection.c` |
+| Frame clear | Z and colour buffers are filled (0..319 × 0..239) every frame; there's no full-screen fade rectangle. | decomp `boot/frame_begin.c` |
+| Expand aspect ratio | The background is fixed by the hook. Objects near the left/right edges still vanish because the game culls them against its 4:3 view. | play test 2026-10-28 |
 | Transition trails | The level-intro screens ("PLAYER 1 UP …") leave smeared or ghost copies of the text and the player model. The N64 footage shows the model smeared too, so this is probably the game's own effect. Still to check: whether it looks the same at Framerate Original and Display. | same |
 | Crave intro | A 3D logo disc carried in by a robot; it matches the N64 | same |

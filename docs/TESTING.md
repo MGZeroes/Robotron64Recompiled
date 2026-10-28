@@ -44,7 +44,9 @@ wave-20 bonus stage. Good for testing later waves quickly.
 - ✅ Original aspect / original frame rate: matches the N64
 - ✅ Framerate setting: no visible change and no bugs (expected: higher rates need interpolation patches)
 - ⬜ Transition trail effect: looks inconsistent between transitions; not yet compared closely with the N64 (deferred)
-- ❌ Expand aspect: background box (known, needs a widescreen patch; docs/GAME.md)
+- ✅ Expand aspect: background gradient fills the window (title, transitions, waves)
+- ❌ Expand aspect: enemies, humans and items disappear near the left/right edges (game culls against 4:3)
+- ⬜ Expand aspect: bonus stage and other background types
 
 ## Saving
 - ✅ No "NO CONTROLLER PAK" warning at boot
