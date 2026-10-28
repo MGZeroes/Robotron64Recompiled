@@ -10,11 +10,15 @@ namespace robotron64 {
 
     namespace configkeys {
         namespace general {
+            inline const std::string analog_aim = "analog_aim";
         }
     }
 
     // TODO: Move loading configs to the runtime once we have a way to allow per-project customization.
     void init_config();
+
+    // "Analog aiming" option: the right stick drives the game's second-controller aim stick.
+    bool analog_aim_enabled();
 };
 
 #endif

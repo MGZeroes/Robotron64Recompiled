@@ -60,7 +60,9 @@ Facts as we learn them, each with a source. "Decomp" = frankischilling/robotron6
 
 | Fact | Value | Source |
 |---|---|---|
-| Digital 8-way input | `func_8003C1A8` turns the analog stick into direction bits (threshold ±20; an axis is cleared when the other is 8× larger). The D-pad and C buttons feed the same bits. Movement and fire are therefore 8 directions only. | decomp `docs/controller-input-mapping.md`, `src/game/controller_input.c` |
+| Direction bits | `func_8003C1A8` turns the stick, D-pad and C buttons into direction bits (stick threshold ±20; an axis is cleared when the other is 8× larger). These bits are 8-way. | decomp `docs/controller-input-mapping.md`, `src/game/controller_input.c` |
+| Analog movement | In play, the player moves with the raw stick of their port (`D_8013DBB8/C8[port]`, scaled by speed), which is analog. The direction bits are only used when the stick is idle. | decomp `src/game/player/behavior.c` (movement block) |
+| Two-controller aiming | Player 1 uses port 0, or port 2 for player 2 when it's connected. If the **next** port is connected, its analog stick is the aim vector (`secondaryX/Y`, threshold 0x10). The shot angle is `func_8003CD4C(y, x)` in 0x1000 units, not 8-way. Held fire bits (0xF0) override it with 8-way fire. The port uses the right stick; the Analog Aiming option controls this. | decomp `src/game/player/behavior.c` (fire block); `src/main/main.cpp` `get_n64_input` |
 | Bit groups | Mode 0 → bits 0–3; other modes → bits 4–7. Start `0x100`, A `0x800`, B `0x1000`. L or R toggles `D_8007CCA0`. | same |
 | Player sampling | `func_8001A1F0` stores the bits in the player state and then calls `func_8001BFB0`. With `D_800AEE9C` set, it ORs in controller `(port+2)&3` in mode 0. | decomp `src/game/early_player_input_sample.c` |
 

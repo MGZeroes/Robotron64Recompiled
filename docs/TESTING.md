@@ -31,7 +31,9 @@ wave-20 bonus stage. Good for testing later waves quickly.
 - ✅ Long session (35 min) without a hang or crash
 
 ## Controls
-- ✅ Left stick moves, right stick fires (8 directions, as on the N64: the game only reads direction bits)
+- ✅ Left stick moves (analog)
+- ✅ Analog Aiming On: right stick fires at its exact angle; Off: right stick acts as C buttons, 8-way
+- ✅ Moving with only the left stick doesn't shoot
 - ✅ Keyboard: movement and arrow-key firing
 
 ## Audio

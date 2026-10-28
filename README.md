@@ -54,9 +54,11 @@ Double-click `build-cmake\Robotron64Recompiled.exe` (or start it from any folder
 `baserom.us.z64` in the launcher. Saving is not supported yet (the game reports no Controller Pak).
 
 ## Controls
-Twin-stick works out of the box: the **left stick moves** and the **right stick fires** (it's mapped to
-the C buttons, which are the game's fire directions). On the keyboard the arrow keys fire. Remap under
-Settings → Controls. As on the N64, the game itself only knows 8 directions for moving and firing.
+Twin-stick works out of the box: the **left stick moves** and the **right stick aims and fires** at its exact
+angle. This is the game's own two-controller aiming from the N64, fed from the right stick. Set
+Settings → General → Analog Aiming to Off for the one-controller behaviour, where the right stick acts as the
+C buttons and fires in 8 directions. The D-pad, C buttons and keyboard (arrow keys) always fire in 8
+directions. Remap under Settings → Controls.
 
 ## Recommended settings
 - **Aspect Ratio: Original** gives the picture closest to the N64. With **Expand**, the 3D scene widens

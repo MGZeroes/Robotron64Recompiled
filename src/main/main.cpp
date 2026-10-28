@@ -102,6 +102,25 @@ ultramodern::input::connected_device_info_t get_connected_device_info(int contro
     };
 }
 
+// Analog aiming. Player 1 moves with port 0 and aims with the analog stick of port 1; player 2 uses
+// ports 2 and 3 (decomp src/game/player/behavior.c). In single-player mode every port reports the
+// same pad, so with the option on the odd ports carry only the right stick. Held fire direction bits
+// (D-pad / C buttons / keyboard) still take priority in the game, so those stay 8-way.
+bool get_n64_input(int controller_num, uint16_t* buttons, float* x, float* y) {
+    if ((controller_num & 1) && robotron64::analog_aim_enabled() && recompinput::players::is_single_player_mode()) {
+        float right_x = 0.0f;
+        float right_y = 0.0f;
+        if (!recompinput::game_input_disabled()) {
+            recompinput::get_right_analog(0, &right_x, &right_y);
+        }
+        *buttons = 0;
+        *x = right_x;
+        *y = -right_y; // SDL's Y axis points down, the N64's up.
+        return true;
+    }
+    return recompinput::profiles::get_n64_input(controller_num, buttons, x, y);
+}
+
 // TODO icon
 // #include "icon_bytes.h"
 
@@ -773,7 +792,7 @@ int main(int argc, char** argv) {
 
     ultramodern::input::callbacks_t input_callbacks{
         .poll_input = recompinput::poll_inputs,
-        .get_input = recompinput::profiles::get_n64_input,
+        .get_input = get_n64_input,
         .set_rumble = recompinput::set_rumble,
         .get_connected_device_info = get_connected_device_info,
     };

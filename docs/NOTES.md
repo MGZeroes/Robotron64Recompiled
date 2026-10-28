@@ -2,6 +2,25 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-10-28 — Analog aiming via the game's two-controller mode
+
+**Finding.** The game already supports analog aiming (decomp `src/game/player/behavior.c`). Player 1 moves with
+port 0 and, if port 1 is connected, aims with port 1's analog stick (`secondaryX/Y`). The shot angle is
+`func_8003CD4C(y, x)`, which has full resolution. Held fire direction bits (D-pad/C buttons) override this with
+8-way fire. Player 2 uses ports 2 and 3 the same way. This is the N64 two-controllers-per-player setup. Movement is
+analog too, which corrects the previous entry: only the direction bits are 8-way.
+
+**Change.** No game patch.
+- `get_n64_input` (`src/main/main.cpp`) wraps RecompFrontend's input callback. In single-player mode, odd ports
+  return only the right stick (Y negated) and no buttons.
+- The right stick is suppressed from mapped inputs (`recompinput::set_right_analog_suppressed`), so it no longer
+  produces C-button bits, which would override the aim.
+- Option Settings → General → Analog Aiming (`src/game/config.cpp`, default On) controls both. Off restores the
+  C-button mapping.
+
+**Tested by the user:** smooth aiming at any angle; Off brings back 8-way fire; moving with only the left stick
+doesn't shoot.
+
 ## 2026-10-28 — v0.2-playable: long play test passed
 
 The user tested the build containing the changes below.

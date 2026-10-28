@@ -7,6 +7,7 @@
 #include "librecomp/files.hpp"
 #include "librecomp/config.hpp"
 #include "util/file.h"
+#include <atomic>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -20,9 +21,39 @@
 #include "apple/rt64_apple.h"
 #endif
 
+static std::atomic_bool analog_aim = true;
+
+bool robotron64::analog_aim_enabled() {
+    return analog_aim.load();
+}
+
 static void add_general_options(recomp::config::Config &config) {
     using EnumOptionVector = const std::vector<recomp::config::ConfigOptionEnumOption>;
 
+    // The game aims with the analog stick of the controller after the player's (decomp
+    // src/game/player/behavior.c, secondaryX/Y), i.e. the N64 two-controllers-per-player setup.
+    // main.cpp feeds the right stick to that port; the right stick then stops producing the
+    // C-button direction bits, which would otherwise override the analog aim with 8-way fire.
+    static EnumOptionVector analog_aim_options = {
+        {0, "Off", "Off"},
+        {1, "On", "On"},
+    };
+    config.add_enum_option(
+        robotron64::configkeys::general::analog_aim,
+        "Analog Aiming",
+        "<recomp-color primary>On</recomp-color> fires along the exact angle of the right stick, using the game's own "
+        "two-controller aiming. <recomp-color primary>Off</recomp-color> maps the right stick to the C buttons, which "
+        "fire in 8 directions as with one N64 controller. The D-pad, C buttons and keyboard always fire in 8 directions.",
+        analog_aim_options,
+        1
+    );
+    config.add_option_change_callback(robotron64::configkeys::general::analog_aim,
+        [](recomp::config::ConfigValueVariant cur_value, recomp::config::ConfigValueVariant, recomp::config::OptionChangeContext) {
+            bool enabled = std::get<uint32_t>(cur_value) != 0;
+            analog_aim.store(enabled);
+            recompinput::set_right_analog_suppressed(enabled);
+        });
+    recompinput::set_right_analog_suppressed(analog_aim.load());
 }
 
 template <typename T = uint32_t>
@@ -64,12 +95,12 @@ static void set_control_descriptions() {
     recompinput::set_game_input_description(recompinput::GameInput::L,          "Toggle (L)");
     recompinput::set_game_input_description(recompinput::GameInput::R,          "Toggle (R)");
     recompinput::set_game_input_description(recompinput::GameInput::START,      "Start / pause");
-    // RecompFrontend's default controller mapping puts the C buttons on the right stick
-    // (recompinput/src/input_mapping.cpp), so twin-stick play works out of the box.
-    recompinput::set_game_input_description(recompinput::GameInput::C_UP,       "Fire up (right stick)");
-    recompinput::set_game_input_description(recompinput::GameInput::C_DOWN,     "Fire down (right stick)");
-    recompinput::set_game_input_description(recompinput::GameInput::C_LEFT,     "Fire left (right stick)");
-    recompinput::set_game_input_description(recompinput::GameInput::C_RIGHT,    "Fire right (right stick)");
+    // RecompFrontend's default controller mapping also puts the C buttons on the right stick
+    // (recompinput/src/input_mapping.cpp); with Analog Aiming on, the right stick aims directly instead.
+    recompinput::set_game_input_description(recompinput::GameInput::C_UP,       "Fire up");
+    recompinput::set_game_input_description(recompinput::GameInput::C_DOWN,     "Fire down");
+    recompinput::set_game_input_description(recompinput::GameInput::C_LEFT,     "Fire left");
+    recompinput::set_game_input_description(recompinput::GameInput::C_RIGHT,    "Fire right");
     recompinput::set_game_input_description(recompinput::GameInput::DPAD_UP,    "D-pad up");
     recompinput::set_game_input_description(recompinput::GameInput::DPAD_DOWN,  "D-pad down");
     recompinput::set_game_input_description(recompinput::GameInput::DPAD_LEFT,  "D-pad left");
