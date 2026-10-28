@@ -49,6 +49,15 @@ several minutes (decomp build + a thorough n64sym scan); later runs are incremen
 ```
 The default is RelWithDebInfo with a console window for logs; `-Config Release -NoConsole` for a normal build.
 
+### 2b. Linux build (Docker)
+```powershell
+.\tools\build_elf.ps1 -Script tools/build_linux.sh   # -> build-linux\Robotron64Recompiled-linux-x64.tar.gz
+```
+This needs step 1 first. It builds a native x86-64 Linux binary in the Docker build image and packs it with
+`assets/` and `recompcontrollerdb.txt`. On a Linux machine, run `tools/build_linux.sh` directly; you need clang,
+cmake, ninja, SDL2, Freetype and GTK3 development packages (see `tools/docker/Dockerfile`). The Linux build links,
+but **nobody has run it yet** (ADR 005).
+
 ### 3. Run
 Double-click `build-cmake\Robotron64Recompiled.exe` (or start it from any folder). On first launch, select
 `baserom.us.z64` in the launcher.

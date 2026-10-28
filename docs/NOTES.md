@@ -2,6 +2,26 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-10-28 — Linux build in Docker; ROM-free CI (ADR 005)
+
+- **Linux build:**
+  - `tools/build_linux.sh` runs in the build image, which gained `libsdl2-dev libfreetype-dev libgtk-3-dev llvm
+    file`.
+  - All 765 steps built and linked on the first try, with no source changes. The only "Failed" in the log is a
+    CMake probe (`LD_FLAG_Z_NOEXECSTACK`).
+  - `ldd` resolves every library. Output: `build-linux/Robotron64Recompiled` (x86-64 ELF) and a 7 MB tarball
+    with `assets/` and the controller db.
+  - The Linux build also rebuilt `patches/patches.elf` with Ubuntu's clang (MIPS backend), so PATCHES_BUILD_ELF=ON
+    works there.
+  - The Windows build still links afterwards.
+  - **Not run yet:** there's no Linux desktop.
+- **CI:**
+  - `.github/workflows/ci.yml` checks that no ROM-derived files are tracked, builds N64Recomp/RSPRecomp on
+    ubuntu-24.04 and windows-latest, and runs `py_compile` and `bash -n` on the tool scripts. All checks pass
+    locally.
+  - The template's secret-based workflows were removed.
+  - Not run yet: no GitHub remote.
+
 ## 2026-10-28 — High frame rate works without a patch
 
 - **Measured by the user** with the NVIDIA overlay and Xbox Game Bar: Framerate Manual 120 → 120 fps, Display → 240 fps

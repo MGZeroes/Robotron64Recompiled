@@ -9,7 +9,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         make git ca-certificates \
         binutils-mips-linux-gnu \
         cmake ninja-build g++ \
-        clang lld \
+        clang lld llvm \
+        file \
+    && rm -rf /var/lib/apt/lists/*
+
+# Native Linux build of the game (tools/build_linux.sh, ADR 005): the libraries CMakeLists.txt's
+# Linux branch and its dependencies need (SDL2, Freetype, GTK3 for the file dialog).
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libsdl2-dev libfreetype-dev libgtk-3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # n64sym (shygoo, MIT): signature-based libultra identification. Pinned; see ADR 004.
