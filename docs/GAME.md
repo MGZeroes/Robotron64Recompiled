@@ -55,3 +55,20 @@ Facts as we learn them, each with a source. "Decomp" = frankischilling/robotron6
 | Runtime Pak support | none yet: N64ModernRuntime `librecomp/src/pak.cpp` returns `PFS_ERR_NOPACK` for every `osPfs*` call | runtime `cdf5abb` |
 | Threads | main (pri 10), PI manager (150), game loop (10), thread @ `0x80051380` (110), 3 scheduler threads | decomp `docs/startup.md` |
 | Odd PI reads | 16 reads from `0x00FFB000`–`0x00FFB03C` at startup, results unused | decomp `docs/startup.md` |
+
+## Input
+
+| Fact | Value | Source |
+|---|---|---|
+| Digital 8-way input | `func_8003C1A8` turns the analog stick into direction bits (threshold ±20; an axis is cleared when the other is 8× larger). The D-pad and C buttons feed the same bits. Movement and fire are therefore 8 directions only. | decomp `docs/controller-input-mapping.md`, `src/game/controller_input.c` |
+| Bit groups | Mode 0 → bits 0–3; other modes → bits 4–7. Start `0x100`, A `0x800`, B `0x1000`. L or R toggles `D_8007CCA0`. | same |
+| Player sampling | `func_8001A1F0` stores the bits in the player state and then calls `func_8001BFB0`. With `D_800AEE9C` set, it ORs in controller `(port+2)&3` in mode 0. | decomp `src/game/early_player_input_sample.c` |
+
+## Rendering
+
+| Fact | Value | Source |
+|---|---|---|
+| Background vs 3D area | The background and full-screen fade are 2D rectangles slightly smaller than the area the 3D scene draws into; the floor sticks out past them at the bottom corners. On a TV that border falls into overscan. Not yet traced to code. | play test 2026-10-28, compared with N64 footage the user supplied |
+| Expand aspect ratio | RT64 widens the 3D but not those 2D rectangles, so a 4:3 box shows. Needs a patch to the rectangle draws (RT64 extended GBI). | same |
+| Transition trails | The level-intro screens ("PLAYER 1 UP …") leave smeared or ghost copies of the text and the player model. The N64 footage shows the model smeared too, so this is probably the game's own effect. Still to check: whether it looks the same at Framerate Original and Display. | same |
+| Crave intro | A 3D logo disc carried in by a robot; it matches the N64 | same |

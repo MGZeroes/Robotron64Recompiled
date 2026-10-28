@@ -2,6 +2,45 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-10-28 — v0.2-playable: long play test passed
+
+The user tested the build containing the changes below.
+- **Passed:**
+  - Start right after more than 2 minutes in the launcher, so the throttle works;
+  - twin-stick and keyboard;
+  - clean audio, with music switching correctly;
+  - 35 minutes and 26 waves with no crash, including the bonus stage, game over and pause/resume;
+  - password `BQJDNQMBHC` (wave 21).
+- **Framerate setting:** no visible change at any value. That's expected, because RT64 needs interpolation
+  patches to show more frames than the game renders.
+- **Right stick fires in 8 directions only.** This is the original design: `func_8003C1A8` reduces every input to
+  direction bits (GAME.md, Input). Analog aiming would be a gameplay patch, behind an option; it's next.
+- **Transition trails feel inconsistent.** Deferred.
+
+## 2026-10-28 — Play-tested to wave 5; triage and small fixes
+
+**Play test (user).**
+- Waves 1–5 with no crash or hang; the controls feel right.
+- The user compared Original and Expand settings with N64 footage of the Crave intro, the "PLAYER 1 UP"
+  transition and wave 1.
+- At Original settings the picture matches the N64.
+- The 4:3 "box" with Expand, and the smeared transitions, are explained in GAME.md (Rendering). Both look like the
+  original game's own behaviour, so they're deferred.
+
+**Changes.**
+- **Slow Start after a long stay in the launcher.** `ThrottledRenderContext` in `src/main/main.cpp` wraps
+  RecompFrontend's render context. It forwards at most one `send_dummy_workload` every 100 ms and drops the rest,
+  so a backlog of dummy frames can no longer delay the first game display lists. Nothing in RecompFrontend casts
+  the context back to `RT64Context` (grep), so the wrapper is safe.
+- **Controls.** The C buttons are labelled "Fire … (right stick)". RecompFrontend's default mapping already puts
+  them on the right stick (`recompinput/src/input_mapping.cpp:44-47`), so twin-stick works without new code.
+- **Log.** The diagnostic `printf` is gone from the `osAiGetLength` clamp hook.
+- **Docs.** README (controls, recommended settings) and the new `docs/TESTING.md` checklist.
+
+**Not changed: the default graphics settings.** Expand and Display are hard-coded in
+`RecompFrontend/recompui/src/config/ui_config_tab_graphics.cpp:291,307`, and no setter was found. The README
+recommends Original instead.
+
 ## 2026-10-27 — ONE PLAYER starts: three runtime timing fixes
 
 The user confirmed that ONE PLAYER now works. Each problem was diagnosed from evidence: WER crash records,
@@ -34,6 +73,7 @@ The user confirmed that ONE PLAYER now works. Each problem was diagnosed from ev
 - The VI thread queues one dummy workload per VI while the launcher is shown. They pile up when processing is
   slower than 60/s, and the delay after Start grows with launcher time. It doesn't hang; it drains eventually.
 - To fix in our code (not the submodules), e.g. by wrapping the render context to skip stale dummy workloads.
+  (Done 2026-10-28, see above.)
 
 ## 2026-10-27 — Milestone v0.1-title: boots to the title menu
 

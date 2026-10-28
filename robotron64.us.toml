@@ -66,12 +66,12 @@ text = "{ void yield_self(uint8_t*); yield_self(rdram); }"
 # Real hardware never reports more than the game has submitted, but the runtime reports the host
 # audio queue, which can be larger. The subtraction then wraps and count becomes up to 0xFFF0
 # frames, overflowing the audio buffers (crashed in the host's queue_samples). Clamp the reported
-# length (v0) to what keeps count >= 0x10; the first 20 clamps are logged. Confirmed 2026-10-27:
-# the runtime reported up to 6821 bytes against a limit of 2112.
+# length (v0) to what keeps count >= 0x10. Confirmed 2026-10-27 with a logging version of this
+# hook: the runtime reported up to 6821 bytes against a limit of 2112.
 [[patches.hook]]
 func = "func_800521C8"
 before_vram = 0x80052218
-text = "{ int printf(const char*, ...); int fflush(void*); static int clamp_logs; uint32_t lim = ((uint32_t)MEM_W(0, (gpr)(int32_t)0x801901F4) + (uint32_t)MEM_W(0, (gpr)(int32_t)0x8008D834)) * 4; if ((uint32_t)ctx->r2 > lim) { if (clamp_logs++ < 20) { printf(\"[robotron] osAiGetLength %u > %u, clamped\\n\", (unsigned)(uint32_t)ctx->r2, lim); fflush(0); } ctx->r2 = lim; } }"
+text = "{ uint32_t lim = ((uint32_t)MEM_W(0, (gpr)(int32_t)0x801901F4) + (uint32_t)MEM_W(0, (gpr)(int32_t)0x8008D834)) * 4; if ((uint32_t)ctx->r2 > lim) { ctx->r2 = lim; } }"
 
 # Graphics task thread: 0x80050C6C is `lw $t8, 0($s2)`, with $s2 = &D_8014BE40.
 [[patches.hook]]

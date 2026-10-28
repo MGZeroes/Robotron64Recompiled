@@ -64,10 +64,12 @@ static void set_control_descriptions() {
     recompinput::set_game_input_description(recompinput::GameInput::L,          "Toggle (L)");
     recompinput::set_game_input_description(recompinput::GameInput::R,          "Toggle (R)");
     recompinput::set_game_input_description(recompinput::GameInput::START,      "Start / pause");
-    recompinput::set_game_input_description(recompinput::GameInput::C_UP,       "Fire up");
-    recompinput::set_game_input_description(recompinput::GameInput::C_DOWN,     "Fire down");
-    recompinput::set_game_input_description(recompinput::GameInput::C_LEFT,     "Fire left");
-    recompinput::set_game_input_description(recompinput::GameInput::C_RIGHT,    "Fire right");
+    // RecompFrontend's default controller mapping puts the C buttons on the right stick
+    // (recompinput/src/input_mapping.cpp), so twin-stick play works out of the box.
+    recompinput::set_game_input_description(recompinput::GameInput::C_UP,       "Fire up (right stick)");
+    recompinput::set_game_input_description(recompinput::GameInput::C_DOWN,     "Fire down (right stick)");
+    recompinput::set_game_input_description(recompinput::GameInput::C_LEFT,     "Fire left (right stick)");
+    recompinput::set_game_input_description(recompinput::GameInput::C_RIGHT,    "Fire right (right stick)");
     recompinput::set_game_input_description(recompinput::GameInput::DPAD_UP,    "D-pad up");
     recompinput::set_game_input_description(recompinput::GameInput::DPAD_DOWN,  "D-pad down");
     recompinput::set_game_input_description(recompinput::GameInput::DPAD_LEFT,  "D-pad left");

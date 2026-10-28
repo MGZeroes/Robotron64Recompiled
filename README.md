@@ -6,7 +6,7 @@ statically recompiled to C and runs on [N64ModernRuntime](https://github.com/N64
 rendered by [RT64](https://github.com/rt64/rt64), with menus/input from
 [RecompFrontend](https://github.com/N64Recomp/RecompFrontend).
 
-**Status: early work in progress — boots to the title menu; gameplay not working yet.** Progress log: [docs/NOTES.md](docs/NOTES.md).
+**Status: early work in progress. Playable: play-tested through wave 26 (35 min, bonus stage, game over); no saving yet.** Progress log: [docs/NOTES.md](docs/NOTES.md).
 
 This repository contains **no game code or assets**. You need your own Robotron 64 (USA) ROM.
 
@@ -52,6 +52,19 @@ The default is RelWithDebInfo with a console window for logs; `-Config Release -
 ### 3. Run
 Double-click `build-cmake\Robotron64Recompiled.exe` (or start it from any folder). On first launch, select
 `baserom.us.z64` in the launcher. Saving is not supported yet (the game reports no Controller Pak).
+
+## Controls
+Twin-stick works out of the box: the **left stick moves** and the **right stick fires** (it's mapped to
+the C buttons, which are the game's fire directions). On the keyboard the arrow keys fire. Remap under
+Settings → Controls. As on the N64, the game itself only knows 8 directions for moving and firing.
+
+## Recommended settings
+- **Aspect Ratio: Original** gives the picture closest to the N64. With **Expand**, the 3D scene widens
+  but the game's 2D background and fade rectangles stay 4:3, so a box shows in the middle. Proper
+  widescreen needs a game patch (planned).
+- **Framerate: Original** if transitions look smeared. The game has its own trail effect, and it hasn't
+  been checked yet at higher frame rates.
+- Resolution and anti-aliasing can be raised freely.
 
 ## License
 GPL-3.0 (see [LICENSE](LICENSE)). Credits: [CREDITS.md](CREDITS.md).

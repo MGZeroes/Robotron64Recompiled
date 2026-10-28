@@ -7,6 +7,8 @@
 #include <numeric>
 #include <stdexcept>
 #include <cinttypes>
+#include <chrono>
+#include <memory>
 
 #include "nfd.h"
 
@@ -397,6 +399,43 @@ std::vector<recomp::GameEntry> supported_games = {
     },
 };
 
+// Until the game starts, the runtime's VI thread queues one dummy workload per VI for the graphics
+// thread (ultramodern/src/events.cpp), and RecompFrontend draws each one with a full RT64 sync
+// (rt64_render_context.cpp, send_dummy_workload). On this host the graphics thread fell behind, so
+// after a long stay in the launcher the first game display lists waited behind the backlog and
+// Start appeared to hang (docs/NOTES.md). The dummy frames only keep the window alive, so this
+// wrapper forwards at most one every 100 ms and drops the rest, which also drains a backlog fast.
+class ThrottledRenderContext : public ultramodern::renderer::RendererContext {
+public:
+    explicit ThrottledRenderContext(std::unique_ptr<ultramodern::renderer::RendererContext> inner)
+        : inner(std::move(inner)) {}
+
+    bool valid() override { return inner->valid(); }
+    ultramodern::renderer::SetupResult get_setup_result() const override { return inner->get_setup_result(); }
+    ultramodern::renderer::GraphicsApi get_chosen_api() const override { return inner->get_chosen_api(); }
+    bool update_config(const ultramodern::renderer::GraphicsConfig& old_config, const ultramodern::renderer::GraphicsConfig& new_config) override {
+        return inner->update_config(old_config, new_config);
+    }
+    void enable_instant_present() override { inner->enable_instant_present(); }
+    void send_dl(const OSTask* task) override { inner->send_dl(task); }
+    void send_dummy_workload(uint32_t fb_address) override {
+        auto now = std::chrono::steady_clock::now();
+        if (now - last_dummy < std::chrono::milliseconds(100)) {
+            return;
+        }
+        last_dummy = now;
+        inner->send_dummy_workload(fb_address);
+    }
+    void update_screen() override { inner->update_screen(); }
+    void shutdown() override { inner->shutdown(); }
+    uint32_t get_display_framerate() const override { return inner->get_display_framerate(); }
+    float get_resolution_scale() const override { return inner->get_resolution_scale(); }
+
+private:
+    std::unique_ptr<ultramodern::renderer::RendererContext> inner;
+    std::chrono::steady_clock::time_point last_dummy{};
+};
+
 // TODO: move somewhere else
 namespace robotron64 {
     // Thread IDs from the decomp: src/boot/startup.c, src/boot/scheduler.c,
@@ -714,7 +753,9 @@ int main(int argc, char** argv) {
     ultramodern::renderer::callbacks_t renderer_callbacks{
         .create_render_context = [](uint8_t* rdram, ultramodern::renderer::WindowHandle window_handle, bool developer_mode) {
             auto presentation_mode = ultramodern::renderer::PresentationMode::PresentEarly;
-            return recompui::renderer::create_render_context(rdram, window_handle, presentation_mode, developer_mode);
+            std::unique_ptr<ultramodern::renderer::RendererContext> context = std::make_unique<ThrottledRenderContext>(
+                recompui::renderer::create_render_context(rdram, window_handle, presentation_mode, developer_mode));
+            return context;
         },
     };
 
