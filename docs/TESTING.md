@@ -43,7 +43,7 @@ wave-20 bonus stage. Good for testing later waves quickly.
 ## Graphics (compare with N64 footage)
 - ✅ Original aspect / original frame rate: matches the N64
 - ✅ Framerate Display / Manual 120: 240 / 120 fps measured (NVIDIA overlay, Game Bar), no artifacts seen
-- ⬜ Transition trail effect: looks inconsistent between transitions; not yet compared closely with the N64 (deferred)
+- ✅ Transition trail effect: looks right (checked 2026-10-29)
 - ✅ Expand aspect: background gradient fills the window (title, transitions, waves)
 - ✅ Expand aspect: enemies, humans and items stay visible up to the left/right edges
 - ✅ Expand aspect at 16:9 and very wide windows (~2.6:1, freely resized): background fills on the Crave intro,
@@ -51,7 +51,7 @@ wave-20 bonus stage. Good for testing later waves quickly.
 - ✅ HUD Placement Original / 16:9 / Expand: HUD stays 4:3, stops at the 16:9 edges, or follows the window edges
   (1P and 2P); the 1P score and power-up icons stay centred
 - ✅ 4:3 window: HUD and background unchanged
-- ⬜ Expand aspect: bonus stage background
+- ✅ Expand aspect: bonus stage background
 
 ## Saving
 - ✅ No "NO CONTROLLER PAK" warning at boot
