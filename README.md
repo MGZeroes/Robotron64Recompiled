@@ -74,8 +74,10 @@ C buttons and fires in 8 directions. The D-pad, C buttons and keyboard (arrow ke
 directions. Remap under Settings → Controls.
 
 ## Recommended settings
-- **Aspect Ratio:** Expand fills a widescreen window (background and object culling are patched).
-  Original gives the N64's 4:3 picture.
+- **Aspect Ratio:** Expand fills a widescreen window of any width, including 21:9 and 32:9 (background and
+  object culling are patched). Original gives the N64's 4:3 picture.
+- **HUD Placement:** with Expand, Expand moves the score, lives and WAVE to the window edges, 16:9 stops at
+  the 16:9 edges, and Original keeps them where the N64 had them.
 - **Framerate:** Display (or Manual) gives smooth output above 60 fps. The renderer interpolates object
   and camera motion; character limb animation stays at the game's 60 fps.
 - Resolution and anti-aliasing can be raised freely.

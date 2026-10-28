@@ -84,6 +84,58 @@ func = "func_800400D0"
 before_vram = 0x80040190
 text = "{ int32_t robotron64_background_extent_x(int32_t); int32_t robotron64_background_extent_y(int32_t); MEM_W(0, (gpr)(int32_t)0x8007CCA8) = robotron64_background_extent_x(MEM_W(0, (gpr)(int32_t)0x8007CCA8)); MEM_W(0, (gpr)(int32_t)0x8007CCAC) = robotron64_background_extent_y(MEM_W(0, (gpr)(int32_t)0x8007CCAC)); }"
 
+# Background distance for very wide windows. The background routines, e.g. func_80040F5C (color_gradient.c)
+# and func_80041180 (border_gradient.c) place the quad at Z = 32000 (`addiu rX, $zero, 0x7D00`).
+# Past ~2.15:1 the widened X no longer fits in s16, so ultra_extensions.cpp divides X, Y and Z by
+# the same factor; these hooks apply it to Z, right after the load (all are plain instructions,
+# not delay slots).
+[[patches.hook]]
+func = "func_80040F5C"
+before_vram = 0x800410AC
+text = "{ int32_t robotron64_background_z(int32_t); ctx->r12 = (gpr)(int32_t)robotron64_background_z(0x7D00); }"
+
+[[patches.hook]]
+func = "func_80041180"
+before_vram = 0x80041278
+text = "{ int32_t robotron64_background_z(int32_t); ctx->r3 = (gpr)(int32_t)robotron64_background_z(0x7D00); }"
+
+# The other three background routines that read D_8007CCA8/CCAC (found by grepping every load of
+# the two globals in RecompiledFuncs). Without these, their quads shrank at very wide windows.
+[[patches.hook]]
+func = "func_80040BA0"
+before_vram = 0x80040DE4
+text = "{ int32_t robotron64_background_z(int32_t); ctx->r12 = (gpr)(int32_t)robotron64_background_z(0x7D00); }"
+
+# 0x800418C0 starts a loop that never writes $a0, so resetting it each iteration is harmless.
+[[patches.hook]]
+func = "func_800414C4"
+before_vram = 0x800418C0
+text = "{ int32_t robotron64_background_z(int32_t); ctx->r4 = (gpr)(int32_t)robotron64_background_z(0x7D00); }"
+
+[[patches.hook]]
+func = "func_80041B24"
+before_vram = 0x80041E34
+text = "{ int32_t robotron64_background_z(int32_t); ctx->r12 = (gpr)(int32_t)robotron64_background_z(0x7D00); }"
+
+# HUD placement (ultra_extensions.cpp, robotron64_hud_x). The HUD function func_8004B590
+# (decomp renderer_text/game_hud.c) places every glyph through func_80049DD8(x, y, z). Switch the
+# shifting on at its entry and off at its only return (0x8004BBBC `jr $ra`), so the other caller,
+# the status text func_8004B340, is never moved. Hook addresses are function entries or the jr itself.
+[[patches.hook]]
+func = "func_8004B590"
+before_vram = 0x8004B590
+text = "{ void robotron64_hud_begin(void); robotron64_hud_begin(); }"
+
+[[patches.hook]]
+func = "func_8004B590"
+before_vram = 0x8004BBBC
+text = "{ void robotron64_hud_end(void); robotron64_hud_end(); }"
+
+[[patches.hook]]
+func = "func_80049DD8"
+before_vram = 0x80049DD8
+text = "{ int32_t robotron64_hud_x(int32_t, int32_t); ctx->r4 = (gpr)(int32_t)robotron64_hud_x((int32_t)ctx->r4, (int32_t)ctx->r5); }"
+
 # Object view culling (widescreen). Three model draw routines (binary fallbacks in the decomp,
 # read from its disassembly) skip an object unless, in camera space, z+500 >= 2|x| and
 # z+500 >= 2|y|: a fixed square cone that matches the 4:3 view, so objects near the edges of an

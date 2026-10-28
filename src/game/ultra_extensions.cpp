@@ -35,8 +35,7 @@ extern "C" void osPiRawReadIo_recomp(uint8_t* rdram, recomp_context* ctx) {
 
 // Background quad size, called from the func_800400D0 hook (robotron64.us.toml). The game's quad
 // covers ~96% of the 4:3 view; grow it 6% so it fills the frame, and in Expand mode widen it by the
-// window's aspect ratio relative to 4:3. Vertex positions are s16, so clamp; that covers windows up
-// to about 2.1:1.
+// window's aspect ratio relative to 4:3.
 constexpr float background_overscan = 1.06f;
 
 // How much wider than 4:3 the view is: 1 for Original, window aspect / (4/3) for Expand.
@@ -51,12 +50,87 @@ static float view_widening() {
     return 1.0f;
 }
 
-static int32_t clamp_extent(float value) {
-    return static_cast<int32_t>(std::min(value, 32767.0f));
+// The quad sits at Z = 32000 and its vertex coordinates are s16, so beyond about 2.15:1 the needed X
+// no longer fits. What the projection shows depends on X/Z, so for wider windows X, Y and Z are all
+// divided by the same factor: same coverage, closer quad. The gradient is drawn right after the depth
+// clear with Z compare but no Z update, so moving it closer cannot hide anything.
+constexpr float background_max_coord = 32000.0f;
+static float background_divisor = 1.0f;
+
+// Called first each frame (func_800400D0 hook), so it also decides the divisor for the frame.
+extern "C" int32_t robotron64_background_extent_x(int32_t extent) {
+    float needed = extent * background_overscan * view_widening();
+    background_divisor = std::max(1.0f, needed / background_max_coord);
+    return static_cast<int32_t>(needed / background_divisor);
 }
 
-extern "C" int32_t robotron64_background_extent_x(int32_t extent) {
-    return clamp_extent(extent * background_overscan * view_widening());
+extern "C" int32_t robotron64_background_extent_y(int32_t extent) {
+    return static_cast<int32_t>(extent * background_overscan / background_divisor);
+}
+
+// Called from the five background draw routines (robotron64.us.toml) right after they load Z = 32000.
+extern "C" int32_t robotron64_background_z(int32_t z) {
+    return static_cast<int32_t>(z / background_divisor);
+}
+
+// HUD placement. The in-game HUD (func_8004B590, decomp renderer_text/game_hud.c) is drawn as 3D
+// quads at camera z = 200, every position going through func_80049DD8(x, y, z) with literal
+// coordinates (+x is screen-left), so RT64's HUD Placement option can't move it. While the HUD
+// function runs, positions are shifted here instead: glyphs are grouped into runs (same y, x stepping
+// by exactly 8, as the game lays out words and numbers), and a run that starts at least 36 units off
+// centre moves toward its edge by the extra half-width, keeping its distance to the edge. The 1P
+// score (x = 10) and the power-up icons (x = 40, 28, 16, 4, -8 at y = -78) stay centred.
+constexpr float hud_half_width = 124.9f; // 4:3 half-width at z = 200 (background quad: 19983 at z = 32000)
+
+static bool hud_active = false;
+static bool hud_run_valid = false;
+static int32_t hud_last_x = 0;
+static int32_t hud_last_y = 0;
+static float hud_run_offset = 0.0f;
+
+static float hud_widening() {
+    float widening = view_widening();
+    switch (ultramodern::renderer::get_graphics_config().hr_option) {
+        case ultramodern::renderer::HUDRatioMode::Original:
+            return 1.0f;
+        case ultramodern::renderer::HUDRatioMode::Clamp16x9:
+            return std::min(widening, (16.0f / 9.0f) / (4.0f / 3.0f));
+        case ultramodern::renderer::HUDRatioMode::Full:
+        default:
+            return widening;
+    }
+}
+
+static bool is_power_icon(int32_t x, int32_t y) {
+    return y == -78 && (x == 40 || x == 28 || x == 16 || x == 4 || x == -8);
+}
+
+extern "C" void robotron64_hud_begin() {
+    hud_active = true;
+    hud_run_valid = false;
+}
+
+extern "C" void robotron64_hud_end() {
+    hud_active = false;
+}
+
+// func_80049DD8 entry hook: returns the (possibly shifted) x.
+extern "C" int32_t robotron64_hud_x(int32_t x, int32_t y) {
+    if (!hud_active) {
+        return x;
+    }
+    bool continues_run = hud_run_valid && y == hud_last_y && (x - hud_last_x == 8 || x - hud_last_x == -8);
+    if (!continues_run) {
+        hud_run_offset = 0.0f;
+        if ((x >= 36 || x <= -36) && !is_power_icon(x, y)) {
+            float shift = hud_half_width * (hud_widening() - 1.0f);
+            hud_run_offset = x > 0 ? shift : -shift;
+        }
+    }
+    hud_run_valid = true;
+    hud_last_x = x;
+    hud_last_y = y;
+    return x + static_cast<int32_t>(hud_run_offset);
 }
 
 // Object culling, called from the three draw-routine hooks (robotron64.us.toml) with abs(camera x).
@@ -67,8 +141,4 @@ constexpr float cull_margin = 1.2f;
 
 extern "C" int32_t robotron64_cull_abs_x(int32_t abs_x) {
     return static_cast<int32_t>(abs_x / (view_widening() * cull_margin));
-}
-
-extern "C" int32_t robotron64_background_extent_y(int32_t extent) {
-    return clamp_extent(extent * background_overscan);
 }

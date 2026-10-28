@@ -2,6 +2,27 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-10-29 — HUD placement; background for very wide windows
+
+- **HUD:**
+  - The in-game HUD (`func_8004B590`) is 3D quads at z = 200 with literal x coordinates, so RT64's HUD
+    Placement had no effect: in Expand the lives and WAVE stayed in the 4:3 area.
+  - Hooks switch shifting on at the function's entry and off at its only `jr $ra` (0x8004BBBC), and the
+    position setter `func_80049DD8` passes x through `robotron64_hud_x` (`ultra_extensions.cpp`).
+  - Glyphs are grouped into runs (same y, x step ±8). A run starting at |x| ≥ 36 moves toward its edge by
+    `124.9 × (widening − 1)`, where widening follows HUD Placement (Original 1, 16:9 clamped, Expand full).
+    The 1P score (x = 10) and the power-up icons stay centred.
+- **Very wide windows:**
+  - Past ~2.15:1 the widened background X no longer fits in s16. The first version clamped it, leaving edges
+    at 21:9 and wider.
+  - Instead X, Y and Z are divided by one factor (same projected size, closer quad); safe because the
+    render mode has Z compare but no Z update.
+  - First test: Z was hooked in only two routines; three more read the extents, and their quads shrank into a
+    box with black on all sides (Crave intro, wave 3). Found the rest by grepping every load of the two
+    globals in RecompiledFuncs; now all five have a Z hook.
+- **Tested by the user:** 4:3, 16:9 and Expand at ~2.6:1 and freely resized: background fills everywhere
+  (Crave intro, PRESENTS, title, transitions, waves); HUD placement correct in 1P and 2P.
+
 ## 2026-10-28 — Linux build in Docker; ROM-free CI (ADR 005)
 
 - **Linux build:**
@@ -65,7 +86,7 @@ Running log, newest at top. Failed attempts stay in.
   - A hook at `0x80040190` (`L_80040190`, where both extent paths join) passes the extents through
     `robotron64_background_extent_x/y` (`ultra_extensions.cpp`).
   - These grow the quad by 6%, and in Expand also multiply X by `window aspect / (4/3)`.
-  - The result is clamped to s16; that's enough up to about 2.1:1.
+  - The result is clamped to s16; that's enough up to about 2.1:1 (replaced 2026-10-29, see above).
 - **Tested by the user:** with Expand the gradient fills the window; Original still looks right.
 - **Next issue:** objects near the left/right edges disappear in Expand. The game culls against its 4:3 view.
 

@@ -27,7 +27,7 @@ wave-20 bonus stage. Good for testing later waves quickly.
 - ✅ Waves 1–26: movement, firing, rescuing humans, scoring, extra lives HUD
 - ✅ Bonus stage (every 20 waves)
 - ✅ Losing all lives → game over
-- ⬜ TWO PLAYER (alternating turns)
+- ✅ TWO PLAYER: both HUDs shown and placed at the window edges in Expand
 - ✅ Long session (35 min) without a hang or crash
 
 ## Controls
@@ -46,7 +46,12 @@ wave-20 bonus stage. Good for testing later waves quickly.
 - ⬜ Transition trail effect: looks inconsistent between transitions; not yet compared closely with the N64 (deferred)
 - ✅ Expand aspect: background gradient fills the window (title, transitions, waves)
 - ✅ Expand aspect: enemies, humans and items stay visible up to the left/right edges
-- ⬜ Expand aspect: bonus stage and other background types
+- ✅ Expand aspect at 16:9 and very wide windows (~2.6:1, freely resized): background fills on the Crave intro,
+  PRESENTS, title, transitions and waves with different backgrounds
+- ✅ HUD Placement Original / 16:9 / Expand: HUD stays 4:3, stops at the 16:9 edges, or follows the window edges
+  (1P and 2P); the 1P score and power-up icons stay centred
+- ✅ 4:3 window: HUD and background unchanged
+- ⬜ Expand aspect: bonus stage background
 
 ## Saving
 - ✅ No "NO CONTROLLER PAK" warning at boot
