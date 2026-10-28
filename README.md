@@ -67,8 +67,8 @@ directions. Remap under Settings → Controls.
 ## Recommended settings
 - **Aspect Ratio:** Expand fills a widescreen window (background and object culling are patched).
   Original gives the N64's 4:3 picture.
-- **Framerate: Original** if transitions look smeared. The game has its own trail effect, and it hasn't
-  been checked yet at higher frame rates.
+- **Framerate:** Display (or Manual) gives smooth output above 60 fps. The renderer interpolates object
+  and camera motion; character limb animation stays at the game's 60 fps.
 - Resolution and anti-aliasing can be raised freely.
 
 ## License

@@ -2,6 +2,19 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-10-28 — High frame rate works without a patch
+
+- **Measured by the user** with the NVIDIA overlay and Xbox Game Bar: Framerate Manual 120 → 120 fps, Display → 240 fps
+  (240 Hz monitor). No artifacts seen.
+- **Why no patch is needed:**
+  - Matrices the game hasn't tagged default to `G_EX_ID_AUTO`. RT64 matches them to the previous frame
+    heuristically and interpolates objects and the camera (`lib/rt64/src/hle/rt64_game_frame.cpp`,
+    `rt64_transform_group.h`).
+  - The game gives every object its own matrix (GAME.md, Matrices), so this tracks whole objects.
+- **Not interpolated:** joint animation, which is CPU-transformed vertices, so it stays at the game's ≤60 fps.
+- **If artifacts show up later:** tag the pool matrices with `gEXMatrixGroup`.
+- **The earlier "Framerate has no effect" note was wrong.** The difference just isn't easy to see by eye.
+
 ## 2026-10-28 — Widescreen object culling
 
 - **Cause:** three model draw routines skip an object unless `z+500 >= 2|x|` and `z+500 >= 2|y|` in camera space.

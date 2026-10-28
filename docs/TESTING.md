@@ -42,7 +42,7 @@ wave-20 bonus stage. Good for testing later waves quickly.
 
 ## Graphics (compare with N64 footage)
 - ✅ Original aspect / original frame rate: matches the N64
-- ✅ Framerate setting: no visible change and no bugs (expected: higher rates need interpolation patches)
+- ✅ Framerate Display / Manual 120: 240 / 120 fps measured (NVIDIA overlay, Game Bar), no artifacts seen
 - ⬜ Transition trail effect: looks inconsistent between transitions; not yet compared closely with the N64 (deferred)
 - ✅ Expand aspect: background gradient fills the window (title, transitions, waves)
 - ✅ Expand aspect: enemies, humans and items stay visible up to the left/right edges
