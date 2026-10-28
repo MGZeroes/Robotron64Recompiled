@@ -1,0 +1,56 @@
+# ROM-free CI (ADR 005). The game itself can't be built here: that needs the user's ROM, which must
+# never be uploaded. These jobs check everything that doesn't need it.
+name: ci
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  no-rom-content:
+    name: No ROM-derived files tracked
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check tracked files
+        run: |
+          bad=$(git ls-files | grep -E '\.(z64|n64|v64|elf|map)$|(^|/)baserom|^RecompiledFuncs/|^rsp/.*\.cpp$|^syms/|^build-elf/' || true)
+          if [ -n "$bad" ]; then
+            echo "ROM-derived files are tracked (CLAUDE.md rule 1):"
+            echo "$bad"
+            exit 1
+          fi
+
+  tools-linux:
+    name: Tools (Linux)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
+      - name: Build N64Recomp and RSPRecomp
+        run: |
+          cmake -S lib/N64ModernRuntime/N64Recomp -B build-tools/linux -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-tools/linux --target N64Recomp RSPRecomp
+      - name: Check scripts
+        run: |
+          python3 -m py_compile tools/*.py
+          for f in tools/*.sh; do bash -n "$f"; done
+
+  tools-windows:
+    name: Tools (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Build N64Recomp and RSPRecomp
+        run: |
+          cmake -S lib/N64ModernRuntime/N64Recomp -B build-tools/windows
+          cmake --build build-tools/windows --config Release --target N64Recomp RSPRecomp
+      - name: Check scripts
+        run: python -m py_compile (Get-ChildItem tools/*.py).FullName
