@@ -30,6 +30,16 @@ wave-20 bonus stage. Good for testing later waves quickly.
 - ✅ TWO PLAYER: both HUDs shown and placed at the window edges in Expand
 - ✅ Long session (35 min) without a hang or crash
 
+## Two player (simultaneous, Two Player Mode option)
+- ✅ TWO PLAYER starts both players at once; Alternating unchanged
+- ✅ Menus, pause and skipping the wave screen work
+- ✅ Enemies split between the players and switch to whoever is closer
+- ✅ Losing a life: the player falls in like at wave start, invincible during the fall, normal size afterwards
+- ✅ Respawn at a free spot when enemies are piled on the death spot, otherwise on the spot
+- ✅ A player with no lives stays down; game over when both are out
+- ✅ High-score entry for both players
+- ⬜ Two physical controllers
+
 ## Controls
 - ✅ Left stick moves (analog)
 - ✅ Analog Aiming On: right stick fires at its exact angle; Off: right stick acts as C buttons, 8-way

@@ -27,6 +27,17 @@ bool robotron64::analog_aim_enabled() {
     return analog_aim.load();
 }
 
+static std::atomic_bool simultaneous_two_player = false;
+
+bool robotron64::simultaneous_two_player_enabled() {
+    return simultaneous_two_player.load();
+}
+
+// Called from the func_80022528 hook (robotron64.us.toml) with the session play style.
+extern "C" int32_t robotron64_two_player_style(int32_t style) {
+    return (style == 1 && simultaneous_two_player.load()) ? 3 : style;
+}
+
 static void add_general_options(recomp::config::Config &config) {
     using EnumOptionVector = const std::vector<recomp::config::ConfigOptionEnumOption>;
 
@@ -54,6 +65,27 @@ static void add_general_options(recomp::config::Config &config) {
             recompinput::set_right_analog_suppressed(enabled);
         });
     recompinput::set_right_analog_suppressed(analog_aim.load());
+
+    // TWO PLAYER normally alternates turns (play style 1). The game also has an unused simultaneous
+    // style 3 (decomp session_menu_start_alternate.c, never linked from the menu), which the
+    // func_80022528 hook selects when this option is on. See docs/GAME.md (Two players).
+    static EnumOptionVector two_player_mode_options = {
+        {0, "Alternating", "Alternating"},
+        {1, "Simultaneous", "Simultaneous"},
+    };
+    config.add_enum_option(
+        robotron64::configkeys::general::two_player_mode,
+        "Two Player Mode",
+        "<recomp-color primary>Alternating</recomp-color> is the original: players take turns, switching on each death. "
+        "<recomp-color primary>Simultaneous</recomp-color> (experimental) uses the game's unused co-op mode: both players "
+        "are in the arena at once and respawn in place until they run out of lives. Applies when a new game starts.",
+        two_player_mode_options,
+        0
+    );
+    config.add_option_change_callback(robotron64::configkeys::general::two_player_mode,
+        [](recomp::config::ConfigValueVariant cur_value, recomp::config::ConfigValueVariant, recomp::config::OptionChangeContext) {
+            simultaneous_two_player.store(std::get<uint32_t>(cur_value) != 0);
+        });
 }
 
 template <typename T = uint32_t>

@@ -195,6 +195,7 @@ set (SOURCES
     ${CMAKE_SOURCE_DIR}/src/game/rom_decompression.cpp
     ${CMAKE_SOURCE_DIR}/src/game/ultra_extensions.cpp
     ${CMAKE_SOURCE_DIR}/src/game/controller_pak.cpp
+    ${CMAKE_SOURCE_DIR}/src/game/coop.cpp
 
     ${CMAKE_SOURCE_DIR}/rsp/aspMain.cpp
 )

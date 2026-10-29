@@ -67,6 +67,17 @@ Facts as we learn them, each with a source. "Decomp" = frankischilling/robotron6
 | Bit groups | Mode 0 → bits 0–3; other modes → bits 4–7. Start `0x100`, A `0x800`, B `0x1000`. L or R toggles `D_8007CCA0`. | same |
 | Player sampling | `func_8001A1F0` stores the bits in the player state and then calls `func_8001BFB0`. With `D_800AEE9C` set, it ORs in controller `(port+2)&3` in mode 0. | decomp `src/game/early_player_input_sample.c` |
 
+## Two players
+
+| Fact | Value | Source |
+|---|---|---|
+| Play styles | Session `extra48` (`D_800AD180`): 0 = one player, 1 = alternating (TWO PLAYER), 3 = simultaneous. Style 3 is fully coded but unreachable from the menu. The code only tests `== 3` / `!= 3`. `func_80022528(level, mode, style)` starts a game; our option rewrites style 1 to 3 at its entry. | decomp `session_scene_start.c`, `session_menu_start_alternate.c`; `robotron64.us.toml` |
+| Session / players | Session `D_800AD138`: input block at +0, player count `D_800AD164`, `currentPlayer` `D_800AD168`. Players `D_8009B190[2]`, stride 0xDB4: actor +8, score +0x18, lives +0x1C, input block +0x34, wave `valueD70` (`D_8009BF00` / `D_8009CCB4`). Live wave `D_800BA748`. | decomp `include/` structs; RecompiledFuncs |
+| Actors | `GameActor`, 0x7C bytes, list head `D_800AA708`: objectIndex +0x0C (s16), timer0E +0x0E, flags +0x14, kind +0x1C (0 enemy, 2 player), anim +0x1F, resource +0x24 (scale at res+0x0C), callback44 +0x44, field48 timer +0x48, behavior +0x5C, position x/y/z +0x60, next +0x78. Flags: 0x40 = call callback44 when the one-shot animation ends; 0x4000 = invulnerable blink; 0x400 = pickup invincibility. Collision skips anim 1 or `flags & 0x4400`. | decomp `player/behavior.c`, actor update `func_80029FD8` |
+| Style-3 gaps (patched) | Menus and skip read only player 1's input (the second player's block is merged in, `func_80022D24` @ 0x80022E90). Enemies target `currentPlayer` (swapped to the nearest living player around each behavior call). The revive just stands the player up where they fell, so a crowd keeps them down. Only the last player out got a high-score entry. The HUD wave of the player with no lives stopped updating. | play test 2026-10-29; `src/game/coop.cpp` |
+| Wave-start drop-in | The player model's animation track 6, with z = 500. Wave setup hides the players (`func_80035CC8(1)`). Intro state 0 runs `func_80035CC8(0)`: `func_80027AB8(a, 6, 1)`, zero +0x2C/+0x6C/+0x70, `func_80039514(obj, 0)`, `func_80039E5C(obj, 1)`, flags \|= 0x40, callback44 = `func_80029194` (stands up, anim 8, field48 = now), timer0E = 999. The behavior does nothing in anim 6, and 0x4000 stays set until about 1 s after landing. The co-op respawn copies this per-actor body (calling `func_80035CC8` mid-wave would restart every player). | decomp `scene_actor_mode_list.c`; research 2026-10-29 |
+| High-score flow | Screen state `D_800AD280`: 12 name entry, 8 TOP5 + save, 4 title; step `D_800AD28C`; the entry is for the player at `0x800AD2F0`. Ranking: `rank++` while `rank < 20` and `table[rank] >= score`, so a tie loses and rank 20 skips the entry. Table `D_80075DA0`, 20 × 0x14 bytes. | decomp `high_score*.c`; RecompiledFuncs |
+
 ## Rendering
 
 | Fact | Value | Source |

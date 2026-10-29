@@ -82,5 +82,12 @@ directions. Remap under Settings → Controls.
   and camera motion; character limb animation stays at the game's 60 fps.
 - Resolution and anti-aliasing can be raised freely.
 
+## Two players
+Settings → General → **Two Player Mode** picks how TWO PLAYER plays. **Alternating** (default) is the N64
+behaviour: players take turns. **Simultaneous** (experimental) uses the game's unused co-op mode: both play at
+once, enemies go after the nearest player, a lost life drops the player back into the arena like at wave
+start, and both get a high-score entry. One controller currently drives both players; separate controllers
+are not set up yet.
+
 ## License
 GPL-3.0 (see [LICENSE](LICENSE)). Credits: [CREDITS.md](CREDITS.md).

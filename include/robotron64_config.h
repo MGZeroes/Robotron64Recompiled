@@ -11,6 +11,7 @@ namespace robotron64 {
     namespace configkeys {
         namespace general {
             inline const std::string analog_aim = "analog_aim";
+            inline const std::string two_player_mode = "two_player_mode";
         }
     }
 
@@ -19,6 +20,9 @@ namespace robotron64 {
 
     // "Analog aiming" option: the right stick drives the game's second-controller aim stick.
     bool analog_aim_enabled();
+
+    // "Two Player Mode" option: Simultaneous starts TWO PLAYER in the game's unused co-op mode.
+    bool simultaneous_two_player_enabled();
 };
 
 #endif

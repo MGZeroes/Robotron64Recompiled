@@ -2,6 +2,32 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-10-29 — Simultaneous two-player (Two Player Mode option)
+
+- **Finding:** the game has a complete simultaneous mode (play style 3) that the menu never selects. The new
+  option rewrites TWO PLAYER's style 1 to 3 at `func_80022528`'s entry (`robotron64_two_player_style`).
+- **First test (style 3 as shipped):** both spawned and played, but enemies only chased `currentPlayer`, menus
+  and skip read only one input block (pause looked frozen), a revived player who fell in a crowd could never
+  stand up, only one high-score entry, and the out player's HUD wave stopped.
+- **Fixes (`src/game/coop.cpp`, hooks in `robotron64.us.toml`):**
+  - merge the second player's input block into the session block (menus, pause, skip);
+  - swap `currentPlayer` to the nearest living player around each enemy behavior call, restoring it only if
+    unchanged;
+  - respawn: move to a free spot (`func_80027ED4`) only when an enemy is within 4000, then copy the per-actor
+    body of the wave-start drop-in (`func_80035CC8(0)`). The first try beamed the player in with the enemy
+    materialize animation; the user found it abrupt and pointed to the wave-start fall, which the earlier
+    research had missed. The hook had to move to 0x80033D80, after the revive's own flag store, or the 0x40
+    callback flag would have been cleared;
+  - high score: remember who ran out first; after the game's entry for the last player, start a second entry
+    for them (hook at 0x800237A0; 0x8002379C is a delay slot);
+  - HUD: copy the live wave into both players' wave fields.
+- **Build snag:** `coop.cpp` needed `<initializer_list>` for a range-for over a braced list.
+- **Tested by the user:** drop-in respawn, normal size after the sinking death, free-spot respawn in a crowd
+  (on the spot otherwise, e.g. after a projectile), both name entries, Alternating unchanged.
+- **Open:** two physical controllers (RecompFrontend maps pad 2 to ports 2/3; the game checks
+  `D_8007C334 & 4`); the camera follows `currentPlayer` (`func_80012950`); a player with no lives lies in the
+  arena (harmless).
+
 ## 2026-10-29 — HUD placement; background for very wide windows
 
 - **HUD:**

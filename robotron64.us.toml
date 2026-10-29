@@ -157,6 +157,64 @@ func = "func_8003E220"
 before_vram = 0x8003E458
 text = "{ int32_t robotron64_cull_abs_x(int32_t); ctx->r2 = (gpr)(int32_t)robotron64_cull_abs_x((int32_t)ctx->r2); }"
 
+# Simultaneous two-player (experimental, option Two Player Mode). func_80022528(level, mode, style)
+# starts a game (decomp session_scene_start.c); TWO PLAYER passes style 1 (alternating). Style 3 is
+# the game's unused simultaneous mode (session_menu_start_alternate.c, unreachable from the menu).
+# The hook is at the function entry and rewrites a2.
+[[patches.hook]]
+func = "func_80022528"
+before_vram = 0x80022528
+text = "{ int32_t robotron64_two_player_style(int32_t); void robotron64_coop_game_start(void); robotron64_coop_game_start(); if ((int32_t)ctx->r5 == 2) { ctx->r6 = (gpr)(int32_t)robotron64_two_player_style((int32_t)ctx->r6); } }"
+
+# Simultaneous two-player fixes for play style 3 (src/game/coop.cpp; each helper returns at once in
+# other styles). Addresses checked in RecompiledFuncs; none is a delay slot.
+# Menu input: L_80022E90 in the main tick func_80022D24, where the normal and style-3 input sampling join.
+[[patches.hook]]
+func = "func_80022D24"
+before_vram = 0x80022E90
+text = "{ void robotron64_coop_merge_input(uint8_t*); robotron64_coop_merge_input(rdram); }"
+
+# Enemy targeting: around the behavior call in the actor update loop func_80029FD8. L_8002A1E8 is
+# `lw $t9, 0x5C($s0)` before `jalr $t9` ($s0 = actor); L_8002A1F8 follows the call (also reached
+# by a skip branch; the end helper only acts after a begin).
+[[patches.hook]]
+func = "func_80029FD8"
+before_vram = 0x8002A1E8
+text = "{ void robotron64_coop_target_begin(uint8_t*, gpr); robotron64_coop_target_begin(rdram, ctx->r16); }"
+
+[[patches.hook]]
+func = "func_80029FD8"
+before_vram = 0x8002A1F8
+text = "{ void robotron64_coop_target_end(uint8_t*); robotron64_coop_target_end(rdram); }"
+
+# Respawn with the wave-start drop-in: 0x80033D80 in the player behavior func_80033974, after the style-3
+# revive (decomp player/behavior.c:79-82) has started anim 8 and stored its flags (0x40 cleared, 0x4000
+# set at 0x80033D7C), so the 0x40 the helper sets survives. A plain `lui`; $s0 = actor.
+[[patches.hook]]
+func = "func_80033974"
+before_vram = 0x80033D80
+text = "{ void robotron64_coop_respawn(uint8_t*, recomp_context*, gpr); robotron64_coop_respawn(rdram, ctx, ctx->r16); }"
+
+# High score for the player who ran out first. L_80033D90 in func_80033974 is style 3's out-of-lives
+# branch (decomp player/behavior.c:85; player struct at 0x7C($sp)). 0x800237A0 in func_80022D24 is reached
+# only when a high-score entry has finished and nobody has lives left (0x8002379C is the delay slot of the
+# branch before it); returning true starts the other player's entry and skips the switch to TOP5.
+[[patches.hook]]
+func = "func_80033974"
+before_vram = 0x80033D90
+text = "{ void robotron64_coop_player_out(uint8_t*, int32_t); robotron64_coop_player_out(rdram, MEM_W(0x7C, ctx->r29)); }"
+
+[[patches.hook]]
+func = "func_80022D24"
+before_vram = 0x800237A0
+text = "{ int robotron64_coop_next_entry(uint8_t*); if (robotron64_coop_next_entry(rdram)) { goto L_800255D8; } }"
+
+# HUD wave: entry of the HUD state function func_800371FC (decomp game_hud_state.c).
+[[patches.hook]]
+func = "func_800371FC"
+before_vram = 0x800371FC
+text = "{ void robotron64_coop_hud_wave(uint8_t*); robotron64_coop_hud_wave(rdram); }"
+
 # Graphics task thread: 0x80050C6C is `lw $t8, 0($s2)`, with $s2 = &D_8014BE40.
 [[patches.hook]]
 func = "func_80050BD0"
