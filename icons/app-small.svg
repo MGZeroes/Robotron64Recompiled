@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Small-size variant of app.svg (16-32 px): no grid, heavier shapes. Original artwork made for this project. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a1038"/>
+      <stop offset="0.58" stop-color="#1b2478"/>
+      <stop offset="1" stop-color="#05061a"/>
+    </linearGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8a98ff"/>
+      <stop offset="1" stop-color="#3b46c8"/>
+    </linearGradient>
+    <clipPath id="tile"><rect width="512" height="512" rx="96"/></clipPath>
+  </defs>
+  <g clip-path="url(#tile)">
+    <rect width="512" height="512" fill="url(#sky)"/>
+  </g>
+  <g>
+    <rect x="64" y="96" width="384" height="320" rx="72" fill="url(#metal)" stroke="#d6dbff" stroke-width="24"/>
+    <rect x="104" y="176" width="304" height="128" rx="44" fill="#05061a"/>
+    <rect x="136" y="204" width="96" height="72" rx="20" fill="#fad728"/>
+    <rect x="280" y="204" width="96" height="72" rx="20" fill="#fad728"/>
+  </g>
+</svg>

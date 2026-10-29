@@ -19,6 +19,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libsdl2-dev libfreetype-dev libgtk-3-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# App icon rendering (tools/make_icons.sh): SVG to PNG, PNGs to a multi-size ICO.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        librsvg2-bin imagemagick \
+    && rm -rf /var/lib/apt/lists/*
+
 # n64sym (shygoo, MIT): signature-based libultra identification. Pinned; see ADR 004.
 ARG N64SYM_COMMIT=ccf4600f3389f1a84bde23339225cf372fdf7712
 RUN git clone https://github.com/shygoo/n64sym.git /opt/n64sym \

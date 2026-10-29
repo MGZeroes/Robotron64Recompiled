@@ -210,55 +210,25 @@ void set_rumble(int controller_num, bool rumble) {
     recompinput::set_rumble(recompinput::players::is_single_player_mode() ? controller_num : controller_num >> 1, rumble);
 }
 
-// TODO icon
-// #include "icon_bytes.h"
+// App icon. On Windows the exe's icon resource (icons/app.rc) is used for the window too: SDL registers
+// its window class with the first RT_GROUP_ICON in the module (SDL 2.30.3 SDL_windowsevents.c,
+// SDL_RegisterApp). Elsewhere the window icon is set from icons/app.png, embedded as icon_bytes.
+#if !defined(_WIN32)
+#include "icon_bytes.h"
 
-#if defined(__gnu_linux__)
-bool SetImageAsIcon(const char* filename, SDL_Window* window)
-{
-    return true;
-// TODO icon
-//     // Read data
-//     int width, height, bytesPerPixel;
-//     void* data = stbi_load_from_memory(reinterpret_cast<const uint8_t*>(icon_bytes), sizeof(icon_bytes), &width, &height, &bytesPerPixel, 4);
-
-//     // Calculate pitch
-//     int pitch;
-//     pitch = width * 4;
-//     pitch = (pitch + 3) & ~3;
-
-//     // Setup relevance bitmask
-//     int Rmask, Gmask, Bmask, Amask;
-
-// #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-//     Rmask = 0x000000FF;
-//     Gmask = 0x0000FF00;
-//     Bmask = 0x00FF0000;
-//     Amask = 0xFF000000;
-// #else
-//     Rmask = 0xFF000000;
-//     Gmask = 0x00FF0000;
-//     Bmask = 0x0000FF00;
-//     Amask = 0x000000FF;
-// #endif
-
-//     SDL_Surface* surface = nullptr;
-//     if (data != nullptr) {
-//         surface = SDL_CreateRGBSurfaceFrom(data, width, height, 32, pitch, Rmask, Gmask,
-//                             Bmask, Amask);
-//     }
-
-//     if (surface == nullptr) {   
-//         if (data != nullptr) {
-//             stbi_image_free(data);
-//         }
-//         return false;
-// 	} else {
-//         SDL_SetWindowIcon(window,surface);
-//         SDL_FreeSurface(surface);
-//         stbi_image_free(data);
-//         return true;
-//     }
+static void set_window_icon(SDL_Window* window) {
+    int width, height, channels;
+    stbi_uc* data = stbi_load_from_memory(reinterpret_cast<const stbi_uc*>(icon_bytes), static_cast<int>(icon_bytes_size),
+        &width, &height, &channels, 4);
+    if (data == nullptr) {
+        return;
+    }
+    SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormatFrom(data, width, height, 32, width * 4, SDL_PIXELFORMAT_RGBA32);
+    if (surface != nullptr) {
+        SDL_SetWindowIcon(window, surface);
+        SDL_FreeSurface(surface);
+    }
+    stbi_image_free(data);
 }
 #endif
 
@@ -283,9 +253,8 @@ ultramodern::renderer::WindowHandle create_window(ultramodern::gfx_callbacks_t::
     SDL_VERSION(&wmInfo.version);
     SDL_GetWindowWMInfo(window, &wmInfo);
 
-#if defined(__linux__)
-    // TODO icon
-    // SetImageAsIcon("icons/app.png", window);
+#if !defined(_WIN32)
+    set_window_icon(window);
 #endif
 
 #if defined(_WIN32)

@@ -1,0 +1,2 @@
+// Windows exe icon; SDL also uses it for the window (see main.cpp). Rendered by tools/make_icons.sh.
+1 ICON "app.ico"

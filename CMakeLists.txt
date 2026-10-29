@@ -218,13 +218,15 @@ target_include_directories(Robotron64Recompiled PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-# Generate icon_bytes.c from the app icon PNG.
-# add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/icon_bytes.c ${CMAKE_CURRENT_BINARY_DIR}/icon_bytes.h
-#     COMMAND file_to_c ${CMAKE_SOURCE_DIR}/icons/app.png icon_bytes ${CMAKE_CURRENT_BINARY_DIR}/icon_bytes.c ${CMAKE_CURRENT_BINARY_DIR}/icon_bytes.h
-#     DEPENDS ${CMAKE_SOURCE_DIR}/icons/app.png
-# )
-
-# target_sources(Robotron64Recompiled PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/icon_bytes.c)
+# App icon (icons/, rendered from app.svg by tools/make_icons.sh). Windows uses the exe icon resource
+# (app.rc, below); other platforms embed app.png as icon_bytes for SDL_SetWindowIcon (main.cpp).
+if (NOT WIN32)
+    add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/icon_bytes.c ${CMAKE_CURRENT_BINARY_DIR}/icon_bytes.h
+        COMMAND file_to_c ${CMAKE_SOURCE_DIR}/icons/app.png icon_bytes ${CMAKE_CURRENT_BINARY_DIR}/icon_bytes.c ${CMAKE_CURRENT_BINARY_DIR}/icon_bytes.h
+        DEPENDS ${CMAKE_SOURCE_DIR}/icons/app.png
+    )
+    target_sources(Robotron64Recompiled PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/icon_bytes.c)
+endif()
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8 AND CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|amd64|AMD64")
     target_compile_options(Robotron64Recompiled PRIVATE
@@ -307,7 +309,7 @@ if (WIN32)
         )
     endif()
 
-    # target_sources(Robotron64Recompiled PRIVATE ${CMAKE_SOURCE_DIR}/icons/app.rc)
+    target_sources(Robotron64Recompiled PRIVATE ${CMAKE_SOURCE_DIR}/icons/app.rc)
     target_link_libraries(Robotron64Recompiled PRIVATE SDL2 Winmm.lib)
 endif()
 
