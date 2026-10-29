@@ -51,6 +51,8 @@ namespace {
     constexpr uint32_t actor_resource = 0x24;              // resource; +0x0C = model scale
     constexpr uint32_t actor_field2C = 0x2C;
     constexpr uint32_t actor_callback = 0x44;              // callback44
+    constexpr uint32_t actor_owner = 0x3C;                 // the player struct, for player actors
+    constexpr uint32_t actor_facing = 0x08;                // short angle08
     constexpr uint32_t actor_position = 0x60;              // int x, y, z
     constexpr uint32_t actor_velocity = 0x6C;              // int x, y
     constexpr uint32_t actor_next = 0x78;
@@ -237,9 +239,13 @@ extern "C" void robotron64_coop_respawn(uint8_t* rdram, recomp_context* ctx, gpr
 // and give them their entry after the survivor's, before the TOP5 screen.
 static int32_t first_out = -1;
 
-// Game start (func_80022528 hook).
-extern "C" void robotron64_coop_game_start() {
+// True for the whole of a game started in style 3, also after the first player is out (style 0 then).
+static bool coop_game = false;
+
+// Game start (func_80022528 hook), with the play style after robotron64_two_player_style.
+extern "C" void robotron64_coop_game_start(int32_t style) {
     first_out = -1;
+    coop_game = style == 3;
 }
 
 // Style 3 out-of-lives branch (L_80033D90 in func_80033974), before the switch to style 0.
@@ -275,4 +281,67 @@ extern "C" void robotron64_coop_hud_wave(uint8_t* rdram) {
     int32_t wave = word(rdram, 0x800BA748);
     word(rdram, 0x8009BF00) = wave;  // D_8009B190[0].valueD70
     word(rdram, 0x8009CCB4) = wave;  // D_8009B190[1].valueD70
+}
+
+// Floor ring and aim pose. The player behavior func_80033974 leaves "last player" globals behind: its actor
+// (D_800BEF60), the fire angle or -1 (D_800BEF6C) and the facing (D_800BEF64). The draw loop func_8003A8B0
+// turns the actor into one object record (D_800BF2C0) and draws that object's shadow as the yellow ring and
+// blends its arm toward the fire angle (decomp object_runtime_update.c). Only the player whose behavior ran
+// last (P1, the actor list is newest-first) got either. Each player's values are saved at the end of their
+// behavior and put back when the draw loop reaches that player's object.
+namespace {
+    constexpr uint32_t aim_actor = 0x800BEF60;             // D_800BEF60
+    constexpr uint32_t aim_facing = 0x800BEF64;            // D_800BEF64
+    constexpr uint32_t aim_angle = 0x800BEF6C;             // D_800BEF6C
+    constexpr uint32_t aim_object = 0x800BF2C0;            // D_800BF2C0
+    constexpr uint32_t objects = 0x800BF918;               // D_800BF918, stride 0x78
+    constexpr uint32_t object_stride = 0x78;
+
+    int32_t saved_angle[2] = { -1, -1 };
+    int32_t saved_facing[2] = { 0, 0 };
+
+    // Index of the player owning this actor, or -1.
+    int player_of_actor(uint8_t* rdram, gpr actor) {
+        if (actor == 0 || MEM_B(actor_kind, actor) != kind_player) {
+            return -1;
+        }
+        uint32_t owner = static_cast<uint32_t>(MEM_W(actor_owner, actor));
+        for (int i = 0; i < 2; i++) {
+            if (owner == player_addr(i) && static_cast<uint32_t>(word(rdram, player_addr(i) + player_actor)) == static_cast<uint32_t>(actor)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+}
+
+// End of the player behavior (L_80035174 in func_80033974, every exit passes it), $s0 = actor. D_800BEF64
+// is only stored in the return's delay slot, so the facing is read from the actor.
+extern "C" void robotron64_coop_save_aim(uint8_t* rdram, gpr actor) {
+    if (!coop_game) {
+        return;
+    }
+    int i = player_of_actor(rdram, actor);
+    if (i >= 0) {
+        saved_angle[i] = word(rdram, aim_angle);
+        saved_facing[i] = MEM_H(actor_facing, actor);
+    }
+}
+
+// Top of the draw loop body in func_8003A8B0 (0x8003A990), $s5 = object index. Selects a player's own
+// object and aim before the ring (0x8003AB7C) and pose (0x8003B0A4) checks read them.
+extern "C" void robotron64_coop_select_object(uint8_t* rdram, int32_t object) {
+    if (!coop_game) {
+        return;
+    }
+    for (int i = 0; i < 2; i++) {
+        gpr actor = (gpr)word(rdram, player_addr(i) + player_actor);
+        if (player_of_actor(rdram, actor) == i && MEM_H(actor_object, actor) == object) {
+            word(rdram, aim_actor) = static_cast<int32_t>(actor);
+            word(rdram, aim_object) = static_cast<int32_t>(objects + static_cast<uint32_t>(object) * object_stride);
+            word(rdram, aim_angle) = saved_angle[i];
+            MEM_H(0, (gpr)(int32_t)aim_facing) = static_cast<int16_t>(saved_facing[i]);
+            return;
+        }
+    }
 }

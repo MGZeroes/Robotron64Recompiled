@@ -2,6 +2,18 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-10-29 — P2 floor ring and aim pose; reassign fix
+
+- **Ring and pose:** P2 had no yellow floor ring and didn't point its arm. Both come from "last player behavior"
+  globals that the draw loop applies to one object, and P1's behavior runs last. Hooks save each player's
+  aim/facing at the behavior epilogue and select that player's own object per draw (`coop.cpp`). Gated on a
+  co-op flag set at game start, so it stays on after the first player is out. Tested by the user.
+- **"Assignment reset" after Shared → One per player:** a temporary log showed the assignment survives the mode
+  switch. The real bug: confirming the same layout again made RecompFrontend's commit reset the profiles,
+  and `update_player_profiles` only re-ran on a layout change, so the keyboard drove both players again. It
+  now re-applies after every finished assignment. Tested by the user; log removed.
+- **Not saved across restarts:** RecompFrontend keeps the assignment in memory only (known, ADR 006).
+
 ## 2026-10-29 — One controller per player (ADR 006)
 
 - **Option** Controllers: Shared / One per player; the callback switches recompinput's single-player mode.

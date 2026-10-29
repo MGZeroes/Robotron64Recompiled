@@ -164,7 +164,7 @@ text = "{ int32_t robotron64_cull_abs_x(int32_t); ctx->r2 = (gpr)(int32_t)robotr
 [[patches.hook]]
 func = "func_80022528"
 before_vram = 0x80022528
-text = "{ int32_t robotron64_two_player_style(int32_t); void robotron64_coop_game_start(void); robotron64_coop_game_start(); if ((int32_t)ctx->r5 == 2) { ctx->r6 = (gpr)(int32_t)robotron64_two_player_style((int32_t)ctx->r6); } }"
+text = "{ int32_t robotron64_two_player_style(int32_t); void robotron64_coop_game_start(int32_t); if ((int32_t)ctx->r5 == 2) { ctx->r6 = (gpr)(int32_t)robotron64_two_player_style((int32_t)ctx->r6); } robotron64_coop_game_start((int32_t)ctx->r6); }"
 
 # Simultaneous two-player fixes for play style 3 (src/game/coop.cpp; each helper returns at once in
 # other styles). Addresses checked in RecompiledFuncs; none is a delay slot.
@@ -208,6 +208,19 @@ text = "{ void robotron64_coop_player_out(uint8_t*, int32_t); robotron64_coop_pl
 func = "func_80022D24"
 before_vram = 0x800237A0
 text = "{ int robotron64_coop_next_entry(uint8_t*); if (robotron64_coop_next_entry(rdram)) { goto L_800255D8; } }"
+
+# Floor ring and aim pose for both players (src/game/coop.cpp). L_80035174 is the epilogue of the player
+# behavior func_80033974 that every exit passes ($s0 = actor); 0x8003A990 is the top of the per-object loop
+# body in the draw function func_8003A8B0 ($s5 = object index), after the beq/delay slot at 0x8003A988/8C.
+[[patches.hook]]
+func = "func_80033974"
+before_vram = 0x80035174
+text = "{ void robotron64_coop_save_aim(uint8_t*, gpr); robotron64_coop_save_aim(rdram, ctx->r16); }"
+
+[[patches.hook]]
+func = "func_8003A8B0"
+before_vram = 0x8003A990
+text = "{ void robotron64_coop_select_object(uint8_t*, int32_t); robotron64_coop_select_object(rdram, (int32_t)ctx->r21); }"
 
 # HUD wave: entry of the HUD state function func_800371FC (decomp game_hud_state.c).
 [[patches.hook]]

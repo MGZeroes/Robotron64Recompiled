@@ -136,22 +136,36 @@ bool get_n64_input(int controller_num, uint16_t* buttons, float* x, float* y) {
 // would point at a keyboard profile get the SP controller profile, which reads nothing without a pad.
 // Runs on the game thread before input is read, once the assignment has been unchanged for two polls so a
 // commit in progress on the UI thread is never half-applied. Profiles picked later on the player cards
-// are kept until the next assignment change.
+// are kept until the next assignment.
 static void update_player_profiles() {
     using namespace recompinput;
     static std::array<uintptr_t, 5> applied{};
     static std::array<uintptr_t, 5> pending{};
     static int stable_polls = 0;
 
-    if (players::is_single_player_mode() || playerassignment::is_active()) {
-        return;
-    }
-
     constexpr int num_players = 2;
     std::array<uintptr_t, 5> current{ players::get_number_of_assigned_players() };
     for (int i = 0; i < num_players; i++) {
         current[1 + i * 2] = static_cast<uintptr_t>(players::get_player_input_device(i));
         current[2 + i * 2] = reinterpret_cast<uintptr_t>(players::get_player(i).controller);
+    }
+
+    // Confirming the same layout again also rewrites the profiles, so every finished assignment counts as a
+    // change. The commit runs after the assignment stops being active, hence the two stable polls below.
+    static bool was_assigning = false;
+    if (playerassignment::is_active()) {
+        was_assigning = true;
+        return;
+    }
+    if (was_assigning) {
+        was_assigning = false;
+        applied.fill(~uintptr_t{});
+        pending = current;
+        stable_polls = 0;
+        return;
+    }
+    if (players::is_single_player_mode()) {
+        return;
     }
     if (current != pending) {
         pending = current;
