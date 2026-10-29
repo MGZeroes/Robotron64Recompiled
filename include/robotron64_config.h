@@ -12,6 +12,7 @@ namespace robotron64 {
         namespace general {
             inline const std::string analog_aim = "analog_aim";
             inline const std::string two_player_mode = "two_player_mode";
+            inline const std::string controllers = "controllers";
         }
     }
 
@@ -23,6 +24,10 @@ namespace robotron64 {
 
     // "Two Player Mode" option: Simultaneous starts TWO PLAYER in the game's unused co-op mode.
     bool simultaneous_two_player_enabled();
+
+    // "Controllers" option: One per player puts recompinput in multiplayer mode (players assigned in
+    // Settings > Controls), so player 2 has their own pad. See main.cpp get_n64_input.
+    bool controllers_per_player_enabled();
 };
 
 #endif

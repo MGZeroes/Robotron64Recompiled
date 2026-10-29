@@ -38,7 +38,9 @@ wave-20 bonus stage. Good for testing later waves quickly.
 - ✅ Respawn at a free spot when enemies are piled on the death spot, otherwise on the spot
 - ✅ A player with no lives stays down; game over when both are out
 - ✅ High-score entry for both players
-- ⬜ Two physical controllers
+- ✅ Controllers One per player: P1 pad + P2 keyboard, P1 keyboard + P2 pad, two pads; each drives only its
+  own robot; reassigning in the same session applies
+- ✅ Controllers Shared: unchanged
 
 ## Controls
 - ✅ Left stick moves (analog)

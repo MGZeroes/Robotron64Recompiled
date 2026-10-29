@@ -88,37 +88,109 @@ ultramodern::gfx_callbacks_t::gfx_data_t create_gfx() {
     return {};
 }
 
+// Controller ports. The game uses two N64 ports per player: player 1 moves with port 0 and aims with the
+// analog stick of port 1, player 2 uses ports 2 and 3 (decomp src/game/player/behavior.c). It binds
+// player 2 to port 2 only if that port is connected when the options load (session_input_initialize.c),
+// so all four ports always report a controller and the bindings never change.
 ultramodern::input::connected_device_info_t get_connected_device_info(int controller_num) {
-    if (recompinput::players::is_single_player_mode() || recompinput::players::get_player_is_assigned(controller_num)) {
-        return ultramodern::input::connected_device_info_t{
-            .connected_device = ultramodern::input::Device::Controller,
-            .connected_pak = ultramodern::input::Pak::RumblePak,
-        };
-    }
-
     return ultramodern::input::connected_device_info_t{
-        .connected_device = ultramodern::input::Device::None,
-        .connected_pak = ultramodern::input::Pak::None,
+        .connected_device = ultramodern::input::Device::Controller,
+        .connected_pak = ultramodern::input::Pak::RumblePak,
     };
 }
 
-// Analog aiming. Player 1 moves with port 0 and aims with the analog stick of port 1; player 2 uses
-// ports 2 and 3 (decomp src/game/player/behavior.c). In single-player mode every port reports the
-// same pad, so with the option on the odd ports carry only the right stick. Held fire direction bits
-// (D-pad / C buttons / keyboard) still take priority in the game, so those stay 8-way.
+// The recompinput player whose pad feeds this port. Shared (single-player mode): 0, all pads merged.
+// One per player: port / 2; a player without an assigned pad mirrors player 1, so one pad still plays both.
+static int player_for_port(int controller_num) {
+    if (recompinput::players::is_single_player_mode()) {
+        return 0;
+    }
+    int player = controller_num >> 1;
+    return recompinput::players::get_player_is_assigned(player) ? player : 0;
+}
+
+// Analog aiming: with the option on, the odd (aim) ports carry only the player's right stick. Held fire
+// direction bits (D-pad / C buttons / keyboard) still take priority in the game, so those stay 8-way.
 bool get_n64_input(int controller_num, uint16_t* buttons, float* x, float* y) {
-    if ((controller_num & 1) && robotron64::analog_aim_enabled() && recompinput::players::is_single_player_mode()) {
+    int player = player_for_port(controller_num);
+    if ((controller_num & 1) && robotron64::analog_aim_enabled()) {
         float right_x = 0.0f;
         float right_y = 0.0f;
         if (!recompinput::game_input_disabled()) {
-            recompinput::get_right_analog(0, &right_x, &right_y);
+            recompinput::get_right_analog(player, &right_x, &right_y);
         }
         *buttons = 0;
         *x = right_x;
         *y = -right_y; // SDL's Y axis points down, the N64's up.
         return true;
     }
-    return recompinput::profiles::get_n64_input(controller_num, buttons, x, y);
+    return recompinput::profiles::get_n64_input(player, buttons, x, y);
+}
+
+// Player input profiles in One per player mode. recompinput's assignment commit (players.cpp) sets only the
+// profile of the assigned device: a controller player keeps the keyboard profile it had (Keyboard (SP) for
+// player 1), and a keyboard player gets an empty "Keyboard (Player N)" profile while its controller profile
+// stays at index 0, which is Keyboard (SP), so the keyboard drove both players. After each assignment
+// change: the keyboard drives only the player it was assigned to (with the normal key bindings), or
+// player 1 when nobody took it; every other keyboard profile is -1 (skipped). Controller profiles that
+// would point at a keyboard profile get the SP controller profile, which reads nothing without a pad.
+// Runs on the game thread before input is read, once the assignment has been unchanged for two polls so a
+// commit in progress on the UI thread is never half-applied. Profiles picked later on the player cards
+// are kept until the next assignment change.
+static void update_player_profiles() {
+    using namespace recompinput;
+    static std::array<uintptr_t, 5> applied{};
+    static std::array<uintptr_t, 5> pending{};
+    static int stable_polls = 0;
+
+    if (players::is_single_player_mode() || playerassignment::is_active()) {
+        return;
+    }
+
+    constexpr int num_players = 2;
+    std::array<uintptr_t, 5> current{ players::get_number_of_assigned_players() };
+    for (int i = 0; i < num_players; i++) {
+        current[1 + i * 2] = static_cast<uintptr_t>(players::get_player_input_device(i));
+        current[2 + i * 2] = reinterpret_cast<uintptr_t>(players::get_player(i).controller);
+    }
+    if (current != pending) {
+        pending = current;
+        stable_polls = 0;
+        return;
+    }
+    if (current == applied || ++stable_polls < 2) {
+        return;
+    }
+    applied = current;
+
+    bool keyboard_taken = false;
+    for (int i = 0; i < num_players; i++) {
+        keyboard_taken |= players::get_player_input_device(i) == InputDevice::Keyboard;
+    }
+    int sp_keyboard = profiles::get_sp_keyboard_profile_index();
+    int sp_controller = profiles::get_sp_controller_profile_index();
+    for (int i = 0; i < num_players; i++) {
+        InputDevice device = players::get_player_input_device(i);
+        if (device != InputDevice::Controller) {
+            profiles::set_input_profile_for_player(i, sp_controller, InputDevice::Controller);
+        }
+        bool has_keyboard = device == InputDevice::Keyboard || (i == 0 && !keyboard_taken);
+        profiles::set_input_profile_for_player(i, has_keyboard ? sp_keyboard : -1, InputDevice::Keyboard);
+    }
+}
+
+void poll_inputs() {
+    update_player_profiles();
+    recompinput::poll_inputs();
+}
+
+// Rumble comes on the player's movement port (0 or 2). recompinput rumbles channel N on player N's pad
+// (all pads in single-player mode, where only channel 0 counts).
+void set_rumble(int controller_num, bool rumble) {
+    if (controller_num & 1) {
+        return;
+    }
+    recompinput::set_rumble(recompinput::players::is_single_player_mode() ? controller_num : controller_num >> 1, rumble);
 }
 
 // TODO icon
@@ -791,9 +863,9 @@ int main(int argc, char** argv) {
     };
 
     ultramodern::input::callbacks_t input_callbacks{
-        .poll_input = recompinput::poll_inputs,
+        .poll_input = poll_inputs,
         .get_input = get_n64_input,
-        .set_rumble = recompinput::set_rumble,
+        .set_rumble = set_rumble,
         .get_connected_device_info = get_connected_device_info,
     };
 

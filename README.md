@@ -86,8 +86,13 @@ directions. Remap under Settings → Controls.
 Settings → General → **Two Player Mode** picks how TWO PLAYER plays. **Alternating** (default) is the N64
 behaviour: players take turns. **Simultaneous** (experimental) uses the game's unused co-op mode: both play at
 once, enemies go after the nearest player, a lost life drops the player back into the arena like at wave
-start, and both get a high-score entry. One controller currently drives both players; separate controllers
-are not set up yet.
+start, and both get a high-score entry.
+
+**Controllers:** Settings → General → Controllers. **Shared** (default): every pad and the keyboard drive
+player 1 (and player 2 in two-player games). **One per player**: open Settings → Controls → **Assign players**,
+press a button on each player's pad (or a key for the keyboard), then Confirm. Assignment is needed once per
+session; until then pads only open the menu. The keyboard drives the player it was assigned to, or player 1.
+Each pad starts with the default mapping and can be edited on its player card.
 
 ## License
 GPL-3.0 (see [LICENSE](LICENSE)). Credits: [CREDITS.md](CREDITS.md).

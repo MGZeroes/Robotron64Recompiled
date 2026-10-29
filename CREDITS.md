@@ -16,6 +16,9 @@ Robotron 64: Recompiled stands entirely on other people's work.
 ## Game research
 - **[frankischilling/robotron64](https://github.com/frankischilling/robotron64)** — the matching decompilation of Robotron 64 that supplies symbols, function boundaries and documentation of the game's internals. Used as a git submodule; nothing from it is redistributed here.
 
+## Prior art
+- **[WCWvsNWOWorldTourRecomp](https://github.com/jessetbh/WCWvsNWOWorldTourRecomp)** and **[rush-2049-recomp](https://github.com/n64hub/rush-2049-recomp)** — how RecompFrontend's multiplayer mode is used in practice (option switching single/multiplayer mode, the keyboard-profile issue).
+
 ## Bundled third-party assets (from the template)
 - Inter, Noto Emoji, Suplexmentary Comic NC fonts and PromptFont — see `assets/` (PromptFont license in `assets/promptfont/LICENSE.txt`).
 - SlotMap — `lib/SlotMap/`.

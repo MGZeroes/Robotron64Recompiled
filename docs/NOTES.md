@@ -2,6 +2,20 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-10-29 — One controller per player (ADR 006)
+
+- **Option** Controllers: Shared / One per player; the callback switches recompinput's single-player mode.
+- **Ports:** the game uses two N64 ports per player (0/1, 2/3). `main.cpp` maps port N to player N/2 (player 1
+  when that slot is unassigned), reports all four ports connected so the game's port bindings never change,
+  and sends rumble from port 0/2 to that player's pad. Patching the game down to two ports was
+  considered and rejected (ADR 006).
+- **First test:** P1 pad, P2 keyboard: the keyboard drove both. RecompFrontend's assignment commit sets only
+  the assigned device's profile; P1 kept Keyboard (SP), and P2's controller profile stayed at index 0, which
+  is Keyboard (SP). An init-time -1 for P2's keyboard was overwritten by the commit.
+- **Fix:** `update_player_profiles` (poll callback, after two stable polls) re-applies the profiles after each
+  assignment change.
+- **Tested by the user:** pad + keyboard both ways, two pads, reassigning, Shared unchanged.
+
 ## 2026-10-29 — Simultaneous two-player (Two Player Mode option)
 
 - **Finding:** the game has a complete simultaneous mode (play style 3) that the menu never selects. The new

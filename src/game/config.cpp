@@ -2,6 +2,7 @@
 #include "recompui/recompui.h"
 #include "recompui/config.h"
 #include "recompinput/recompinput.h"
+#include "recompinput/players.h"
 #include "robotron64_support.h"
 #include "ultramodern/config.hpp"
 #include "librecomp/files.hpp"
@@ -31,6 +32,12 @@ static std::atomic_bool simultaneous_two_player = false;
 
 bool robotron64::simultaneous_two_player_enabled() {
     return simultaneous_two_player.load();
+}
+
+static std::atomic_bool controllers_per_player = false;
+
+bool robotron64::controllers_per_player_enabled() {
+    return controllers_per_player.load();
 }
 
 // Called from the func_80022528 hook (robotron64.us.toml) with the session play style.
@@ -85,6 +92,30 @@ static void add_general_options(recomp::config::Config &config) {
     config.add_option_change_callback(robotron64::configkeys::general::two_player_mode,
         [](recomp::config::ConfigValueVariant cur_value, recomp::config::ConfigValueVariant, recomp::config::OptionChangeContext) {
             simultaneous_two_player.store(std::get<uint32_t>(cur_value) != 0);
+        });
+
+    // Shared keeps recompinput in single-player mode, where every pad and the keyboard drive player 1.
+    // One per player switches it to multiplayer mode: pads are given to players with RecompFrontend's
+    // Assign Players screen (Controls tab), and main.cpp maps each player to their two N64 ports.
+    // See docs/decisions/006-two-controllers.md.
+    static EnumOptionVector controllers_options = {
+        {0, "Shared", "Shared"},
+        {1, "One per player", "OnePerPlayer"},
+    };
+    config.add_enum_option(
+        robotron64::configkeys::general::controllers,
+        "Controllers",
+        "<recomp-color primary>Shared</recomp-color>: every controller and the keyboard control player 1 (and player 2 in "
+        "two-player games). <recomp-color primary>One per player</recomp-color>: each player uses their own controller. "
+        "Assign them under Controls > Assign players (needed each session); the keyboard stays with player 1.",
+        controllers_options,
+        0
+    );
+    config.add_option_change_callback(robotron64::configkeys::general::controllers,
+        [](recomp::config::ConfigValueVariant cur_value, recomp::config::ConfigValueVariant, recomp::config::OptionChangeContext) {
+            bool per_player = std::get<uint32_t>(cur_value) != 0;
+            controllers_per_player.store(per_player);
+            recompinput::players::set_single_player_mode(!per_player);
         });
 }
 
@@ -166,5 +197,8 @@ void robotron64::init_config() {
     recompui::config::create_mods_tab();
 
     recompui::config::finalize();
+
+    // The game has two players. Their input profiles are set in main.cpp (update_player_profiles).
+    recompinput::players::set_player_count_range(1, 2);
 
 }
