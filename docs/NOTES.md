@@ -2,6 +2,16 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-10-29 — Settings text, per-player keyboard profiles
+
+- The Controllers option showed "ONEPERPLAYER": key and display name were swapped in the enum entry
+  (librecomp `ConfigOptionEnumOption` is value, key, name). The key is unchanged, so saved settings still match.
+- Option descriptions now give each value its own line (`<br />`, as upstream's graphics tab does).
+- A keyboard player's card showed "Keyboard (Player 1)", a profile RecompFrontend creates empty, while
+  `update_player_profiles` silently used Keyboard (SP). Now those profiles are filled once from the normal
+  bindings and kept, so the card shows what is used and each player's keys can be edited.
+- The Assign Players screen spreads two cards to the edges (upstream layout for four). Left as is (user's call).
+
 ## 2026-10-29 — P2 floor ring and aim pose; reassign fix
 
 - **Ring and pose:** P2 had no yellow floor ring and didn't point its arm. Both come from "last player behavior"

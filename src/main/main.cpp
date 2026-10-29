@@ -131,9 +131,10 @@ bool get_n64_input(int controller_num, uint16_t* buttons, float* x, float* y) {
 // profile of the assigned device: a controller player keeps the keyboard profile it had (Keyboard (SP) for
 // player 1), and a keyboard player gets an empty "Keyboard (Player N)" profile while its controller profile
 // stays at index 0, which is Keyboard (SP), so the keyboard drove both players. After each assignment
-// change: the keyboard drives only the player it was assigned to (with the normal key bindings), or
-// player 1 when nobody took it; every other keyboard profile is -1 (skipped). Controller profiles that
-// would point at a keyboard profile get the SP controller profile, which reads nothing without a pad.
+// change: the keyboard drives only the player it was assigned to (their "Keyboard (Player N)" profile,
+// which config.cpp fills with the normal bindings), or player 1 with Keyboard (SP) when nobody took it;
+// every other keyboard profile is -1 (skipped). Controller profiles that would point at a keyboard
+// profile get the SP controller profile, which reads nothing without a pad.
 // Runs on the game thread before input is read, once the assignment has been unchanged for two polls so a
 // commit in progress on the UI thread is never half-applied. Profiles picked later on the player cards
 // are kept until the next assignment.
@@ -188,8 +189,10 @@ static void update_player_profiles() {
         if (device != InputDevice::Controller) {
             profiles::set_input_profile_for_player(i, sp_controller, InputDevice::Controller);
         }
-        bool has_keyboard = device == InputDevice::Keyboard || (i == 0 && !keyboard_taken);
-        profiles::set_input_profile_for_player(i, has_keyboard ? sp_keyboard : -1, InputDevice::Keyboard);
+        if (device != InputDevice::Keyboard) {
+            bool keeps_keyboard = i == 0 && !keyboard_taken;
+            profiles::set_input_profile_for_player(i, keeps_keyboard ? sp_keyboard : -1, InputDevice::Keyboard);
+        }
     }
 }
 

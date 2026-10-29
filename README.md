@@ -92,7 +92,8 @@ start, and both get a high-score entry.
 player 1 (and player 2 in two-player games). **One per player**: open Settings → Controls → **Assign players**,
 press a button on each player's pad (or a key for the keyboard), then Confirm. Assignment is needed once per
 session; until then pads only open the menu. The keyboard drives the player it was assigned to, or player 1.
-Each pad starts with the default mapping and can be edited on its player card.
+Each pad starts with the default mapping, and each player's keyboard profile with the normal key bindings; both
+can be edited on the player's card.
 
 ## License
 GPL-3.0 (see [LICENSE](LICENSE)). Credits: [CREDITS.md](CREDITS.md).

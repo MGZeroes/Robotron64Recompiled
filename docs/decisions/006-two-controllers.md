@@ -32,8 +32,12 @@ auto-open of the Assign Players screen is in the unmerged PR #45.
 - **Profile fix-up.** The assignment commit only sets the profile of the assigned device, so the keyboard
   leaked into both players (a controller player keeps Keyboard (SP); a keyboard player gets an empty profile
   and its controller profile stays at index 0, which is Keyboard (SP)). `update_player_profiles` in `main.cpp`
-  re-applies the profiles after each assignment change (game thread, after two stable polls): the keyboard
-  drives only the player it was assigned to, with the normal bindings, or player 1 when nobody took it.
+  re-applies the profiles after each finished assignment (game thread, after two stable polls): the keyboard
+  drives only the player it was assigned to, with their "Keyboard (Player N)" profile, or player 1 when
+  nobody took it. Those profiles are created empty upstream; `init_config` fills them once from the normal
+  keyboard bindings, so the player card shows the profile that is really used and it can be edited.
+- The Assign Players screen is laid out for four players, so with two the cards sit at the far edges. Left as
+  upstream draws it.
 
 ## Consequences
 - No RecompFrontend patch and no game hooks for this feature.

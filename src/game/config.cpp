@@ -3,6 +3,7 @@
 #include "recompui/config.h"
 #include "recompinput/recompinput.h"
 #include "recompinput/players.h"
+#include "recompinput/profiles.h"
 #include "robotron64_support.h"
 #include "ultramodern/config.hpp"
 #include "librecomp/files.hpp"
@@ -59,9 +60,13 @@ static void add_general_options(recomp::config::Config &config) {
     config.add_enum_option(
         robotron64::configkeys::general::analog_aim,
         "Analog Aiming",
-        "<recomp-color primary>On</recomp-color> fires along the exact angle of the right stick, using the game's own "
-        "two-controller aiming. <recomp-color primary>Off</recomp-color> maps the right stick to the C buttons, which "
-        "fire in 8 directions as with one N64 controller. The D-pad, C buttons and keyboard always fire in 8 directions.",
+        "<recomp-color primary>On</recomp-color>: fires along the exact angle of the right stick, using the game's own "
+        "two-controller aiming."
+        "<br />"
+        "<recomp-color primary>Off</recomp-color>: the right stick acts as the C buttons and fires in 8 directions, as "
+        "with one N64 controller."
+        "<br /><br />"
+        "The D-pad, C buttons and keyboard always fire in 8 directions.",
         analog_aim_options,
         1
     );
@@ -83,9 +88,12 @@ static void add_general_options(recomp::config::Config &config) {
     config.add_enum_option(
         robotron64::configkeys::general::two_player_mode,
         "Two Player Mode",
-        "<recomp-color primary>Alternating</recomp-color> is the original: players take turns, switching on each death. "
-        "<recomp-color primary>Simultaneous</recomp-color> (experimental) uses the game's unused co-op mode: both players "
-        "are in the arena at once and respawn in place until they run out of lives. Applies when a new game starts.",
+        "<recomp-color primary>Alternating</recomp-color>: the original. Players take turns, switching on each death."
+        "<br />"
+        "<recomp-color primary>Simultaneous</recomp-color> (experimental): the game's unused co-op mode. Both players "
+        "are in the arena at once and drop back in after losing a life, until they run out of lives."
+        "<br /><br />"
+        "Applies when a new game starts.",
         two_player_mode_options,
         0
     );
@@ -100,14 +108,18 @@ static void add_general_options(recomp::config::Config &config) {
     // See docs/decisions/006-two-controllers.md.
     static EnumOptionVector controllers_options = {
         {0, "Shared", "Shared"},
-        {1, "One per player", "OnePerPlayer"},
+        {1, "One per player", "One per player"},
     };
     config.add_enum_option(
         robotron64::configkeys::general::controllers,
         "Controllers",
-        "<recomp-color primary>Shared</recomp-color>: every controller and the keyboard control player 1 (and player 2 in "
-        "two-player games). <recomp-color primary>One per player</recomp-color>: each player uses their own controller. "
-        "Assign them under Controls > Assign players (needed each session); the keyboard stays with player 1.",
+        "<recomp-color primary>Shared</recomp-color>: every controller and the keyboard control player 1 (and player 2 "
+        "in two-player games)."
+        "<br />"
+        "<recomp-color primary>One per player</recomp-color>: each player uses their own controller or the keyboard. "
+        "Assign them under Controls > Assign players."
+        "<br /><br />"
+        "The assignment is needed once per session. Without one, the keyboard controls player 1.",
         controllers_options,
         0
     );
@@ -200,5 +212,29 @@ void robotron64::init_config() {
 
     // The game has two players. Their input profiles are set in main.cpp (update_player_profiles).
     recompinput::players::set_player_count_range(1, 2);
+
+    // RecompFrontend creates the "Keyboard (Player N)" profiles, used when a player is assigned the keyboard,
+    // without bindings. Start them from the normal keyboard bindings; they are saved in controls.json, so
+    // edits made on the player cards are kept.
+    using namespace recompinput;
+    int sp_keyboard = profiles::get_sp_keyboard_profile_index();
+    for (int player = 0; player < 2; player++) {
+        int profile = profiles::get_or_create_mp_keyboard_profile_index(player);
+        bool empty = true;
+        for (size_t input = 0; input < static_cast<size_t>(GameInput::COUNT) && empty; input++) {
+            for (size_t binding = 0; binding < num_bindings_per_input; binding++) {
+                empty &= profiles::get_input_binding(profile, static_cast<GameInput>(input), binding).input_type == InputType::None;
+            }
+        }
+        if (!empty) {
+            continue;
+        }
+        for (size_t input = 0; input < static_cast<size_t>(GameInput::COUNT); input++) {
+            for (size_t binding = 0; binding < num_bindings_per_input; binding++) {
+                profiles::set_input_binding(profile, static_cast<GameInput>(input), binding,
+                    profiles::get_input_binding(sp_keyboard, static_cast<GameInput>(input), binding));
+            }
+        }
+    }
 
 }

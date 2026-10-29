@@ -43,6 +43,7 @@ wave-20 bonus stage. Good for testing later waves quickly.
   own robot; reassigning in the same session applies
 - ✅ Controllers Shared: unchanged
 - ✅ Switching Shared and back keeps the assignment; confirming the same layout again keeps the players separate
+- ✅ Settings: one line per option value; keyboard player card shows its working "Keyboard (Player N)" profile
 
 ## Controls
 - ✅ Left stick moves (analog)
