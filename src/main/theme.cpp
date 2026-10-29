@@ -4,13 +4,16 @@
 void recomptheme::set_custom_theme() {
     using namespace recompui;
 
-    theme::set_theme_color(theme::color::Background1, Color{10, 10, 11, 255});
-    theme::set_theme_color(theme::color::Background2, Color{19, 20, 21, 255});
-    theme::set_theme_color(theme::color::Background3, Color{27, 27, 29, 255});
+    // Palette after the game's title screen: dark purple backgrounds, the lavender of its menu text (Primary) and
+    // a brightened version of its red (Secondary).
+
+    theme::set_theme_color(theme::color::Background1, Color{14, 6, 28, 255});
+    theme::set_theme_color(theme::color::Background2, Color{24, 12, 44, 255});
+    theme::set_theme_color(theme::color::Background3, Color{34, 18, 60, 255});
     theme::set_theme_color(theme::color::BGOverlay, Color{199, 200, 204, 26}); // actually the overlay for the modal
-    theme::set_theme_color(theme::color::ModalOverlay, Color{10, 10, 11, 242}); // actually the background color of the modal itself
+    theme::set_theme_color(theme::color::ModalOverlay, Color{14, 6, 28, 225}); // actually the background color of the modal itself
     theme::set_theme_color(theme::color::BGShadow, Color{0, 0, 0, 89});
-    theme::set_theme_color(theme::color::BGShadow2, Color{10, 10, 11, 184});
+    theme::set_theme_color(theme::color::BGShadow2, Color{14, 6, 28, 184});
     theme::set_theme_color(theme::color::Text, Color{242, 242, 242, 255});
     theme::set_theme_color(theme::color::TextActive, Color{245, 245, 245, 255});
     theme::set_theme_color(theme::color::TextDim, Color{204, 204, 204, 255});
@@ -20,22 +23,22 @@ void recomptheme::set_custom_theme() {
     theme::set_theme_color(theme::color::TextA30, Color{242, 242, 242, 77});
     theme::set_theme_color(theme::color::TextA50, Color{242, 242, 242, 128});
     theme::set_theme_color(theme::color::TextA80, Color{242, 242, 242, 204});
-    theme::set_theme_color(theme::color::Primary, Color{29, 93, 226, 255});
-    theme::set_theme_color(theme::color::PrimaryL, Color{167, 191, 241, 255});
-    theme::set_theme_color(theme::color::PrimaryD, Color{0, 38, 117, 255});
-    theme::set_theme_color(theme::color::PrimaryA5, Color{29, 93, 226, 13});
-    theme::set_theme_color(theme::color::PrimaryA20, Color{29, 93, 226, 51});
-    theme::set_theme_color(theme::color::PrimaryA30, Color{29, 93, 226, 77});
-    theme::set_theme_color(theme::color::PrimaryA50, Color{29, 93, 226, 128});
-    theme::set_theme_color(theme::color::PrimaryA80, Color{29, 93, 226, 204});
-    theme::set_theme_color(theme::color::Secondary, Color{247, 158, 8, 255});
-    theme::set_theme_color(theme::color::SecondaryL, Color{255, 215, 148, 255});
-    theme::set_theme_color(theme::color::SecondaryD, Color{224, 141, 0, 255});
-    theme::set_theme_color(theme::color::SecondaryA5, Color{247, 158, 8, 13});
-    theme::set_theme_color(theme::color::SecondaryA20, Color{247, 158, 8, 51});
-    theme::set_theme_color(theme::color::SecondaryA30, Color{247, 158, 8, 77});
-    theme::set_theme_color(theme::color::SecondaryA50, Color{247, 158, 8, 128});
-    theme::set_theme_color(theme::color::SecondaryA80, Color{247, 158, 8, 204});
+    theme::set_theme_color(theme::color::Primary, Color{120, 110, 240, 255});
+    theme::set_theme_color(theme::color::PrimaryL, Color{200, 194, 255, 255});
+    theme::set_theme_color(theme::color::PrimaryD, Color{62, 50, 170, 255});
+    theme::set_theme_color(theme::color::PrimaryA5, Color{120, 110, 240, 13});
+    theme::set_theme_color(theme::color::PrimaryA20, Color{120, 110, 240, 51});
+    theme::set_theme_color(theme::color::PrimaryA30, Color{120, 110, 240, 77});
+    theme::set_theme_color(theme::color::PrimaryA50, Color{120, 110, 240, 128});
+    theme::set_theme_color(theme::color::PrimaryA80, Color{120, 110, 240, 204});
+    theme::set_theme_color(theme::color::Secondary, Color{240, 56, 80, 255});
+    theme::set_theme_color(theme::color::SecondaryL, Color{255, 150, 165, 255});
+    theme::set_theme_color(theme::color::SecondaryD, Color{170, 20, 45, 255});
+    theme::set_theme_color(theme::color::SecondaryA5, Color{240, 56, 80, 13});
+    theme::set_theme_color(theme::color::SecondaryA20, Color{240, 56, 80, 51});
+    theme::set_theme_color(theme::color::SecondaryA30, Color{240, 56, 80, 77});
+    theme::set_theme_color(theme::color::SecondaryA50, Color{240, 56, 80, 128});
+    theme::set_theme_color(theme::color::SecondaryA80, Color{240, 56, 80, 204});
     theme::set_theme_color(theme::color::Warning, Color{255, 254, 0, 255});
     theme::set_theme_color(theme::color::WarningL, Color{255, 254, 143, 255});
     theme::set_theme_color(theme::color::WarningD, Color{197, 163, 2, 255});

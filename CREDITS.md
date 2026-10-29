@@ -23,6 +23,10 @@ Robotron 64: Recompiled stands entirely on other people's work.
 - Inter, Noto Emoji, Suplexmentary Comic NC fonts and PromptFont — see `assets/` (PromptFont license in `assets/promptfont/LICENSE.txt`).
 - SlotMap — `lib/SlotMap/`.
 
+## Launcher and icon art
+- **[Orbitron](https://github.com/theleagueof/orbitron)** by Matt McInerney and The Orbitron Project Authors — launcher wordmark font, SIL Open Font License 1.1 (`assets/Orbitron-OFL.txt`; from google/fonts commit `8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5`).
+- The launcher backdrop (`assets/launcher/`) and the app icon (`icons/app.svg`, `icons/app-small.svg`) are original artwork made for this project, licensed with the rest of the repository (GPL-3.0). They use no game assets.
+
 ## The game
 Robotron 64 © 1998 Crave Entertainment / Player 1; Robotron: 2084 © Williams Electronics.
 This project contains no game code or assets; you must supply your own legally obtained ROM.

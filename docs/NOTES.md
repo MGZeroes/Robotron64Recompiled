@@ -2,6 +2,48 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-10-29 — Launcher look and app icon
+
+- **Research (other ports):** Banjo and Harvest Moon animate hand-drawn fan SVGs in the launcher update
+  callback; Snowboard Kids 2 and Dinosaur Planet use credited fan art; WCW committed the official logo (not
+  for us). No port shows ROM textures in the launcher.
+- **Renderer limits:** recompui's RmlUi render interface has no shader/filter hooks, so RCSS gradients,
+  shadows and blur don't draw. SVGs are rasterised by lunasvg, so soft shading goes into the SVGs.
+  `<img>` only shows byte-queued images; SVGs load from `assets/`.
+- **Launcher:** theme palette after the arena (navy, HUD blue-violet, laser yellow); `bg.svg` (sky, stars,
+  horizon glow, vignette) and `floor.svg` (converging grid lines); the cross lines are plain divs placed
+  each frame at 1/z below the horizon so the floor scrolls in perspective; four laser streaks; Orbitron
+  wordmark in place of the default title.
+- **Round 2 (user feedback):** lasers removed; colours now follow the title screen instead of the arena:
+  red/purple/blue diagonal bands in `bg.svg`, lavender grid, white + lavender wordmark, theme Primary lavender
+  and Secondary a brightened red.
+- **Settings on black:** the launcher's Settings/Controls/Mods buttons call `hide_all_contexts()` before
+  `config::open()` (RecompFrontend `ui_launcher.cpp`), so only the modal's translucent overlay is left. A still
+  copy of the backdrop (`SettingsBackdrop` in `launcher_animation.cpp`) now lives in the config modal's context,
+  created on the first launcher update (the modal is created after the launcher; the launcher context has to be
+  closed first, as contexts can't nest). It sits behind the modal with an inline `z-index: -1` (recompui has no
+  z-index setter and `set_property` is private; RmlUi draws negative z-index first) and hides while
+  `ultramodern::is_game_started()`, so the in-game settings still show the game.
+- **Round 3 (user request: "a background like the game's menu"):** the arena scene (`bg.svg`, `floor.svg`, the
+  scrolling cross lines) is replaced by `bands.svg`, a repeating red/purple/blue gradient, scaled 4x and slowly
+  drifted and turned with sines each frame, under a static `shade.svg`. Scaling uses a transform, so lunasvg
+  rasterises at window size. The settings backdrop shows the same bands, held still.
+  - First try stretched with the window's aspect (the bands element was window-sized with
+    `preserveAspectRatio="none"`) and moved too slowly to notice; fixed with a 640 dp square scaled 7× and a
+    steady 5°/s spin.
+- **Round 4 (user: "more like the game"):** the decomp shows the game's menu background is a 4×4 grid of
+  vertex colours, each on its own sine wave (see GAME.md, Menu background), not moving shapes. Replaced the SVG
+  bands with `ColorWaveElement`, a custom Rml element (tag `robotron64-colorwave`, registered through
+  `Rml::Factory` like RecompFrontend's `recomp-color`). Its `OnRender` builds a 16-vertex mesh each frame with
+  `RenderManager::MakeGeometry`; the RT64 render interface shades per vertex. Rejected alternatives: SVG
+  gradients can't express it; a per-frame image would go through `LoadTexture`, which creates a texture with a
+  GPU wait each time and doesn't keep it. Colours are now the game's (0x80 red/blue), and `shade.svg` is only a
+  mild vignette (the user found round 3 a little dark). The settings backdrop uses the same moving field.
+- **Icon:** `icons/app.svg` (+ `app-small.svg` for 16-32 px) rendered to `app.png` / `app.ico` by
+  `tools/make_icons.sh` in Docker (librsvg + ImageMagick). Windows: `icons/app.rc`; SDL 2.30.3 registers its
+  window class with the module's first icon group, so the window and taskbar use it too. Linux: `app.png`
+  embedded with `file_to_c` and set with `SDL_SetWindowIcon`. Both builds link.
+
 ## 2026-10-29 — Settings text, per-player keyboard profiles
 
 - The Controllers option showed "ONEPERPLAYER": key and display name were swapped in the enum entry

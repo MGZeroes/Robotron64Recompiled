@@ -727,7 +727,6 @@ void on_launcher_init(recompui::LauncherMenu *menu) {
     );
     game_options_menu->add_default_options();
 
-    recompui::Element *menu_container = menu->get_menu_container();
     robotron64::launcher_animation_setup(menu);
 }
 
@@ -822,7 +821,8 @@ int main(int argc, char** argv) {
 
     // Register fonts.
     recompui::register_primary_font("InterVariable.ttf", "Inter Variable");
-    recompui::register_extra_font("Suplexmentary Comic NC.ttf");
+    // Launcher wordmark (launcher_animation.cpp). SIL OFL 1.1, see assets/Orbitron-OFL.txt.
+    recompui::register_extra_font("Orbitron.ttf");
 
     // Register configuration path.
     recomp::register_config_path(recompui::file::get_app_folder_path());

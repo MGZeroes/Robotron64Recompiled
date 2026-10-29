@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Mild vignette over the launcher's colour wave for Robotron 64: Recompiled, so the title and buttons stay
+     readable. Original artwork made for this project (see CREDITS.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="none">
+  <defs>
+    <radialGradient id="vignette" cx="960" cy="540" r="1150" gradientUnits="userSpaceOnUse">
+      <stop offset="0.6" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0.35"/>
+    </radialGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#vignette)"/>
+</svg>
