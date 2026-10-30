@@ -2,6 +2,18 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-10-30 — Cabinet side art: pieces show 31 of 32 rows
+
+- The user's side-art replacement worked in the intro, but the 4 looked cut off at the seam between the middle
+  and bottom pieces. The panel's top edge also had a thin red and blue line.
+- Measured along the centre column of a screenshot: everything matched the design inside each piece, but about
+  32 design px were missing at each seam. The line at the top had the colours of the top piece's bottom row.
+- Explanation: the pieces are drawn with texture coordinates 0..31, and they use wrap mode (tile.json). I had
+  set shift `none` for `cabinet/*`, copying the font fix, so RT64 cut the bottom 32 px of every 1024 piece and
+  blended the top edge with the wrapped bottom row.
+- Fix: default shift `half`, which hides 16 px at every edge, plus overlapping slices at y 0/992/1984 on a
+  1024×3008 canvas. Documented in TEXTURE_PACKS.md ("Art split over several textures") and GAME.md.
+
 ## 2026-10-30 — Texture packs (HUD, fonts): a mod, outside the repo
 
 - Asked whether improved HUD/font textures should be a mod. Yes: the port already registers RT64 texture

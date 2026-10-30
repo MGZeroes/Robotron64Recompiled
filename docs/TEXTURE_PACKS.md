@@ -128,6 +128,26 @@ template's file name:
 { "path": "font/A.png", "hashes": { "rt64": "<hash>" } }
 ```
 
+## Art split over several textures
+
+Some pictures are made of several textures drawn side by side. One example is the "2084" side of the arcade
+cabinet in the intro: three 32×32 pieces stacked top to bottom (`side_art_top`, `_middle`, `_bottom`). Draw such
+art as one picture and export the pieces as slices (in Affinity: Export Persona, one slice per piece). Two
+things decide where the slices go:
+
+- **The game may not show a texture's full size.** The cabinet pieces are drawn with texture coordinates 0..31,
+  and on the N64 that means texel centres 0 to 31, so only 31 of the 32 rows show. RT64 reproduces this with
+  the default shift `half`: in a 1024 px replacement, 16 px at every edge are hidden. With shift `none` the
+  hidden part moves to the bottom 32 px, and the top edge blends with the bottom row instead, because these
+  textures wrap.
+- **So the slices overlap.** Lay the art out on a 1024 × 3008 canvas: 3 × 992 visible rows plus the hidden
+  16 px above and below. Put the slices at y 0, 992 and 1984, each 1024 × 1024. Neighbouring slices then share
+  32 rows. Each copy of those rows is half hidden, so nothing is shown twice and nothing is missing.
+
+Keep the default shift (no `shiftFilters` entry) for such pieces. The font needs `none` for a different reason:
+its glyphs reach the edge of their tile, and `half` cut off their tops. If a replacement looks cut off or shows
+a thin line from the opposite edge, try the other shift first.
+
 ## Share it
 
 ```powershell
