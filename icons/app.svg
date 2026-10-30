@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- App icon for Robotron 64: Recompiled: the robot from the box art, drawn as fan art for this project
-     (see CREDITS.md). Robotron and its characters belong to their owners. The chest emblem is simplified.
+     (see CREDITS.md). Robotron and its characters belong to their owners. Faces traced after the box art;
+     the chest emblem is abstract (no letter).
      Elements with class="detail" are left out of the 16-32 px variant, icons/app-small.svg. Rendered to
      app.png / app.ico by tools/make_icons.sh. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
@@ -11,6 +12,11 @@
       <stop offset="0.4" stop-color="#141040"/>
       <stop offset="0.6" stop-color="#07071e"/>
     </linearGradient>
+    <radialGradient id="headglow" cx="268" cy="70" r="150" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#e6dcff" stop-opacity="0.75"/>
+      <stop offset="0.35" stop-color="#b49cff" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#8a6ae0" stop-opacity="0"/>
+    </radialGradient>
     <radialGradient id="glow" cx="256" cy="70" r="300" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#8a6ae0" stop-opacity="0.6"/>
       <stop offset="1" stop-color="#8a6ae0" stop-opacity="0"/>
@@ -29,6 +35,8 @@
   <g clip-path="url(#tile)">
     <rect width="512" height="512" fill="url(#sky)"/>
     <rect width="512" height="512" fill="url(#glow)"/>
+    <!-- lamp-like glow behind the robot's head, as on the box art -->
+    <rect width="512" height="512" fill="url(#headglow)"/>
     <rect y="300" width="512" height="212" fill="url(#floor)"/>
     <!-- the box art's blue grid floor: lines converging past the horizon, cross lines closer together far away -->
     <g class="detail" clip-path="url(#floorclip)" stroke="url(#gridfade)" fill="none">
@@ -65,55 +73,51 @@
         <line x1="0" y1="496" x2="512" y2="496"/>
       </g>
     </g>
-    <ellipse cx="270" cy="452" rx="140" ry="18" fill="#000" opacity="0.4"/>
   </g>
-  <!-- All blocks use the same depth offset (+24, -16): front face, lighter top, darker right side. -->
-  <!-- far arm, hanging behind the body -->
-  <polygon points="112,150 136,134 184,134 160,150" fill="#737882"/>
-  <rect x="112" y="150" width="48" height="52" fill="#50545e"/>
-  <rect x="114" y="200" width="44" height="92" fill="#474b54"/>
-  <polygon points="106,292 130,276 186,276 162,292" fill="#ffffff"/>
-  <polygon points="162,292 186,276 186,320 162,336" fill="#b0b0b8"/>
-  <rect x="106" y="292" width="56" height="44" fill="#e4e4ea"/>
-  <!-- far leg, back -->
-  <polygon points="242,300 266,284 266,370 242,386" fill="#6f747d"/>
-  <rect x="196" y="300" width="46" height="86" fill="#a7acb5"/>
-  <polygon points="176,386 200,370 274,370 250,386" fill="#ee4c50"/>
-  <polygon points="176,386 250,386 250,418 168,418" fill="#c81d26"/>
-  <!-- near leg, forward -->
-  <polygon points="326,296 350,280 358,388 334,404" fill="#7d838d"/>
-  <polygon points="270,296 326,296 334,404 278,404" fill="#b9bec6"/>
-  <polygon points="262,404 286,388 376,388 352,404" fill="#f0565a"/>
-  <polygon points="352,404 376,388 384,430 360,446" fill="#8e0f17"/>
-  <polygon points="262,404 352,404 360,446 250,446" fill="#d8202a"/>
-  <!-- chest -->
-  <polygon points="146,128 170,112 378,112 354,128" fill="#f0565a"/>
-  <polygon points="354,128 378,112 350,282 326,298" fill="#8a0c14"/>
-  <polygon points="146,128 354,128 326,298 180,298" fill="#cc1820"/>
-  <!-- chest emblem, simplified -->
-  <rect x="222" y="148" width="58" height="66" rx="4" fill="#ffffff"/>
-  <rect x="236" y="162" width="22" height="24" fill="#cc1820"/>
-  <rect class="detail" x="218" y="226" width="66" height="9" fill="#ffffff"/>
-  <rect class="detail" x="218" y="242" width="66" height="9" fill="#ffffff"/>
-  <rect class="detail" x="218" y="258" width="66" height="9" fill="#ffffff"/>
-  <!-- near arm, raised: upper arm hanging from the shoulder, forearm up, white fist on top -->
-  <polygon points="408,170 432,154 432,210 408,226" fill="#24262b"/>
-  <rect x="372" y="170" width="36" height="56" fill="#3a3d44"/>
-  <polygon points="468,132 492,116 492,212 468,228" fill="#24262b"/>
-  <rect x="430" y="132" width="38" height="96" fill="#44474f"/>
-  <rect x="372" y="212" width="96" height="16" fill="#3a3d44"/>
-  <polygon points="424,92 448,76 498,76 474,92" fill="#ffffff"/>
-  <polygon points="474,92 498,76 498,118 474,134" fill="#b0b0b8"/>
-  <rect x="424" y="92" width="50" height="42" fill="#e8e8ee"/>
-  <polygon points="352,118 376,102 424,102 400,118" fill="#5a5e66"/>
-  <polygon points="400,118 424,102 424,154 400,170" fill="#24262b"/>
-  <rect x="352" y="118" width="48" height="52" fill="#3a3d44"/>
-  <!-- head: white slab with a red top, sitting on the chest's top face, tilted a little -->
-  <g transform="rotate(-4 248 122)">
-    <polygon points="204,72 228,56 316,56 292,72" fill="#ef4a4a"/>
-    <polygon points="292,72 316,56 316,72 292,88" fill="#a3121c"/>
-    <polygon points="292,88 316,72 316,106 292,122" fill="#babac2"/>
-    <rect x="204" y="72" width="88" height="16" fill="#d8202a"/>
-    <rect x="204" y="88" width="88" height="34" fill="#f4f4f6"/>
+  <!-- The robot, faces after the box art: light from the upper left, so each block shows a light top, a
+       mid-tone front and a very dark right side. Coordinates are in a 555 x 447 drawing space mapped onto the
+       tile. -->
+  <g transform="translate(48 44) scale(0.9) translate(-30 -30)">
+    <!-- viewer's left arm, held out sideways -->
+    <polygon points="62,146 178,96 170,215 72,250" fill="#3e4248"/>
+    <polygon points="30,132 62,146 72,250 40,236" fill="#6e7278"/>
+    <polygon points="30,132 148,86 178,96 62,146" fill="#e8e8ea"/>
+    <!-- hips, in shadow between the legs -->
+    <polygon points="200,248 342,242 332,272 210,274" fill="#1c0c12"/>
+    <!-- viewer's right leg, nearly upright -->
+    <polygon points="358,300 393,296 406,384 373,383" fill="#6f7c72"/>
+    <polygon points="292,257 342,257 358,300 373,383 311,380" fill="#93a096"/>
+    <polygon points="342,257 368,259 393,296 358,300" fill="#eeeeee"/>
+    <!-- right foot: bright front face (wider at the bottom) and a dark right side; the top is hidden -->
+    <polygon points="376,384 418,386 417,438 370,447" fill="#2a0608"/>
+    <polygon points="291,382 376,384 370,447 278,447" fill="#f0281c"/>
+    <!-- viewer's left leg, striding out -->
+    <polygon points="233,256 271,257 265,348 245,403 198,348" fill="#3b443d"/>
+    <polygon points="196,257 233,256 198,350 143,348 170,281" fill="#f6f6f6"/>
+    <!-- left foot: red top, dark front and underside reaching down to the right -->
+    <polygon points="86,395 146,397 184,346 198,348 245,403 249,401 246,435 121,425" fill="#1e0a0a"/>
+    <polygon points="86,395 128,347 184,346 146,397" fill="#f0281c"/>
+    <!-- head: a white block seen from the front, lower corners cut, thin red top, dark side and underside;
+         behind the torso -->
+    <polygon points="204,76 238,84 325,74 350,74 345,88 240,96 210,88" fill="#2a0608"/>
+    <polygon points="341,28 354,42 350,74 325,74 343,56" fill="#3a0c10"/>
+    <polygon points="205,50 212,46 338,23 341,28" fill="#d01a1e"/>
+    <polygon points="205,50 341,28 343,56 325,74 238,84 204,76" fill="#f4f4f6"/>
+    <!-- torso: dark right side, red front -->
+    <polygon points="378,78 398,90 355,245 335,250" fill="#2a0608"/>
+    <polygon points="160,100 378,78 335,250 205,255" fill="#e3141c"/>
+    <!-- chest emblem, abstract (no letter): tilted with the torso; stripes thinning with the perspective -->
+    <polygon points="232,121 289,116 290,177 233,180" fill="#ffffff"/>
+    <polygon points="244,129 278,126 279,164 244,168" fill="#e3141c"/>
+    <polygon points="249,133 273,131 274,160 249,163" fill="#ffffff"/>
+    <polygon class="detail" points="233,186 290,182 290,194 233,197" fill="#ffffff"/>
+    <polygon class="detail" points="233,201 290,199 291,208 234,210" fill="#ffffff"/>
+    <polygon class="detail" points="234,215 291,213 291,219 234,220" fill="#ffffff"/>
+    <polygon class="detail" points="234,224 291,222 291,226 234,227" fill="#ffffff"/>
+    <!-- viewer's right arm, in front of the torso: a long block leaning right as it goes down, big tilted
+         square top, wide main face, narrow dark right face -->
+    <polygon points="441,157 456,107 481,226 473,284" fill="#4b5650"/>
+    <polygon points="381,142 441,157 473,284 446,289" fill="#353f3a"/>
+    <polygon points="381,142 403,91 456,107 441,157" fill="#f4f4f4"/>
   </g>
 </svg>

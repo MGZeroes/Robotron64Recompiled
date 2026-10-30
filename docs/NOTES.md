@@ -11,9 +11,14 @@ Running log, newest at top. Failed attempts stay in.
 - I misread "the head fits good into the main menu" as picking the head for the app icon (`ef0c5fa`). The user
   meant: the head goes into the launcher like the game's menu, the robot is the app icon. Fixed with
   follow-up commits, no history rewrite.
-- `icons/app.svg`: the robot in three-quarter view, mid-stride, one fist raised, on the box art's navy sky and
-  blue grid floor. All blocks share one depth offset (+24, -16); the first draft mixed offsets and looked off.
-  Elements with `class="detail"` (grid, emblem stripes) are dropped for `app-small.svg` (16-32 px).
+- `icons/app.svg`: the robot on the box art's navy sky and blue grid floor. First drafts were drawn freehand
+  (one fist raised, a fixed depth offset); the user wanted it like the box art, so the visible faces are now
+  traced from the user's box-art crop in its own pixel space (mapped onto the tile with one transform): left
+  arm held out, right arm hanging and leaning, head behind the torso, striding left leg, upright right leg,
+  each face in the art's tone. Each part was checked in zoomed side-by-side crops against the reference
+  until it matched (one gap between foot and leg was found that way). The chest emblem stays abstract (no
+  "G"; it resembles the publisher's logo; user's choice). A lamp-like glow sits behind the head, no floor
+  shadow. Elements with `class="detail"` (grid, emblem stripes) are dropped for `app-small.svg` (16-32 px).
 - `assets/launcher/hero.svg`: light-bulb cranium, arched brows, figure-8 goggles with one gradient across both
   lenses (green through lavender to pink, as the game's lenses shift between green and pink), purple irises.
   Transparent, viewBox cropped to the head.
