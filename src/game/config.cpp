@@ -41,6 +41,12 @@ bool robotron64::controllers_per_player_enabled() {
     return controllers_per_player.load();
 }
 
+static std::atomic_bool first_person = true;
+
+bool robotron64::first_person_enabled() {
+    return first_person.load();
+}
+
 // Called from the func_80022528 hook (robotron64.us.toml) with the session play style.
 extern "C" int32_t robotron64_two_player_style(int32_t style) {
     return (style == 1 && simultaneous_two_player.load()) ? 3 : style;
@@ -128,6 +134,30 @@ static void add_general_options(recomp::config::Config &config) {
             bool per_player = std::get<uint32_t>(cur_value) != 0;
             controllers_per_player.store(per_player);
             recompinput::players::set_single_player_mode(!per_player);
+        });
+
+    // The game has a finished first-person camera (view FIRST) that was left out of the L/R camera cycle.
+    // first_person.cpp puts it back after OVERHEAD. See docs/GAME.md (Camera).
+    static EnumOptionVector first_person_options = {
+        {0, "Off", "Off"},
+        {1, "On", "On"},
+    };
+    config.add_enum_option(
+        robotron64::configkeys::general::first_person,
+        "First-Person Camera",
+        "<recomp-color primary>On</recomp-color>: L or R cycles through the game's unused first-person view too, "
+        "after Overhead. It uses the game's own tank controls: the stick turns and walks, shots go where you "
+        "look, and Z looks around."
+        "<br />"
+        "<recomp-color primary>Off</recomp-color>: the original four camera views."
+        "<br /><br />"
+        "Single player only.",
+        first_person_options,
+        1
+    );
+    config.add_option_change_callback(robotron64::configkeys::general::first_person,
+        [](recomp::config::ConfigValueVariant cur_value, recomp::config::ConfigValueVariant, recomp::config::OptionChangeContext) {
+            first_person.store(std::get<uint32_t>(cur_value) != 0);
         });
 }
 

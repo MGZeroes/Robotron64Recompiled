@@ -248,6 +248,11 @@ extern "C" void robotron64_coop_game_start(int32_t style) {
     coop_game = style == 3;
 }
 
+// For first_person.cpp: style 0 is also what a co-op game turns into once the first player is out.
+extern "C" bool robotron64_coop_game_active() {
+    return coop_game;
+}
+
 // Style 3 out-of-lives branch (L_80033D90 in func_80033974), before the switch to style 0.
 extern "C" void robotron64_coop_player_out(uint8_t* rdram, int32_t player) {
     if (simultaneous(rdram) && first_out < 0) {

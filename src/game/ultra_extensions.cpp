@@ -133,12 +133,21 @@ extern "C" int32_t robotron64_hud_x(int32_t x, int32_t y) {
     return x + static_cast<int32_t>(hud_run_offset);
 }
 
-// Object culling, called from the three draw-routine hooks (robotron64.us.toml) with abs(camera x).
-// Dividing it by the widening factor widens the game's horizontal cull cone to match the view. The
+// Object culling, called from the three draw-routine hooks (robotron64.us.toml) with abs(camera x) and
+// abs(camera y). Dividing them widens the game's cull cone to match the view: horizontally by the widening
+// factor, and in the first-person view (first_person.cpp) by its wider lens in both directions. The
 // test uses the object's centre, so objects vanished while still half on screen (hidden by TV
 // overscan on hardware); the margin keeps them drawn until they have left the view.
 constexpr float cull_margin = 1.2f;
 
-extern "C" int32_t robotron64_cull_abs_x(int32_t abs_x) {
-    return static_cast<int32_t>(abs_x / (view_widening() * cull_margin));
+float robotron64_first_person_cull_x(uint8_t* rdram);
+float robotron64_first_person_cull_y(uint8_t* rdram);
+
+extern "C" int32_t robotron64_cull_abs_x(uint8_t* rdram, int32_t abs_x) {
+    return static_cast<int32_t>(abs_x / (view_widening() * robotron64_first_person_cull_x(rdram) * cull_margin));
+}
+
+extern "C" int32_t robotron64_cull_abs_y(uint8_t* rdram, int32_t abs_y) {
+    float widen = robotron64_first_person_cull_y(rdram);
+    return widen == 1.0f ? abs_y : static_cast<int32_t>(abs_y / (widen * cull_margin));
 }

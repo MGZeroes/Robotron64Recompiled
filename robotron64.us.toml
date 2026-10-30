@@ -145,17 +145,17 @@ text = "{ int32_t robotron64_hud_x(int32_t, int32_t); ctx->r4 = (gpr)(int32_t)ro
 [[patches.hook]]
 func = "func_8003D43C"
 before_vram = 0x8003D5D0
-text = "{ int32_t robotron64_cull_abs_x(int32_t); ctx->r2 = (gpr)(int32_t)robotron64_cull_abs_x((int32_t)ctx->r2); }"
+text = "{ int32_t robotron64_cull_abs_x(uint8_t*, int32_t); ctx->r2 = (gpr)(int32_t)robotron64_cull_abs_x(rdram, (int32_t)ctx->r2); }"
 
 [[patches.hook]]
 func = "func_8003D7F4"
 before_vram = 0x8003D988
-text = "{ int32_t robotron64_cull_abs_x(int32_t); ctx->r2 = (gpr)(int32_t)robotron64_cull_abs_x((int32_t)ctx->r2); }"
+text = "{ int32_t robotron64_cull_abs_x(uint8_t*, int32_t); ctx->r2 = (gpr)(int32_t)robotron64_cull_abs_x(rdram, (int32_t)ctx->r2); }"
 
 [[patches.hook]]
 func = "func_8003E220"
 before_vram = 0x8003E458
-text = "{ int32_t robotron64_cull_abs_x(int32_t); ctx->r2 = (gpr)(int32_t)robotron64_cull_abs_x((int32_t)ctx->r2); }"
+text = "{ int32_t robotron64_cull_abs_x(uint8_t*, int32_t); ctx->r2 = (gpr)(int32_t)robotron64_cull_abs_x(rdram, (int32_t)ctx->r2); }"
 
 # Simultaneous two-player (experimental, option Two Player Mode). func_80022528(level, mode, style)
 # starts a game (decomp session_scene_start.c); TWO PLAYER passes style 1 (alternating). Style 3 is
@@ -220,7 +220,7 @@ text = "{ void robotron64_coop_save_aim(uint8_t*, gpr); robotron64_coop_save_aim
 [[patches.hook]]
 func = "func_8003A8B0"
 before_vram = 0x8003A990
-text = "{ void robotron64_coop_select_object(uint8_t*, int32_t); robotron64_coop_select_object(rdram, (int32_t)ctx->r21); }"
+text = "{ void robotron64_coop_select_object(uint8_t*, int32_t); int robotron64_first_person_hide(int32_t); robotron64_coop_select_object(rdram, (int32_t)ctx->r21); if (robotron64_first_person_hide((int32_t)ctx->r21)) { goto L_8003B20C; } }"
 
 # HUD wave: entry of the HUD state function func_800371FC (decomp game_hud_state.c).
 [[patches.hook]]
@@ -233,3 +233,46 @@ text = "{ void robotron64_coop_hud_wave(uint8_t*); robotron64_coop_hud_wave(rdra
 func = "func_80050BD0"
 before_vram = 0x80050C6C
 text = "if (MEM_W(0, ctx->r18) == 0) { MEM_W(0, ctx->r18) = (int32_t)0x8014B9E0; }"
+
+# First-person camera (option First-Person Camera, src/game/first_person.cpp): the game's finished but
+# unused camera view 8 "FIRST". Addresses from the disassembly (build/analysis/cpu); none is a delay slot.
+# Cycle: func_8001276C stores the next view at 0x8001286C (sb $v0 to the player's selection05).
+[[patches.hook]]
+func = "func_8001276C"
+before_vram = 0x8001286C
+text = "{ void robotron64_camera_cycle(uint8_t*, recomp_context*); robotron64_camera_cycle(rdram, ctx); }"
+
+# HUD camera name: func_800126E0 searches the cycle table, which has no view 8; return the FIRST name.
+[[patches.hook]]
+func = "func_800126E0"
+before_vram = 0x800126E0
+text = "{ int32_t robotron64_camera_name(uint8_t*); int32_t name = robotron64_camera_name(rdram); if (name != 0) { ctx->r2 = (gpr)name; return; } }"
+
+# Once per frame at the start of the object draw (the per-object hide is in the 0x8003A990 hook above).
+[[patches.hook]]
+func = "func_8003A8B0"
+before_vram = 0x8003A8B0
+text = "{ void robotron64_first_person_frame(uint8_t*); robotron64_first_person_frame(rdram); }"
+
+# Culling |y|: right after the second abs() call in each of the three draw routines (the |x| hooks are
+# above), `lw ... 0x30($s0)` followed by `sll $t5, $v0, 1`.
+[[patches.hook]]
+func = "func_8003D43C"
+before_vram = 0x8003D5FC
+text = "{ int32_t robotron64_cull_abs_y(uint8_t*, int32_t); ctx->r2 = (gpr)(int32_t)robotron64_cull_abs_y(rdram, (int32_t)ctx->r2); }"
+
+[[patches.hook]]
+func = "func_8003D7F4"
+before_vram = 0x8003D9B4
+text = "{ int32_t robotron64_cull_abs_y(uint8_t*, int32_t); ctx->r2 = (gpr)(int32_t)robotron64_cull_abs_y(rdram, (int32_t)ctx->r2); }"
+
+[[patches.hook]]
+func = "func_8003E220"
+before_vram = 0x8003E484
+text = "{ int32_t robotron64_cull_abs_y(uint8_t*, int32_t); ctx->r2 = (gpr)(int32_t)robotron64_cull_abs_y(rdram, (int32_t)ctx->r2); }"
+
+# Near plane: func_80048DDC stores it (100.0) at sp+0x10 at 0x80048F20 before the perspective call.
+[[patches.hook]]
+func = "func_80048DDC"
+before_vram = 0x80048F24
+text = "{ void robotron64_first_person_near(uint8_t*, recomp_context*); robotron64_first_person_near(rdram, ctx); }"

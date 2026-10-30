@@ -13,6 +13,7 @@ namespace robotron64 {
             inline const std::string analog_aim = "analog_aim";
             inline const std::string two_player_mode = "two_player_mode";
             inline const std::string controllers = "controllers";
+            inline const std::string first_person = "first_person";
         }
     }
 
@@ -28,6 +29,10 @@ namespace robotron64 {
     // "Controllers" option: One per player puts recompinput in multiplayer mode (players assigned in
     // Settings > Controls), so player 2 has their own pad. See main.cpp get_n64_input.
     bool controllers_per_player_enabled();
+
+    // "First-Person Camera" option: L/R camera cycling also reaches the game's cut FIRST view (single player).
+    // See first_person.cpp.
+    bool first_person_enabled();
 };
 
 #endif

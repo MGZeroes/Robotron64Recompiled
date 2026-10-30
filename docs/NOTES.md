@@ -2,6 +2,29 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-10-30 — First-person camera (the game's cut FIRST view)
+
+- Asked what a first-person mode would need. An Explore pass found the game already has one: camera view 8
+  "FIRST" is fully coded in the camera director (eye at the player, pitch 0, wide lens, tank controls and
+  facing-relative shots via `D_8007394C`) but missing from the L/R cycle table `D_80073864 = {10, 1, 9, 3, 0}`,
+  while the name table still lists five names. Details in GAME.md (Camera views, First-person view).
+- User's choices: add it to the L/R cycle, keep the game's tank controls, single player only.
+- `src/game/first_person.cpp` + hooks (robotron64.us.toml, end of file):
+  - Cycle: at 0x8001286C (func_8001276C storing the next view), a wrap from OVERH goes to view 8 instead,
+    leaving the index on OVERH so the next press wraps to ARENA. The cycle table can't be extended in place
+    (the next table `D_80073878` follows it).
+  - HUD name: func_800126E0 entry returns the FIRST name for view 8.
+  - Per frame (func_8003A8B0 entry): leave view 8 when not allowed (option off, two players, also after a
+    co-op game's first player is out, as it switches to style 0); find the player's object.
+  - Hide the player: in the existing 0x8003A990 draw-loop hook, `goto L_8003B20C` (the loop's skip path) for
+    the player's object, which also skips its floor ring and aim pose. Toggling the object's enabled flag
+    instead would be undone by the invulnerability blink.
+  - Culling: the x hooks now get rdram and divide by 0.95/0.5 more in view 8; new y hooks after the second
+    abs() call (0x8003D5FC, 0x8003D9B4, 0x8003E484) divide by 0.71/0.5.
+  - Near plane: 25 instead of 100 in view 8 (hook at 0x80048F24, value at sp+0x10).
+  - Option First-Person Camera (On by default).
+- Hook text is compiled as C: `bool` is not available there, so the hide helper returns int.
+
 ## 2026-10-30 — App icon: box-art robot; hero head in the launcher (fan art)
 
 - The user asked for icons of the game's characters and chose a fan-art likeness, knowing it is a derivative
