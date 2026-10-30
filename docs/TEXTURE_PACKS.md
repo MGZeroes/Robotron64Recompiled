@@ -144,6 +144,12 @@ things decide where the slices go:
   16 px above and below. Put the slices at y 0, 992 and 1984, each 1024 × 1024. Neighbouring slices then share
   32 rows. Each copy of those rows is half hidden, so nothing is shown twice and nothing is missing.
 
+The same applies sideways. All cabinet textures (side art, bezel, marquee, control panel) are 32×32 wrap tiles,
+like the side art, so expect 16 px hidden on every side of every piece. For a grid of C columns × R rows, use a
+canvas of (C·992 + 32) × (R·992 + 32) with the art 16 px in from each edge. The slice for column i, row j is
+1024 × 1024 at x = i·992, y = j·992. Only the vertical direction has been checked in the game so far, on the
+side art; check the horizontal one with the first picture whose pieces sit side by side.
+
 Keep the default shift (no `shiftFilters` entry) for such pieces. The font needs `none` for a different reason:
 its glyphs reach the edge of their tile, and `half` cut off their tops. If a replacement looks cut off or shows
 a thin line from the opposite edge, try the other shift first.
