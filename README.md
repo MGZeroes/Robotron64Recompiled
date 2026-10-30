@@ -95,5 +95,17 @@ session; until then pads only open the menu. The keyboard drives the player it w
 Each pad starts with the default mapping, and each player's keyboard profile with the normal key bindings; both
 can be edited on the player's card.
 
+## First person
+The game has a finished first-person camera that was left out of the camera list. With Settings → General →
+**First-Person Camera** on, L or R cycles to it after Overhead (single player only). **Classic** keeps the
+game's own tank controls: the stick turns and walks, and Z looks around. **Modern**: the left stick walks and
+strafes, the right stick turns, and A or B fires ahead.
+
+## Texture packs
+HUD, font and other textures can be replaced with RT64 texture packs, loaded as mods from the game's mods
+folder and switched on and off in the Mods menu. [docs/TEXTURE_PACKS.md](docs/TEXTURE_PACKS.md) explains how
+to make one with RT64's in-game inspector and `tools/texture_pack.ps1`. Packs are shared separately; this
+repository contains no game assets.
+
 ## License
 GPL-3.0 (see [LICENSE](LICENSE)). Credits: [CREDITS.md](CREDITS.md).

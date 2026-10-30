@@ -2,6 +2,32 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-10-30 — Texture packs (HUD, fonts): a mod, outside the repo
+
+- Asked whether improved HUD/font textures should be a mod. Yes: the port already registers RT64 texture
+  packs (`.rtz`, content `rt64.json`) as a mod type, toggleable at runtime (main.cpp). Upgraded textures are
+  derived from the game's art, so packs stay out of this repo (rule 1) and are shared separately.
+- Verified in the pinned sources: a plain folder in the mods folder with `mod.json` + `rt64.json` + images
+  loads as a pack (librecomp `mods.cpp` loose mods; RT64 opens folders and zips alike); `mod.json` needs
+  `game_id` "robotron64" and `minimum_recomp_version` <= 0.1.0; `rt64.json` must state `hashVersion` 5 (it
+  defaults to 1, which blocks the inspector's Replace). Dev Mode is a hidden graphics option
+  (`developer_mode` in graphics.json, read at renderer start); F1 opens RT64's inspector (Dump PNG, Copy
+  hash, Replace with a single folder pack, Save directory). No file watching: toggle the pack in the Mods
+  menu to reload; a new pack folder needs a restart.
+- Added `tools/texture_pack.ps1` (-Init pack folder from `tools/texture_pack_template/`, -DevMode On/Off
+  keeping the other graphics.json keys, -Pack to a plain-zip `.rtz`) and `docs/TEXTURE_PACKS.md`; README
+  sections for First person and Texture packs. The script was tested against a temporary config folder;
+  loading a pack in the game is the user's check.
+- The user's machine blocks scripts (no execution policy set, so Windows' Restricted default); the tool
+  shell here runs with Bypass, which is why build scripts always worked from here. Guide now says how.
+- First dump: 134 textures, all 32x32 CI8 (RGBA16 palette), in `dump/` (now gitignored, with
+  `texture_work/`). Classified by eye from a 4x overview into `tools/texture_classes.txt`: font 41 (A-Z,
+  0-9, period, question, END/DEL/SPC: the name-entry alphabet, one glyph per texture, white with outline,
+  tinted by the game), arena 34 (labels are best guesses: banner/strip pieces may belong to title or attract
+  screens), effects 46, models 7 (eye, shoes), icons 1 (lives head), other 5. `tools/sort_dump.sh` sorts a
+  dump into 4x nearest-neighbour templates per category with labelled sheets and an index. ImageMagick in the
+  image has no default font, so sheet labels use assets/InterVariable.ttf.
+
 ## 2026-10-30 — First-person camera (the game's cut FIRST view)
 
 - Asked what a first-person mode would need. An Explore pass found the game already has one: camera view 8

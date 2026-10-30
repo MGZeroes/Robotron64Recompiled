@@ -90,3 +90,7 @@ rsp/*.cpp
 __pycache__/
 build-tools/
 build-linux/
+# Texture dumps from RT64's inspector (extracted from the ROM) and the sorted workspace made from them
+# (tools/sort_dump.sh). Texture packs live in the game's mods folder, never here. See docs/TEXTURE_PACKS.md.
+dump/
+texture_work/

@@ -5,7 +5,7 @@ Robotron 64: Recompiled stands entirely on other people's work.
 ## Recompilation toolchain
 - **[N64Recomp](https://github.com/N64Recomp/N64Recomp)** by Wiseguy (Mr-Wiseguy) and contributors — static recompiler (MIT).
 - **[N64ModernRuntime](https://github.com/N64Recomp/N64ModernRuntime)** (ultramodern + librecomp) by Wiseguy and contributors — runtime (GPL-3.0).
-- **[RT64](https://github.com/rt64/rt64)** by Dario (DarioSamo) and contributors — N64 graphics renderer (MIT).
+- **[RT64](https://github.com/rt64/rt64)** by Dario (DarioSamo) and contributors — N64 graphics renderer (MIT), including the texture pack support, inspector and texture tools that docs/TEXTURE_PACKS.md uses.
 - **[RecompFrontend](https://github.com/N64Recomp/RecompFrontend)** by the N64Recomp contributors — shared menus and input (GPL-3.0).
 
 ## Project template

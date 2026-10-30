@@ -1,0 +1,10 @@
+{
+    "game_id": "robotron64",
+    "id": "__ID__",
+    "display_name": "__NAME__",
+    "description": "Texture pack for Robotron 64: Recompiled.",
+    "short_description": "Texture pack",
+    "version": "0.1.0",
+    "authors": [ "__AUTHOR__" ],
+    "minimum_recomp_version": "0.1.0"
+}
