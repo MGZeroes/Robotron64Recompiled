@@ -27,6 +27,11 @@ Running log, newest at top. Failed attempts stay in.
   screens), effects 46, models 7 (eye, shoes), icons 1 (lives head), other 5. `tools/sort_dump.sh` sorts a
   dump into 4x nearest-neighbour templates per category with labelled sheets and an index. ImageMagick in the
   image has no default font, so sheet labels use assets/InterVariable.ttf.
+- The user spotted where the "arena" banners come from: the arcade cabinet in the intro (marquee, screen
+  bezel with the coloured symbols, control panel with "2084", coin door, side art). Moved them and three of
+  the "other" ones to a new `cabinet` category: now font 41, cabinet 35, effects 46, models 7, arena 3
+  (floor tiles, sky swirl), icons 1, other 1. A later dump added the © and ® glyphs (copyright screen):
+  font 43, 136 textures in all.
 
 ## 2026-10-30 — First-person camera (the game's cut FIRST view)
 

@@ -1,42 +1,52 @@
 # Robotron 64 texture classification for tools/sort_dump.sh: <rt64 v5 hash> <category> <label>.
 # Hashes are RT64's texture hashes (file names in an RT64 dump); labels are ours. No game data here.
-# Categories: font (the italic glyph set: A-Z, 0-9, period, question, END/DEL/SPC name-entry keys), icons
-# (HUD), arena (wall banners, floor, ramps, sky), effects (glows, smoke, sparks, shots), models (character
-# textures), other (not identified yet). Labels repeat where the game has several variants.
-9a65a4aed14824b2 arena banner_robo
-4528426d684dab68 arena banner_robot
-7119bd70607ad915 arena banner_robot
-7267ae6ebed93b0e arena banner_robot
-77cca47ff91a2a7b arena banner_robot
-8ec1bc4224f0bddd arena banner_robot
-a1ad5e555d2bb901 arena banner_robot
-0d1352d257c68fe3 arena banner_tron
-434d464bb632c608 arena banner_tron
-a05738435bf9b2ed arena banner_tron
-a17c8dc72c3a5898 arena banner_tron
-b2f0d5dc483c01f3 arena banner_tron
-b32225a487a38371 arena banner_tron
-d9e687880729645d arena banner_tron
+# Categories:
+#   font     the italic glyph set: A-Z, 0-9, period, question, copyright, registered, END/DEL/SPC keys
+#   cabinet  the arcade cabinet in the intro: marquee, screen bezel, control panel, coin door, side art
+#   icons    HUD icons
+#   arena    floor tiles, sky
+#   effects  glows, smoke, sparks, shots
+#   models   character textures
+#   other    not identified yet
+# Labels repeat where the game has several variants.
 8976c57c673c072a arena floor_dark
 667ad04e14785b44 arena floor_tile
-9f524244111b17ed arena ramp_2
-34ca5b1f98ddfae0 arena ramp_4
 a8c31d78be2a0ccc arena sky_swirl
-590eea25d49e8d38 arena wall_machine
-bc8a898b31d7fa28 arena wall_machine
-cf397593ae7a896b arena wall_panel
-028ac770e59f6751 arena wall_strip
-2342bc0eab955615 arena wall_strip
-26a8c6c1f32f0e9b arena wall_strip
-2c6aa7d164ab1dda arena wall_strip
-402450d46825c219 arena wall_strip
-a719ce77f8b8547b arena wall_strip
-c10848a149591a36 arena wall_strip
-c9678148e87c5d9f arena wall_strip
-eb1d0774574fdedd arena wall_strip
-ee9e746400955d46 arena wall_strip
-f5b8962825db7b62 arena wall_strip
-fe431382a9eddef8 arena wall_strip
+028ac770e59f6751 cabinet bezel_bottom
+2342bc0eab955615 cabinet bezel_bottom
+26a8c6c1f32f0e9b cabinet bezel_bottom
+2c6aa7d164ab1dda cabinet bezel_bottom
+402450d46825c219 cabinet bezel_bottom
+a719ce77f8b8547b cabinet bezel_bottom
+c10848a149591a36 cabinet bezel_bottom
+c9678148e87c5d9f cabinet bezel_bottom
+eb1d0774574fdedd cabinet bezel_bottom
+ee9e746400955d46 cabinet bezel_bottom
+f5b8962825db7b62 cabinet bezel_bottom
+fe431382a9eddef8 cabinet bezel_bottom
+0d1352d257c68fe3 cabinet bezel_title
+4528426d684dab68 cabinet bezel_title
+7119bd70607ad915 cabinet bezel_title
+7267ae6ebed93b0e cabinet bezel_title
+77cca47ff91a2a7b cabinet bezel_title
+8ec1bc4224f0bddd cabinet bezel_title
+a05738435bf9b2ed cabinet bezel_title
+a17c8dc72c3a5898 cabinet bezel_title
+a1ad5e555d2bb901 cabinet bezel_title
+b2f0d5dc483c01f3 cabinet bezel_title
+b32225a487a38371 cabinet bezel_title
+d9e687880729645d cabinet bezel_title
+cf397593ae7a896b cabinet coin_door
+4c63bf7861011b9e cabinet coin_slot_25c
+9f524244111b17ed cabinet control_panel_2
+34ca5b1f98ddfae0 cabinet control_panel_4
+590eea25d49e8d38 cabinet control_panel_stick
+bc8a898b31d7fa28 cabinet control_panel_stick
+9a65a4aed14824b2 cabinet marquee_robo
+434d464bb632c608 cabinet marquee_tron
+99970cfc39343713 cabinet side_art_4
+d915aa5d6975223f cabinet side_art_red
+79397743d7509ae3 cabinet side_art_w2
 072f566f3d0ad6ad effects blob_green
 42428f6efffb0a6c effects blob_olive
 30a0d5122d0b143f effects blob_yellow
@@ -122,8 +132,10 @@ b2b6d4ec5421e794 font R
 9970010a2b652e58 font X
 d258719772101775 font Y
 d038c86d8e9d7477 font Z
+665e41426fb2235f font copyright
 27297cfbb11aedfb font period
 b7abb6cf00943496 font question
+cd0a8f64713d47e9 font registered
 930566348e2ae217 icons lives_head
 36d894cc5efc7aca models eye_blue
 9b3179a27e11b17a models shoes
@@ -132,8 +144,4 @@ e55dc1fae1f0b61e models shoes
 f0e7fae4f8b678d9 models shoes
 f3f1a36fea1456eb models shoes
 ff7d3c140dc6abc7 models shoes
-99970cfc39343713 other banner_4
-d915aa5d6975223f other banner_red
-79397743d7509ae3 other banner_w2
-4c63bf7861011b9e other card_25c
 d8a1c8b0a29beed1 other tile_green_symbol

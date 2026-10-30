@@ -25,7 +25,7 @@ while read -r hash cat lab; do
     label[$hash]=$lab
 done < "$classes"
 
-for dir in font icons arena effects models other sheets; do
+for dir in font cabinet icons arena effects models other sheets; do
     rm -rf "${work:?}/$dir"
     mkdir -p "$work/$dir"
 done
@@ -45,7 +45,7 @@ for png in "$dump"/*.v5.png; do
 done
 
 # Overview sheets: templates on grey (white glyphs and transparency stay visible), labelled with the file name.
-for dir in font icons arena effects models other; do
+for dir in font cabinet icons arena effects models other; do
     shopt -s nullglob
     files=("$work/$dir"/*.png)
     shopt -u nullglob

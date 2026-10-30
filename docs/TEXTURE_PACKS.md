@@ -108,7 +108,7 @@ This sorts `dump/` into `texture_work/`, which is also gitignored, using the cla
 
 - `texture_work/<category>/<label>__<hash>.png`: each texture enlarged 4× (128×128) without smoothing, so
   every original pixel is a crisp 4×4 block. Use these as templates to draw over. The categories are
-  `font`, `icons`, `arena`, `effects`, `models` and `other`.
+  `font`, `cabinet` (the arcade cabinet in the intro), `icons`, `arena`, `effects`, `models` and `other`.
 - `texture_work/sheets/<category>.png`: a labelled overview per category.
 - `texture_work/index.csv`: hash, category, label and original size for every texture.
 
