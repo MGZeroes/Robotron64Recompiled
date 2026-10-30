@@ -24,6 +24,23 @@ Running log, newest at top. Failed attempts stay in.
   - Near plane: 25 instead of 100 in view 8 (hook at 0x80048F24, value at sp+0x10).
   - Option First-Person Camera (On by default).
 - Hook text is compiled as C: `bool` is not available there, so the hide helper returns int.
+- Play test: works; two players never get FIRST; the death animation switches to the game's death camera and
+  the next round is back in FIRST (the game's own behaviour).
+
+### Modern first-person controls
+
+- User asked for normal first-person controls next to the tank ones: option values Off / Classic / Modern
+  (saved 1 keeps meaning Classic).
+- `get_n64_input` (main.cpp), while in view 8 with Modern: port 0 keeps the left stick and D-pad, its C
+  buttons are removed and A or B adds C-up (shots are facing-relative in this view, so C-up fires ahead);
+  port 1 (the aim stick) is muted. The turn input (right stick X, or C-left/right when the stick is still,
+  for keyboards and for Analog Aiming off, where the right stick also makes C buttons) goes to an atomic.
+- Hook at func_80035E3C entry (the tank controls): turns angle08 by turn x 2048 units/s (half a turn per
+  second at full stick, scaled by the game's timestep D_8009EF94), walks forward/back and strafes with port
+  0's stick (dead zone 5, full at 80) and the D-pad, velocity = direction (the game's func_8003CC88 /
+  func_8003CC58) x the walk speed argument, model yaw and view yaw = angle08, then skips the tank code.
+- Play test: strafe direction right, turning analog, walk speed good, A/B fire ahead; Classic, Off and two
+  players unchanged.
 
 ## 2026-10-30 — App icon: box-art robot; hero head in the launcher (fan art)
 

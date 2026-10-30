@@ -111,8 +111,49 @@ static int player_for_port(int controller_num) {
 
 // Analog aiming: with the option on, the odd (aim) ports carry only the player's right stick. Held fire
 // direction bits (D-pad / C buttons / keyboard) still take priority in the game, so those stay 8-way.
+// First person with Modern controls (first_person.cpp, single player): player 1's pad walks with the left
+// stick (the game reads port 0's stick) and turns with the right stick or C-left/right (handed to the
+// movement hook). A or B fires ahead: the game makes shots relative to the facing in this view, so C-up is
+// "ahead". The other C buttons and the aim stick (port 1) are muted so turning never fires.
+static bool get_first_person_input(int controller_num, int player, uint16_t* buttons, float* x, float* y) {
+    constexpr uint16_t button_a = 0x8000;
+    constexpr uint16_t button_b = 0x4000;
+    constexpr uint16_t c_up = 0x0008;
+    constexpr uint16_t c_left = 0x0002;
+    constexpr uint16_t c_right = 0x0001;
+    constexpr uint16_t c_buttons = 0x000F;
+    constexpr float analog_turn_threshold = 0.05f;
+
+    if (controller_num == 1) {
+        *buttons = 0;
+        *x = 0.0f;
+        *y = 0.0f;
+        return true;
+    }
+    bool connected = recompinput::profiles::get_n64_input(player, buttons, x, y);
+    float right_x = 0.0f;
+    float right_y = 0.0f;
+    if (!recompinput::game_input_disabled()) {
+        recompinput::get_right_analog(player, &right_x, &right_y);
+    }
+    // With Analog Aiming off the right stick also produces C buttons; use its analog value when it moves.
+    float turn = right_x;
+    if (std::fabs(right_x) < analog_turn_threshold) {
+        turn = ((*buttons & c_right) ? 1.0f : 0.0f) - ((*buttons & c_left) ? 1.0f : 0.0f);
+    }
+    robotron64::set_first_person_turn(std::clamp(turn, -1.0f, 1.0f));
+    *buttons &= ~c_buttons;
+    if (*buttons & (button_a | button_b)) {
+        *buttons |= c_up;
+    }
+    return connected;
+}
+
 bool get_n64_input(int controller_num, uint16_t* buttons, float* x, float* y) {
     int player = player_for_port(controller_num);
+    if (controller_num < 2 && robotron64::first_person_modern_active()) {
+        return get_first_person_input(controller_num, player, buttons, x, y);
+    }
     if ((controller_num & 1) && robotron64::analog_aim_enabled()) {
         float right_x = 0.0f;
         float right_y = 0.0f;

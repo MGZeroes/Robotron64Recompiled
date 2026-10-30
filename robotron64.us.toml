@@ -276,3 +276,10 @@ text = "{ int32_t robotron64_cull_abs_y(uint8_t*, int32_t); ctx->r2 = (gpr)(int3
 func = "func_80048DDC"
 before_vram = 0x80048F24
 text = "{ void robotron64_first_person_near(uint8_t*, recomp_context*); robotron64_first_person_near(rdram, ctx); }"
+
+# Modern first-person controls: func_80035E3C (tank controls, actor_manual_motion.c) entry, $a0 actor, $a1
+# walk speed, $a2 input block. The helper moves the player and the hook skips the tank code.
+[[patches.hook]]
+func = "func_80035E3C"
+before_vram = 0x80035E3C
+text = "{ int robotron64_first_person_move(uint8_t*, recomp_context*); if (robotron64_first_person_move(rdram, ctx)) { return; } }"

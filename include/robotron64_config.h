@@ -30,9 +30,16 @@ namespace robotron64 {
     // Settings > Controls), so player 2 has their own pad. See main.cpp get_n64_input.
     bool controllers_per_player_enabled();
 
-    // "First-Person Camera" option: L/R camera cycling also reaches the game's cut FIRST view (single player).
+    // "First-Person Camera" option: L/R camera cycling also reaches the game's cut FIRST view (single player),
+    // with the game's tank controls (Classic) or left stick walk / right stick turn / A-B fire (Modern).
     // See first_person.cpp.
+    enum class FirstPersonMode { Off = 0, Classic = 1, Modern = 2 };
+    FirstPersonMode first_person_mode();
     bool first_person_enabled();
+    // While in the first-person view with Modern controls: main.cpp reshapes the pad and passes the turn
+    // input (-1 left .. 1 right) to the movement hook.
+    bool first_person_modern_active();
+    void set_first_person_turn(float turn);
 };
 
 #endif

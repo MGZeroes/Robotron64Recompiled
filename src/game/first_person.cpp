@@ -6,13 +6,24 @@
 // call these helpers to put the view back in the cycle (single player only: the view follows a mix of both
 // players and the tank controls read controller 1), name it on the HUD, hide the player's own model, widen
 // the object culling cone to the wider lens and pull the near plane in. See docs/GAME.md (Camera).
+//
+// Modern controls (option value Modern) replace the tank controls: the left stick walks and strafes relative
+// to the view, the right stick turns, A or B fires ahead. main.cpp (get_n64_input) reshapes the pad while
+// robotron64::first_person_modern_active() and hands the turn input over; the func_80035E3C hook moves.
 
+#include <algorithm>
+#include <atomic>
+#include <cmath>
+#include <cstdlib>
 #include <cstring>
 
 #include "recomp.h"
 #include "robotron64_config.h"
 
 extern "C" bool robotron64_coop_game_active();
+extern "C" void func_8003CC88(uint8_t* rdram, recomp_context* ctx);
+extern "C" void func_8003CC58(uint8_t* rdram, recomp_context* ctx);
+extern "C" void func_80039514(uint8_t* rdram, recomp_context* ctx);
 
 namespace {
     constexpr uint32_t tank_mode = 0x8007394C;             // D_8007394C: cleared each tick, set in view 8
@@ -38,7 +49,22 @@ namespace {
     constexpr float cull_widen_y = 0.71f / 0.5f;
     constexpr float near_plane = 25.0f;                    // the game's is 100 (200 world units)
 
+    // Modern controls. Angles are 0x1000 per turn; the game's timestep D_8009EF94 is elapsed ms * 0.75.
+    constexpr uint32_t timestep = 0x8009EF94;
+    constexpr uint32_t look_angle = 0x800BEF68;            // D_800BEF68: the view's yaw in view 8
+    constexpr uint32_t stick_x = 0x8013DBB8;               // D_8013DBB8[4], controller 0 first
+    constexpr uint32_t stick_y = 0x8013DBC8;               // D_8013DBC8[4]
+    constexpr uint32_t actor_angle = 0x08;                 // short angle08
+    constexpr uint32_t actor_velocity = 0x6C;              // int field6C, field70
+    constexpr uint32_t input_held = 0x1C;                  // input block held1C: 1 left, 2 right, 4 up, 8 down
+    constexpr int32_t stick_dead_zone = 5;                 // as the tank controls
+    constexpr float stick_full = 80.0f;
+    constexpr float turn_rate = 2048.0f;                   // angle units per second at full turn (180 degrees)
+    constexpr int32_t quarter_turn = 0x400;
+
     int32_t player_object = -1;                            // the active player's object while in view 8
+    std::atomic_bool modern_active = false;
+    std::atomic<float> turn_input = 0.0f;
 
     int32_t& word(uint8_t* rdram, uint32_t addr) {
         return MEM_W(0, (gpr)(int32_t)addr);
@@ -87,12 +113,79 @@ extern "C" void robotron64_first_person_frame(uint8_t* rdram) {
         MEM_BU(0, (gpr)(int32_t)view) = view_smart;
     }
     player_object = -1;
-    if (robotron64_first_person_active(rdram)) {
+    bool active = robotron64_first_person_active(rdram);
+    if (active) {
         gpr actor = (gpr)word(rdram, player_addr(word(rdram, current_player)) + player_actor);
         if (actor != 0) {
             player_object = MEM_H(actor_object, actor);
         }
     }
+    modern_active.store(active && robotron64::first_person_mode() == robotron64::FirstPersonMode::Modern);
+}
+
+// For main.cpp (input thread): whether the pad is reshaped for Modern controls, and the turn input (-1..1).
+bool robotron64::first_person_modern_active() {
+    return modern_active.load();
+}
+
+void robotron64::set_first_person_turn(float turn) {
+    turn_input.store(turn);
+}
+
+namespace {
+    int32_t game_trig(uint8_t* rdram, recomp_context* ctx, void (*func)(uint8_t*, recomp_context*), int32_t angle) {
+        recomp_context call = *ctx;
+        call.r4 = (gpr)angle;
+        func(rdram, &call);
+        return static_cast<int32_t>(call.r2);
+    }
+
+    float stick_axis(int32_t value) {
+        if (std::abs(value) < stick_dead_zone) {
+            return 0.0f;
+        }
+        return std::clamp(value / stick_full, -1.0f, 1.0f);
+    }
+}
+
+// func_80035E3C entry (tank controls; $a0 actor, $a1 walk speed, $a2 input block). Returns 1 when it moved
+// the player with Modern controls, and the hook then skips the tank code. Velocity is written the way the
+// tank code does: direction (func_8003CC88 / func_8003CC58, 4096 = 1) times the walk speed.
+extern "C" int robotron64_first_person_move(uint8_t* rdram, recomp_context* ctx) {
+    if (!modern_active.load() || !robotron64_first_person_active(rdram)) {
+        return 0;
+    }
+    gpr actor = ctx->r4;
+    int32_t speed = static_cast<int32_t>(ctx->r5);
+    gpr input = ctx->r6;
+
+    float dt = word(rdram, timestep) / 750.0f;
+    int32_t angle = MEM_H(actor_angle, actor);
+    angle = (angle + static_cast<int32_t>(std::lround(turn_input.load() * turn_rate * dt))) & 0xFFF;
+    MEM_H(actor_angle, actor) = static_cast<int16_t>(angle);
+
+    float forward = stick_axis(word(rdram, stick_y));
+    float strafe = stick_axis(word(rdram, stick_x));
+    int32_t held = MEM_W(input_held, input);
+    if (held & 4) forward += 1.0f;
+    if (held & 8) forward -= 1.0f;
+    if (held & 1) strafe -= 1.0f;
+    if (held & 2) strafe += 1.0f;
+    forward = std::clamp(forward, -1.0f, 1.0f);
+    strafe = std::clamp(strafe, -1.0f, 1.0f);
+
+    int32_t side = (angle + quarter_turn) & 0xFFF;
+    float x = game_trig(rdram, ctx, func_8003CC88, angle) * forward + game_trig(rdram, ctx, func_8003CC88, side) * strafe;
+    float y = game_trig(rdram, ctx, func_8003CC58, angle) * forward + game_trig(rdram, ctx, func_8003CC58, side) * strafe;
+    MEM_W(actor_velocity, actor) = static_cast<int32_t>(x * speed / 4096.0f);
+    MEM_W(actor_velocity + 4, actor) = static_cast<int32_t>(y * speed / 4096.0f);
+
+    recomp_context call = *ctx;
+    call.r4 = (gpr)(int32_t)MEM_H(actor_object, actor);
+    call.r5 = (gpr)angle;
+    func_80039514(rdram, &call);
+    word(rdram, look_angle) = angle;
+    return 1;
 }
 
 // Object draw loop (0x8003A988, after the enabled check), $s5 = object: the eye is inside the player's

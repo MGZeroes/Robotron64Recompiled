@@ -41,10 +41,14 @@ bool robotron64::controllers_per_player_enabled() {
     return controllers_per_player.load();
 }
 
-static std::atomic_bool first_person = true;
+static std::atomic<uint32_t> first_person = static_cast<uint32_t>(robotron64::FirstPersonMode::Classic);
+
+robotron64::FirstPersonMode robotron64::first_person_mode() {
+    return static_cast<robotron64::FirstPersonMode>(first_person.load());
+}
 
 bool robotron64::first_person_enabled() {
-    return first_person.load();
+    return first_person_mode() != FirstPersonMode::Off;
 }
 
 // Called from the func_80022528 hook (robotron64.us.toml) with the session play style.
@@ -138,26 +142,30 @@ static void add_general_options(recomp::config::Config &config) {
 
     // The game has a finished first-person camera (view FIRST) that was left out of the L/R camera cycle.
     // first_person.cpp puts it back after OVERHEAD. See docs/GAME.md (Camera).
+    // Values: the saved 1 ("On" before Modern existed) keeps meaning the tank-control view.
     static EnumOptionVector first_person_options = {
         {0, "Off", "Off"},
-        {1, "On", "On"},
+        {1, "Classic", "Classic"},
+        {2, "Modern", "Modern"},
     };
     config.add_enum_option(
         robotron64::configkeys::general::first_person,
         "First-Person Camera",
-        "<recomp-color primary>On</recomp-color>: L or R cycles through the game's unused first-person view too, "
-        "after Overhead. It uses the game's own tank controls: the stick turns and walks, shots go where you "
-        "look, and Z looks around."
+        "L or R also cycles to the game's unused first-person view, after Overhead. Single player only."
         "<br />"
-        "<recomp-color primary>Off</recomp-color>: the original four camera views."
-        "<br /><br />"
-        "Single player only.",
+        "<recomp-color primary>Classic</recomp-color>: the game's own tank controls. The stick turns and walks, "
+        "shots go where you look, and Z looks around."
+        "<br />"
+        "<recomp-color primary>Modern</recomp-color>: the left stick walks and strafes, the right stick turns, "
+        "and A or B fires ahead."
+        "<br />"
+        "<recomp-color primary>Off</recomp-color>: the original four camera views.",
         first_person_options,
-        1
+        static_cast<uint32_t>(robotron64::FirstPersonMode::Classic)
     );
     config.add_option_change_callback(robotron64::configkeys::general::first_person,
         [](recomp::config::ConfigValueVariant cur_value, recomp::config::ConfigValueVariant, recomp::config::OptionChangeContext) {
-            first_person.store(std::get<uint32_t>(cur_value) != 0);
+            first_person.store(std::get<uint32_t>(cur_value));
         });
 }
 
