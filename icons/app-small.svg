@@ -1,58 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- App icon, 16-32 px variant of icons/app.svg (fine details left out, thicker brows). Fan art; see CREDITS.md.
-     Robotron and its characters belong to their owners. -->
+<!-- App icon, 16-32 px variant of icons/app.svg (grid floor and emblem stripes left out). Fan art drawn
+     for this project (see CREDITS.md). Robotron and its characters belong to their owners. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#8a0018"/>
-      <stop offset="0.5" stop-color="#3c0a5e"/>
-      <stop offset="1" stop-color="#0a12a0"/>
+    <!-- Background after the box art: dark navy sky with a purple glow at the top, glowing blue grid floor. -->
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2c1c66"/>
+      <stop offset="0.4" stop-color="#141040"/>
+      <stop offset="0.6" stop-color="#07071e"/>
     </linearGradient>
-    <radialGradient id="vignette" cx="256" cy="256" r="360" gradientUnits="userSpaceOnUse">
-      <stop offset="0.5" stop-color="#000" stop-opacity="0"/>
-      <stop offset="1" stop-color="#000" stop-opacity="0.45"/>
+    <radialGradient id="glow" cx="256" cy="70" r="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8a6ae0" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#8a6ae0" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="0.3">
-      <stop offset="0" stop-color="#f8ae94"/>
-      <stop offset="0.5" stop-color="#ec9078"/>
-      <stop offset="1" stop-color="#a65a48"/>
+    <linearGradient id="floor" x1="0" y1="300" x2="0" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#05061a"/>
+      <stop offset="1" stop-color="#0a1440"/>
     </linearGradient>
-    <!-- The game's lenses shift between green and pink; one gradient runs across both lenses, green on the
-         left through lavender to pink on the right. -->
-    <linearGradient id="lens" x1="122" y1="270" x2="390" y2="300" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#3ed040"/>
-      <stop offset="0.5" stop-color="#a49ae8"/>
-      <stop offset="1" stop-color="#ff4ec4"/>
+    <linearGradient id="gridfade" x1="0" y1="300" x2="0" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4a9aff" stop-opacity="0.15"/>
+      <stop offset="1" stop-color="#4a9aff" stop-opacity="1"/>
     </linearGradient>
     <clipPath id="tile"><rect width="512" height="512" rx="96"/></clipPath>
+    <clipPath id="floorclip"><rect y="300" width="512" height="212"/></clipPath>
   </defs>
   <g clip-path="url(#tile)">
-    <rect width="512" height="512" fill="url(#bg)"/>
-    <rect width="512" height="512" fill="url(#vignette)"/>
+    <rect width="512" height="512" fill="url(#sky)"/>
+    <rect width="512" height="512" fill="url(#glow)"/>
+    <rect y="300" width="512" height="212" fill="url(#floor)"/>
+    <!-- the box art's blue grid floor: lines converging past the horizon, cross lines closer together far away -->
+    <ellipse cx="270" cy="452" rx="140" ry="18" fill="#000" opacity="0.4"/>
   </g>
-  <g id="face">
-    <!-- ears, at goggle height -->
-    <!-- head: light-bulb cranium with a slight crown point -->
-    <polygon points="256,20 318,30 372,58 412,108 428,170 424,228 406,282 384,336 354,388 312,428 256,446 200,428 158,388 128,336 106,282 88,228 84,170 100,108 140,58 194,30"
-             fill="url(#skin)"/>
-    <polygon points="256,20 318,30 372,58 412,108 428,170 424,228 406,282 384,336 354,388 312,428 256,446"
-             fill="#000" opacity="0.07"/>
-    <!-- shadow under the goggles -->
-    <!-- eyebrows: thick, inner ends high, outer ends sweeping down -->
-    <polygon points="104,218 116,190 164,168 228,160 236,184 172,190 128,212" fill="#121010" stroke="#121010" stroke-width="10" stroke-linejoin="round"/>
-    <polygon points="408,218 396,190 348,168 284,160 276,184 340,190 384,212" fill="#121010" stroke="#121010" stroke-width="10" stroke-linejoin="round"/>
-    <!-- goggles: figure-8 frame, thick at the outer edges, dip over the bridge, notch below -->
-    <polygon points="98,240 168,214 232,222 256,242 280,222 344,214 414,240 426,298 398,348 320,356 274,340 256,352 238,340 192,356 114,348 86,298"
-             fill="#0c0c0e"/>
-    <polygon points="128,254 176,236 230,244 242,264 240,318 222,334 152,334 122,308" fill="url(#lens)"/>
-    <polygon points="384,254 336,236 282,244 270,264 272,318 290,334 360,334 390,308" fill="url(#lens)"/>
-    <!-- eyes: big whites, purple irises looking slightly inward -->
-    <ellipse cx="186" cy="290" rx="34" ry="38" fill="#f6f0f8"/>
-    <ellipse cx="326" cy="290" rx="34" ry="38" fill="#f6f0f8"/>
-    <ellipse cx="202" cy="292" rx="16" ry="19" fill="#7a34c0"/>
-    <ellipse cx="310" cy="292" rx="16" ry="19" fill="#7a34c0"/>
-    <circle cx="204" cy="294" r="8" fill="#1a0a2a"/>
-    <circle cx="308" cy="294" r="8" fill="#1a0a2a"/>
-    <!-- nose bump and pursed lips -->
+  <!-- All blocks use the same depth offset (+24, -16): front face, lighter top, darker right side. -->
+  <!-- far arm, hanging behind the body -->
+  <polygon points="112,150 136,134 184,134 160,150" fill="#737882"/>
+  <rect x="112" y="150" width="48" height="52" fill="#50545e"/>
+  <rect x="114" y="200" width="44" height="92" fill="#474b54"/>
+  <polygon points="106,292 130,276 186,276 162,292" fill="#ffffff"/>
+  <polygon points="162,292 186,276 186,320 162,336" fill="#b0b0b8"/>
+  <rect x="106" y="292" width="56" height="44" fill="#e4e4ea"/>
+  <!-- far leg, back -->
+  <polygon points="242,300 266,284 266,370 242,386" fill="#6f747d"/>
+  <rect x="196" y="300" width="46" height="86" fill="#a7acb5"/>
+  <polygon points="176,386 200,370 274,370 250,386" fill="#ee4c50"/>
+  <polygon points="176,386 250,386 250,418 168,418" fill="#c81d26"/>
+  <!-- near leg, forward -->
+  <polygon points="326,296 350,280 358,388 334,404" fill="#7d838d"/>
+  <polygon points="270,296 326,296 334,404 278,404" fill="#b9bec6"/>
+  <polygon points="262,404 286,388 376,388 352,404" fill="#f0565a"/>
+  <polygon points="352,404 376,388 384,430 360,446" fill="#8e0f17"/>
+  <polygon points="262,404 352,404 360,446 250,446" fill="#d8202a"/>
+  <!-- chest -->
+  <polygon points="146,128 170,112 378,112 354,128" fill="#f0565a"/>
+  <polygon points="354,128 378,112 350,282 326,298" fill="#8a0c14"/>
+  <polygon points="146,128 354,128 326,298 180,298" fill="#cc1820"/>
+  <!-- chest emblem, simplified -->
+  <rect x="222" y="148" width="58" height="66" rx="4" fill="#ffffff"/>
+  <rect x="236" y="162" width="22" height="24" fill="#cc1820"/>
+  <!-- near arm, raised: upper arm hanging from the shoulder, forearm up, white fist on top -->
+  <polygon points="408,170 432,154 432,210 408,226" fill="#24262b"/>
+  <rect x="372" y="170" width="36" height="56" fill="#3a3d44"/>
+  <polygon points="468,132 492,116 492,212 468,228" fill="#24262b"/>
+  <rect x="430" y="132" width="38" height="96" fill="#44474f"/>
+  <rect x="372" y="212" width="96" height="16" fill="#3a3d44"/>
+  <polygon points="424,92 448,76 498,76 474,92" fill="#ffffff"/>
+  <polygon points="474,92 498,76 498,118 474,134" fill="#b0b0b8"/>
+  <rect x="424" y="92" width="50" height="42" fill="#e8e8ee"/>
+  <polygon points="352,118 376,102 424,102 400,118" fill="#5a5e66"/>
+  <polygon points="400,118 424,102 424,154 400,170" fill="#24262b"/>
+  <rect x="352" y="118" width="48" height="52" fill="#3a3d44"/>
+  <!-- head: white slab with a red top, sitting on the chest's top face, tilted a little -->
+  <g transform="rotate(-4 248 122)">
+    <polygon points="204,72 228,56 316,56 292,72" fill="#ef4a4a"/>
+    <polygon points="292,72 316,56 316,72 292,88" fill="#a3121c"/>
+    <polygon points="292,88 316,72 316,106 292,122" fill="#babac2"/>
+    <rect x="204" y="72" width="88" height="16" fill="#d8202a"/>
+    <rect x="204" y="88" width="88" height="34" fill="#f4f4f6"/>
   </g>
 </svg>
