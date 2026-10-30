@@ -2,6 +2,18 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-10-30 — App icon: the hero's head (fan art)
+
+- The user asked for icons of the game's characters and chose a fan-art likeness, knowing it is a derivative
+  of Midway's designs (CREDITS names the owners). Candidates were drawn from the user's references (PAL box
+  art, poster, menu screenshot): the box-art robot, a green Grunt (dropped after the first sheet) and the
+  hero's head. The user picked the hero: "the head fits good into the main menu".
+- `icons/app.svg`: light-bulb cranium, arched brows, figure-8 goggles with one gradient across both lenses
+  (green through lavender to pink, as the game's lenses shift between green and pink), purple irises, on the
+  menu's red/blue blend. Elements with `class="detail"` are dropped for `app-small.svg` (16-32 px), whose
+  brows get a stroke so they hold at 16 px.
+- The robot candidate is not committed; the user may want it later.
+
 ## 2026-10-29 — Launcher look and app icon
 
 - **Research (other ports):** Banjo and Harvest Moon animate hand-drawn fan SVGs in the launcher update

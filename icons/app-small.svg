@@ -1,25 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Small-size variant of app.svg (16-32 px): no grid, heavier shapes. Original artwork made for this project. -->
+<!-- App icon, 16-32 px variant of icons/app.svg (fine details left out, thicker brows). Fan art; see CREDITS.md.
+     Robotron and its characters belong to their owners. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#0a1038"/>
-      <stop offset="0.58" stop-color="#1b2478"/>
-      <stop offset="1" stop-color="#05061a"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8a0018"/>
+      <stop offset="0.5" stop-color="#3c0a5e"/>
+      <stop offset="1" stop-color="#0a12a0"/>
     </linearGradient>
-    <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#8a98ff"/>
-      <stop offset="1" stop-color="#3b46c8"/>
+    <radialGradient id="vignette" cx="256" cy="256" r="360" gradientUnits="userSpaceOnUse">
+      <stop offset="0.5" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0.45"/>
+    </radialGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="0.3">
+      <stop offset="0" stop-color="#f8ae94"/>
+      <stop offset="0.5" stop-color="#ec9078"/>
+      <stop offset="1" stop-color="#a65a48"/>
+    </linearGradient>
+    <!-- The game's lenses shift between green and pink; one gradient runs across both lenses, green on the
+         left through lavender to pink on the right. -->
+    <linearGradient id="lens" x1="122" y1="270" x2="390" y2="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3ed040"/>
+      <stop offset="0.5" stop-color="#a49ae8"/>
+      <stop offset="1" stop-color="#ff4ec4"/>
     </linearGradient>
     <clipPath id="tile"><rect width="512" height="512" rx="96"/></clipPath>
   </defs>
   <g clip-path="url(#tile)">
-    <rect width="512" height="512" fill="url(#sky)"/>
+    <rect width="512" height="512" fill="url(#bg)"/>
+    <rect width="512" height="512" fill="url(#vignette)"/>
   </g>
-  <g>
-    <rect x="64" y="96" width="384" height="320" rx="72" fill="url(#metal)" stroke="#d6dbff" stroke-width="24"/>
-    <rect x="104" y="176" width="304" height="128" rx="44" fill="#05061a"/>
-    <rect x="136" y="204" width="96" height="72" rx="20" fill="#fad728"/>
-    <rect x="280" y="204" width="96" height="72" rx="20" fill="#fad728"/>
+  <g id="face">
+    <!-- ears, at goggle height -->
+    <!-- head: light-bulb cranium with a slight crown point -->
+    <polygon points="256,20 318,30 372,58 412,108 428,170 424,228 406,282 384,336 354,388 312,428 256,446 200,428 158,388 128,336 106,282 88,228 84,170 100,108 140,58 194,30"
+             fill="url(#skin)"/>
+    <polygon points="256,20 318,30 372,58 412,108 428,170 424,228 406,282 384,336 354,388 312,428 256,446"
+             fill="#000" opacity="0.07"/>
+    <!-- shadow under the goggles -->
+    <!-- eyebrows: thick, inner ends high, outer ends sweeping down -->
+    <polygon points="104,218 116,190 164,168 228,160 236,184 172,190 128,212" fill="#121010" stroke="#121010" stroke-width="10" stroke-linejoin="round"/>
+    <polygon points="408,218 396,190 348,168 284,160 276,184 340,190 384,212" fill="#121010" stroke="#121010" stroke-width="10" stroke-linejoin="round"/>
+    <!-- goggles: figure-8 frame, thick at the outer edges, dip over the bridge, notch below -->
+    <polygon points="98,240 168,214 232,222 256,242 280,222 344,214 414,240 426,298 398,348 320,356 274,340 256,352 238,340 192,356 114,348 86,298"
+             fill="#0c0c0e"/>
+    <polygon points="128,254 176,236 230,244 242,264 240,318 222,334 152,334 122,308" fill="url(#lens)"/>
+    <polygon points="384,254 336,236 282,244 270,264 272,318 290,334 360,334 390,308" fill="url(#lens)"/>
+    <!-- eyes: big whites, purple irises looking slightly inward -->
+    <ellipse cx="186" cy="290" rx="34" ry="38" fill="#f6f0f8"/>
+    <ellipse cx="326" cy="290" rx="34" ry="38" fill="#f6f0f8"/>
+    <ellipse cx="202" cy="292" rx="16" ry="19" fill="#7a34c0"/>
+    <ellipse cx="310" cy="292" rx="16" ry="19" fill="#7a34c0"/>
+    <circle cx="204" cy="294" r="8" fill="#1a0a2a"/>
+    <circle cx="308" cy="294" r="8" fill="#1a0a2a"/>
+    <!-- nose bump and pursed lips -->
   </g>
 </svg>

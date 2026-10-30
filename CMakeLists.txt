@@ -310,6 +310,8 @@ if (WIN32)
     endif()
 
     target_sources(Robotron64Recompiled PRIVATE ${CMAKE_SOURCE_DIR}/icons/app.rc)
+    # The resource compiler doesn't report app.ico as a dependency; without this a new icon isn't picked up.
+    set_source_files_properties(${CMAKE_SOURCE_DIR}/icons/app.rc PROPERTIES OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/icons/app.ico)
     target_link_libraries(Robotron64Recompiled PRIVATE SDL2 Winmm.lib)
 endif()
 
