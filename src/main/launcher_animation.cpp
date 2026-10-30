@@ -6,7 +6,8 @@
 // Layers, back to front, in the launcher's background container:
 // - the colour wave;
 // - shade.svg: a mild vignette so the title and buttons stay readable.
-// The default title is replaced by an Orbitron wordmark.
+// In front, laid out like the game's main menu: the hero's head (assets/launcher/hero.svg) swaying at the top,
+// an Orbitron wordmark in place of the default title under it, and the buttons below.
 //
 // The launcher hides itself before opening the settings (RecompFrontend ui_launcher.cpp), which would leave
 // them on black, so a copy of the backdrop is also placed behind the settings window (SettingsBackdrop).
@@ -26,7 +27,12 @@ namespace {
     const Rml::ColourbPremultiplied wave_red{ 128, 0, 0, 255 };
     const Rml::ColourbPremultiplied wave_blue{ 0, 0, 128, 255 };
 
+    // The hero's head (assets/launcher/hero.svg, viewBox 384 x 440), in dp; 360 dp is a third of the window height.
+    constexpr float hero_height = 360.0f;
+    constexpr float hero_width = hero_height * 384.0f / 440.0f;
+
     const std::chrono::steady_clock::time_point start_time = std::chrono::steady_clock::now();
+    recompui::Svg* hero = nullptr;
     recompui::Label* subtitle = nullptr;
     bool settings_backdrop_created = false;
 
@@ -84,6 +90,12 @@ namespace {
             registered = true;
             Rml::Factory::RegisterElementInstancer(color_wave_tag, &instancer);
         }
+    }
+
+    // Centres the head on its left: 50% anchor, with a gentle sway: a small turn and bob.
+    void place_hero(float t) {
+        hero->set_translate_2D(-hero_width / 2.0f, 6.0f * std::sin(t * 1.3f));
+        hero->set_rotation(3.0f * std::sin(t * 0.8f));
     }
 
     void fill_parent(recompui::Element* element) {
@@ -161,12 +173,21 @@ void robotron64::launcher_animation_setup(recompui::LauncherMenu *menu) {
     register_color_wave();
     create_backdrop_layers(menu->get_background_container());
 
-    // Wordmark in place of the default title (same anchor: centred, 25% from the top). White and lavender,
-    // like the selected and unselected items of the game's menus.
+    // The hero's head above the menu, as in the game's own main menu. Swayed in launcher_animation_update.
+    hero = context.create_element<Svg>(menu, "launcher/hero.svg");
+    hero->set_position(Position::Absolute);
+    hero->set_top(3.0f, Unit::Percent);
+    hero->set_left(50.0f, Unit::Percent);
+    hero->set_width(hero_width);
+    hero->set_height(hero_height);
+    place_hero(0.0f);
+
+    // Wordmark in place of the default title, smaller and under the head. White and lavender, like the
+    // selected and unselected items of the game's menus. The buttons sit below it (main.cpp, on_launcher_init).
     menu->remove_default_title();
     Element* title = context.create_element<Element>(menu, 0, "div", false);
     title->set_position(Position::Absolute);
-    title->set_top(25.0f, Unit::Percent);
+    title->set_top(45.0f, Unit::Percent);
     title->set_left(50.0f, Unit::Percent);
     title->set_translate_2D(-50.0f, -50.0f, Unit::Percent);
     title->set_display(Display::Flex);
@@ -176,15 +197,15 @@ void robotron64::launcher_animation_setup(recompui::LauncherMenu *menu) {
     Label* name = context.create_element<Label>(title, "ROBOTRON 64", theme::Typography::Header1);
     name->set_font_family("Orbitron");
     name->set_font_weight(900);
-    name->set_font_size(96.0f);
-    name->set_letter_spacing(6.0f);
+    name->set_font_size(60.0f);
+    name->set_letter_spacing(4.0f);
     name->set_color(theme::color::TextActive);
 
     subtitle = context.create_element<Label>(title, "RECOMPILED", theme::Typography::Header3);
     subtitle->set_font_family("Orbitron");
     subtitle->set_font_weight(700);
-    subtitle->set_font_size(30.0f);
-    subtitle->set_letter_spacing(18.0f);
+    subtitle->set_font_size(20.0f);
+    subtitle->set_letter_spacing(12.0f);
     subtitle->set_color(theme::color::Primary);
 }
 
@@ -194,7 +215,11 @@ void robotron64::launcher_animation_update(recompui::LauncherMenu *menu) {
         settings_backdrop_created = true;
         create_settings_backdrop();
     }
+    float t = seconds();
+    if (hero != nullptr) {
+        place_hero(t);
+    }
     if (subtitle != nullptr) {
-        subtitle->set_opacity(0.8f + 0.2f * std::sin(seconds() * 2.0f));
+        subtitle->set_opacity(0.8f + 0.2f * std::sin(t * 2.0f));
     }
 }

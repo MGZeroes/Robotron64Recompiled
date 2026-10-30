@@ -695,6 +695,16 @@ void on_launcher_init(recompui::LauncherMenu *menu) {
         recompui::GameOptionsMenuLayout::Center
     );
     game_options_menu->add_default_options();
+    // The centre layout sits 25% from the bottom (RecompFrontend ui_launcher.cpp); lower it to leave room for
+    // the hero's head and the wordmark above (launcher_animation.cpp).
+    game_options_menu->set_bottom(7.0f, recompui::Unit::Percent);
+    // Half of upstream's 50% width, so the items' click area hugs the text.
+    game_options_menu->set_width(25.0f, recompui::Unit::Percent);
+    // No highlight box behind the hovered or focused item, like the game's menu: the pulsing text colour marks it.
+    for (recompui::GameOption* option : game_options_menu->get_options()) {
+        option->hover_style.set_background_color(recompui::theme::color::Transparent);
+        option->focus_style.set_background_color(recompui::theme::color::Transparent);
+    }
 
     robotron64::launcher_animation_setup(menu);
 }

@@ -16,6 +16,13 @@ Running log, newest at top. Failed attempts stay in.
   Elements with `class="detail"` (grid, emblem stripes) are dropped for `app-small.svg` (16-32 px).
 - `assets/launcher/hero.svg`: light-bulb cranium, arched brows, figure-8 goggles with one gradient across both
   lenses (green through lavender to pink, as the game's lenses shift between green and pink), purple irises.
+  Transparent, viewBox cropped to the head.
+- Launcher layout like the game's main menu (user's pick "head on top, title small"): head 360 dp high at the
+  top with a gentle sway (3° turn, 6 dp bob), wordmark shrunk to 60/20 and moved to 45%, and the button menu
+  lowered from RecompFrontend's `bottom: 25%` to 7% via the `GameOptionsMenu` returned to `on_launcher_init`.
+  As in the game's menu, the items have no highlight box (their public `hover_style`/`focus_style` get a
+  transparent background; the pulsing text marks focus), and the menu is 25% wide instead of 50%, so the click
+  area hugs the text.
 
 ## 2026-10-29 — Launcher look and app icon
 
