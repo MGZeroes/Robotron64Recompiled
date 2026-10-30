@@ -2,7 +2,8 @@
 # Hashes are RT64's texture hashes (file names in an RT64 dump); labels are ours. No game data here.
 # Categories:
 #   font     the italic glyph set: A-Z, 0-9, period, question, copyright, registered, END/DEL/SPC keys
-#   cabinet  the arcade cabinet in the intro: marquee, screen bezel, control panel, coin door, side art
+#   cabinet  the arcade cabinet in the intro: marquee, screen bezel, control panel, coin door, side art (three
+#            stacked pieces: top, middle, bottom)
 #   icons    HUD icons
 #   arena    floor tiles, sky
 #   effects  glows, smoke, sparks, shots
@@ -44,9 +45,9 @@ cf397593ae7a896b cabinet coin_door
 bc8a898b31d7fa28 cabinet control_panel_stick
 9a65a4aed14824b2 cabinet marquee_robo
 434d464bb632c608 cabinet marquee_tron
-99970cfc39343713 cabinet side_art_4
-d915aa5d6975223f cabinet side_art_red
-79397743d7509ae3 cabinet side_art_w2
+99970cfc39343713 cabinet side_art_bottom
+d915aa5d6975223f cabinet side_art_middle
+79397743d7509ae3 cabinet side_art_top
 072f566f3d0ad6ad effects blob_green
 42428f6efffb0a6c effects blob_olive
 30a0d5122d0b143f effects blob_yellow
