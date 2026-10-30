@@ -13,6 +13,10 @@ Running log, newest at top. Failed attempts stay in.
   blended the top edge with the wrapped bottom row.
 - Fix: default shift `half`, which hides 16 px at every edge, plus overlapping slices at y 0/992/1984 on a
   1024×3008 canvas. Documented in TEXTURE_PACKS.md ("Art split over several textures") and GAME.md.
+- The user asked why the original isn't cut off. It is. In a screenshot with the original 32×32 pieces as the
+  replacement, the centre column is about 1 texel row short at the top/middle seam, and about 1–1.5 rows short
+  at the middle/bottom seam: the 8's bottom bar shows 2 rows instead of 3. One 32 px row is hard to see, and
+  it falls mostly on blank rows. At 1024 px the same row is 32 px wide, and it cut through the 4.
 
 ## 2026-10-30 — Texture packs (HUD, fonts): a mod, outside the repo
 
