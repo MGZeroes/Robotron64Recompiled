@@ -7,8 +7,9 @@
                       and README.txt from tools/texture_pack_template). Never overwrites an existing pack.
     -DevMode On|Off   Sets "developer_mode" in graphics.json, which enables RT64's inspector (F1). Read when
                       the game starts, so set it before launching. Other settings are kept.
-    -Pack <name>      Zips the pack folder into <name>.rtz next to it (in the mods folder). Move or delete
-                      the folder afterwards, or the game loads both.
+    -Pack <name>      Zips the pack folder into <name>.rtz next to it (in the mods folder), without work files
+                      (.afphoto/.afdesign, ~bak/~lock~ files, rt64.json.old). Move or delete the folder
+                      afterwards, or the game loads both.
 
     The game's config folder is %LOCALAPPDATA%\Robotron64Recompiled; pass -ConfigDir for a portable install
     (the folder with portable.txt).
@@ -86,14 +87,27 @@ if ($Pack) {
     if (-not (Test-Path (Join-Path $packDir "rt64.json"))) {
         throw "No texture pack folder with rt64.json at $packDir"
     }
-    $zipPath = Join-Path $modsDir "$Pack.zip"
     $rtzPath = Join-Path $modsDir "$Pack.rtz"
-    if (Test-Path $zipPath) { Remove-Item $zipPath }
     if (Test-Path $rtzPath) { Remove-Item $rtzPath }
-    # Pack the folder's contents (not the folder itself); rt64.json.old is the inspector's backup.
-    $items = Get-ChildItem $packDir | Where-Object { $_.Name -ne "rt64.json.old" }
-    Compress-Archive -Path $items.FullName -DestinationPath $zipPath
-    Move-Item $zipPath $rtzPath
-    Write-Host "Wrote $rtzPath" -ForegroundColor Green
+    # Pack the folder's contents (not the folder itself), leaving out work files: rt64.json.old is the
+    # inspector's backup, the rest are Affinity documents, backups and lock files.
+    $exclude = @("rt64.json.old", "*.afphoto", "*.afdesign", "*~bak*", "*~lock~")
+    $root = (Resolve-Path $packDir).Path.TrimEnd('\') + '\'
+    $files = Get-ChildItem $packDir -Recurse -File | Where-Object {
+        $name = $_.Name
+        -not ($exclude | Where-Object { $name -like $_ })
+    }
+    # ZipArchive directly, not Compress-Archive: Windows PowerShell 5.1 writes backslashes into entry names.
+    Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem
+    $zip = [System.IO.Compression.ZipFile]::Open($rtzPath, [System.IO.Compression.ZipArchiveMode]::Create)
+    try {
+        foreach ($file in $files) {
+            $entry = $file.FullName.Substring($root.Length).Replace('\', '/')
+            [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $file.FullName, $entry) | Out-Null
+        }
+    } finally {
+        $zip.Dispose()
+    }
+    Write-Host "Wrote $rtzPath ($($files.Count) files; work files left out)" -ForegroundColor Green
     Write-Host "Move the folder $packDir out of the mods folder before testing the .rtz, or both load." -ForegroundColor Yellow
 }

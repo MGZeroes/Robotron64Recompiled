@@ -2,6 +2,20 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-10-31 — Texture packs split into HUD and HD; `-Pack` leaves out work files
+
+- Asked whether players should be able to choose only an HD HUD. Checked how packs combine:
+  `RT64Context::check_texture_pack_actions` (RecompFrontend `rt64_render_context.cpp`) passes every enabled
+  pack to RT64, sorted by mod order, earlier overriding later. The `_recomp_texture_pack_enabled` mod option
+  only toggles a whole pack. So the split has to be into separate packs.
+- The user chose two: `robotron64-hud` (font, HUD icons) and `robotron64-hd` (everything else, the cabinet so
+  far). The cabinet moved over with its entries; the font's `shiftFilters` stays in the HUD pack only.
+- Catch found on the way: RT64 allows Replace / Save directory only when a single pack folder is loaded
+  (`fileSystemIsDirectory`, `rt64_texture_cache.cpp`).
+- `texture_pack.ps1 -Pack` now recurses and skips Affinity files, `~bak`/`~lock~` and `rt64.json.old`. It
+  writes the zip with `ZipArchive` and forward slashes, because Windows PowerShell 5.1's `Compress-Archive`
+  stores backslashes in entry names. Tested on copies of both packs: 52 and 6 entries, no work files.
+
 ## 2026-10-30 — Cabinet side art: pieces show 31 of 32 rows
 
 - The user's side-art replacement worked in the intro, but the 4 looked cut off at the seam between the middle

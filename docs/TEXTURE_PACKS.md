@@ -154,13 +154,33 @@ Keep the default shift (no `shiftFilters` entry) for such pieces. The font needs
 its glyphs reach the edge of their tile, and `half` cut off their tops. If a replacement looks cut off or shows
 a thin line from the opposite edge, try the other shift first.
 
+## Several packs
+
+Several packs can be enabled at once, and the game combines them. Players can therefore pick parts, for
+example only an HD HUD. Each pack is switched on or off as a whole in the **Mods** menu; there is no switch for
+part of a pack. So split your work into packs along the lines players will want to choose, for example:
+
+- `robotron64-hud`: the font and the HUD icons;
+- `robotron64-hd`: everything else (the intro cabinet, later the arena, enemies, effects).
+
+Each pack has its own `rt64.json`, `mod.json` and `shiftFilters`. If two enabled packs replace the same texture,
+the one higher in the Mods menu wins (`RT64Context::check_texture_pack_actions` in
+`lib/RecompFrontend/recompui/src/renderer/rt64_render_context.cpp` sorts them by mod order, earlier ones
+overriding later ones). Packs that don't share textures don't depend on the order.
+
+**While editing:** the inspector's **Replace** and **Save directory** only work when exactly one pack folder is
+enabled (`TextureCache::loadReplacementDirectories` in `lib/rt64/src/render/rt64_texture_cache.cpp`). Turn the
+other packs off for that. Editing `rt64.json` by hand and toggling the pack works with any number enabled.
+
 ## Share it
 
 ```powershell
 .\tools\texture_pack.ps1 -Pack robotron64-hud
 ```
 
-This writes `mods\robotron64-hud.rtz`. Move the folder out of the mods folder before testing the `.rtz`,
+This writes `mods\robotron64-hud.rtz`. Work files in the folder are left out: Affinity documents (`.afphoto`,
+`.afdesign`), their `~bak` and `~lock~` files, and `rt64.json.old`. So you can keep your sources next to the
+exports. Move the folder out of the mods folder before testing the `.rtz`,
 otherwise both are loaded. Players drop the `.rtz` into their mods folder. RT64's `texture_packer` can also
 build a `.rtz` with a low-resolution preview cache for big packs; small packs like a HUD don't need it.
 
