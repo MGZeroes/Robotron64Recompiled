@@ -8,6 +8,13 @@ Robotron 64: Recompiled stands entirely on other people's work.
 - **[RT64](https://github.com/rt64/rt64)** by Dario (DarioSamo) and contributors — N64 graphics renderer (MIT), including the texture pack support, inspector and texture tools that docs/TEXTURE_PACKS.md uses.
 - **[RecompFrontend](https://github.com/N64Recomp/RecompFrontend)** by the N64Recomp contributors — shared menus and input (GPL-3.0).
 
+## Android test build
+- **[Goemon64Recomp-Android](https://github.com/ogdanimal/Goemon64Recomp-Android)** by ogdanimal — the Android commits for
+  RT64, plume and N64ModernRuntime in `tools/android/patches/` come from its forks (MIT and GPL-3.0), and its build setup
+  was the model for ours.
+- **[SDL2](https://github.com/libsdl-org/SDL)** and **[FreeType](https://github.com/freetype/freetype)** — built from source
+  for Android.
+
 ## Project template
 - **[N64RecompGameTemplate](https://github.com/SrBananaMan/N64RecompGameTemplate)** by SrBananaMan — the base of this repository's host code.
 - **[HarvestMoon64Recomp](https://github.com/HarvestMoon64Recomp/HarvestMoon64Recomp)** — the port the template was derived from (GPL-3.0).
@@ -27,7 +34,7 @@ Robotron 64: Recompiled stands entirely on other people's work.
 - **[Orbitron](https://github.com/theleagueof/orbitron)** by Matt McInerney and The Orbitron Project Authors — launcher wordmark font, SIL Open Font License 1.1 (`assets/Orbitron-OFL.txt`; from google/fonts commit `8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5`).
 - The launcher backdrop (`assets/launcher/shade.svg` and the colour wave in `src/main/launcher_animation.cpp`) is original work made for this project, licensed with the rest of the repository (GPL-3.0). It uses no game assets.
 - The hero's head in the launcher (`assets/launcher/hero.svg`) is fan art of the Robotron 64 hero; Robotron and its characters are trademarks and copyrights of their owners (Midway / Warner Bros.). The SVG is drawn for this project and contains no game assets.
-- The app icon (`icons/app.svg`, `icons/app-small.svg`) is fan art of the robot from the Robotron 64 box art (chest emblem simplified); Robotron and its characters are trademarks and copyrights of their owners (Midway / Warner Bros.). The SVG is drawn for this project and contains no game assets.
+- The app icon (`icons/app.svg`, `icons/app-small.svg`; the Android launcher icon is derived from it) is fan art of the robot from the Robotron 64 box art (chest emblem simplified); Robotron and its characters are trademarks and copyrights of their owners (Midway / Warner Bros.). The SVG is drawn for this project and contains no game assets.
 
 ## The game
 Robotron 64 © 1998 Crave Entertainment / Player 1; Robotron: 2084 © Williams Electronics.

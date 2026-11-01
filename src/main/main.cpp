@@ -286,6 +286,12 @@ ultramodern::renderer::WindowHandle create_window(ultramodern::gfx_callbacks_t::
     flags |= SDL_WINDOW_VULKAN;
 #endif
 
+#if defined(__ANDROID__)
+    // A fullscreen window makes SDLActivity hide the system bars; a resizable one would also let it rotate to portrait.
+    SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
+    flags = (flags & ~SDL_WINDOW_RESIZABLE) | SDL_WINDOW_FULLSCREEN;
+#endif
+
     window = SDL_CreateWindow("Robotron 64: Recompiled", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1600, 900,  flags);
 
     if (window == nullptr) {

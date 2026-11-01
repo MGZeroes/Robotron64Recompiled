@@ -107,5 +107,22 @@ folder and switched on and off in the Mods menu. [docs/TEXTURE_PACKS.md](docs/TE
 to make one with RT64's in-game inspector and `tools/texture_pack.ps1`. Packs are shared separately; this
 repository contains no game assets.
 
+## Android (test build)
+An experimental build for ARM64 phones, on the `android` branch. It needs a controller: there are no touch controls.
+Tested on one phone so far, a Galaxy S26 Ultra with Adreno 840 (docs/decisions/007-android-test-build.md). Mali GPUs are
+not expected to work yet.
+
+After the recompile step above and a native build (`RecompiledPatches/` must exist), in PowerShell:
+
+```powershell
+.\tools\build_android.ps1                 # runs in Docker; output: build-android\Robotron64-debug.apk
+adb install -r build-android\Robotron64-debug.apk
+adb shell mkdir -p /sdcard/Android/data/io.github.mgzeroes.robotron64/files
+adb push baserom.us.z64 /sdcard/Android/data/io.github.mgzeroes.robotron64/files/robotron64.us.z64
+```
+
+There is no ROM picker yet, so the ROM goes in with `adb`, as above. The first build downloads several GB (Android SDK and
+NDK). Never share the APK: it contains recompiled game code.
+
 ## License
 GPL-3.0 (see [LICENSE](LICENSE)). Credits: [CREDITS.md](CREDITS.md).

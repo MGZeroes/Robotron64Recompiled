@@ -2,6 +2,28 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-11-01 — Android test build runs on the S26 Ultra
+
+- First launch reached the copyright screen and a wave, on the stock driver, with the Xbox controller. The user reports
+  it "worked perfectly, like on Windows". Frame rate not measured. Decision and result: ADR 007.
+- Build: `tools/build_android.ps1`, own Docker image. Files build in a Docker volume, not on the mounted Windows folder.
+  The `lib/` copy there gets the patches. `git apply --ignore-whitespace` handles the CRLF checkout.
+- Errors on the way:
+  - `recompinput` and `recompui` need the SDL2 target on Android.
+  - rt64's file dialog patch was for an older API; patch 0004 adapts it to the callback version in our pin.
+  - `RT64_SDL_WINDOW_VULKAN` must be defined after `add_subdirectory(rt64)`: inside rt64 the Android window is an
+    `ANativeWindow`, not an `SDL_Window`.
+  - `AssetManager.list("")` also lists Android's own files, so only `assets` and the controller database are unpacked now.
+- Driver log on the first launch only: 3 lines of "Shader compilation failed" / "Pipeline create failed" from AdrenoVK
+  right at startup, none on the next launch. Which pipelines they are was not found out; nothing looked wrong on screen.
+- Icon: adaptive icon, with layers derived from `icons/app.svg` by `tools/make_android_icon_layers.py`. Checked on a
+  simulated circular and square mask, not yet seen on the phone's launcher.
+- **Not tested:** the fullscreen fix. In the build on the phone the game was inset by the status bar and notch
+  (2801×1327 of 3120×1440), and could rotate to portrait. Java immersive flags alone did nothing, because SDLActivity
+  resets them for a non-fullscreen window. `create_window` now asks for `SDL_WINDOW_FULLSCREEN` and landscape only on
+  Android. It builds, but the phone was unplugged before it was installed.
+- Desktop after the CMake and `main.cpp` changes: Windows build links, Linux configure passes (not a full Linux build).
+
 ## 2026-11-01 — Android test build: first look (branch `android`)
 
 - Goal: go/no-go on the user's Galaxy S26 Ultra with a controller. See ADR 007.

@@ -40,6 +40,11 @@ real port; forks are likely the better long-term form (rule 3).
 Licences allow it: `rt64` and `plume` are MIT, `N64ModernRuntime` and both ports' apps are GPL-3.0, this repo is
 GPL-3.0 (GitHub API, 2026-11-01). Anything used gets credited in `CREDITS.md`.
 
+## Result
+Go on this device (2026-11-01). On the S26 Ultra's stock driver the game reached a wave in the first launch. The user
+tested it with an Xbox controller and reports it "worked perfectly, like on Windows", which covered the sound, saving and
+resume checks I asked for. Frame rate was not measured. Only this one device has been tested.
+
 ## Consequences
 - Patch files need refreshing when a pin moves.
 - The Mali fallback commits are left out, so this build isn't expected to work on Mali phones.
