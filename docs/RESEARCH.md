@@ -85,3 +85,14 @@ Decision: see [ADR 001](decisions/001-base-template.md).
 5. **Controller Pak save** — most ports use EEPROM/SRAM/Flash; verify N64ModernRuntime Pak support.
 6. **Decomp has no license** — fine for local builds (we commit nothing derived from it), but noted.
 7. **Pin bump** — template was validated on Jan-2026 runtime/frontend; we use newer heads (ADR 002), so template code may need API adjustments.
+
+## 6. Sources about the game itself (2026-10-31)
+
+- **Official US manual** (NUS-NRXE-USA), scanned with OCR text: <https://archive.org/details/robotron-64-nus-nrxe-usa>.
+  Story, enemy and power-up names, Electrode Forest / Beam Maze, Level Gates. Used in docs/LEVELS.md.
+- **Robotron X** (the PlayStation/PC original) play notes: <https://www.wurb.com/stack/archives/7669>
+  (sections, bonus rounds every 20 levels, last level 199).
+- **Cheats:** <https://www.cheathappens.com/4063-Nintendo_64-Robotron_64_cheats> (level select; unverified).
+- **Not reachable from here** (HTTP 403): GameFAQs, MobyGames, GiantBomb, GameSpot, RetroAchievements. A
+  wave-by-wave list would most likely be in a GameFAQs FAQ. The ROM table (tools/level_table.py) made it
+  unnecessary for floors.

@@ -112,6 +112,9 @@ This sorts `dump/` into `texture_work/`, which is also gitignored, using the cla
 - `texture_work/sheets/<category>.png`: a labelled overview per category.
 - `texture_work/index.csv`: hash, category, label and original size for every texture.
 
+The `arena` textures are the floors, labelled with their file names in the ROM. [LEVELS.md](LEVELS.md) lists
+which waves show which floor, and which floors aren't in the dump yet.
+
 Textures the classification doesn't know yet, for example from a new dump of other screens, end up in
 `other/` as `unknown__<hash>.png`. Add a line for them to `tools/texture_classes.txt` and run the sort again.
 

@@ -7,17 +7,19 @@
 #   powerups pickups, pre-rendered rotating sprites (many frames each): two_way, three_way, shield, one_up,
 #            speed_up (names from the game manual)
 #   icons    HUD icons
-#   arena    floor tiles of the different arenas, sky
+#   arena    arena floors, labelled with their ROM file name (<name>.flr, matched pixel-exact by
+#            tools/level_table.py --match; which waves use which floor: docs/LEVELS.md)
 #   effects  glows, smoke, sparks, shots
 #   models   character textures
 #   other    not identified yet
 # Labels repeat where the game has several variants.
-e90e89121400f277 arena floor_brown
-8976c57c673c072a arena floor_dark
-73efeef8afd71782 arena floor_grid_grey
-667ad04e14785b44 arena floor_tile
-7a228b9bc4ee2f91 arena floor_veins_green
-a8c31d78be2a0ccc arena sky_swirl
+e90e89121400f277 arena floor_tile2
+8976c57c673c072a arena floor_plate
+73efeef8afd71782 arena floor_tile
+667ad04e14785b44 arena floor_lego
+7a228b9bc4ee2f91 arena floor_swamp
+a8c31d78be2a0ccc arena floor_swirl
+d8a1c8b0a29beed1 arena floor_circuit
 028ac770e59f6751 cabinet bezel_bottom
 2342bc0eab955615 cabinet bezel_bottom
 26a8c6c1f32f0e9b cabinet bezel_bottom
@@ -146,7 +148,6 @@ b7abb6cf00943496 font question
 cd0a8f64713d47e9 font registered
 930566348e2ae217 icons lives_head
 36d894cc5efc7aca models eye_blue
-d8a1c8b0a29beed1 other tile_green_symbol
 00f316da19aee6ab powerups one_up
 041cfc0ecfcaa6ba powerups one_up
 067fca377d79669d powerups one_up

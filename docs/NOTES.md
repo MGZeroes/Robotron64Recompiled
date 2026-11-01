@@ -2,6 +2,25 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-10-31 — Levels and floors: the green floor is `swamp.flr`
+
+- The user asked about level themes and lore: was the green floor meant to be a forest? Researched the web and
+  the decomp (two agents), then re-checked the ROM decoding with a new script, `tools/level_table.py`. It
+  only prints, apart from optional floor PNGs for the gitignored `texture_work/`.
+- Chain: `D_80074C08[level]` (16-byte record) → floor index → `D_8007CCC0` file name → `<name>.flr`, a 32×32
+  RGBA16 texture. `LEVELNOS.DAT` gives 200 waves + 10 bonus slots. Scene files confirm bosses at waves 100
+  and 200, and round floors in waves 60–69, 160–169 and `BONUS2`.
+- The script's first version read the scene files little-endian (they're big-endian in the ROM) and printed
+  kind 2 as "no background" (`func_80022BFC` maps 1/2/3/6/7/8 to 0). Both fixed. `floor5` and `tile2` exist
+  as both `.flr` and `.raw`, so the PNGs keep the extension in their names.
+- `--match dump` matched all 6 arena textures plus one "other" texture exactly (5-bit compare). The green
+  veins are `swamp.flr` (bonus rounds, waves 140–149). The Electrode Forest (30–39) uses `swirl`, which we had
+  labelled `sky_swirl`. Relabelled all floors with their file names in `texture_classes.txt`. Six floors
+  aren't in the dump yet.
+- Correction to the first-dump note below: not every texture is CI8. The floors are RGBA16 and the font is I8
+  (`fmt` 4); the cabinet is CI8.
+- Write-up: docs/LEVELS.md (floor per wave, floor list with hashes, bonus rounds, manual facts, cheats).
+
 ## 2026-10-31 — Texture packs split into HUD and HD; `-Pack` leaves out work files
 
 - Asked whether players should be able to choose only an HD HUD. Checked how packs combine:
