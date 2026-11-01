@@ -1,0 +1,77 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ogdanimal <306057786+ogdanimal@users.noreply.github.com>
+Date: Sat, 25 Jul 2026 12:23:53 -0400
+Subject: [PATCH 6/6] Allow the host to supply the Vulkan loader
+
+Adds SetCustomVulkanLoader, which installs a vkGetInstanceProcAddr obtained
+somewhere other than volk's own dlopen of the system Vulkan loader. On Android
+this lets the host load a user-supplied driver (Mesa Turnip and friends) through
+libadrenotools and hand it to plume, which is the only way to run a Vulkan
+implementation other than the vendor blob.
+
+The whole mechanism sits behind PLUME_CUSTOM_VULKAN_LOADER, so a build without
+the define compiles the original volkInitialize() statement unchanged. Even with
+the define, a null loader (the default) leaves initialisation exactly as it was:
+the hook is opt-in twice over, which matters because VulkanInterface's
+constructor is on every platform's init path.
+
+Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+---
+ plume_vulkan.cpp | 18 ++++++++++++++++++
+ plume_vulkan.h   |  8 ++++++++
+ 2 files changed, 26 insertions(+)
+
+diff --git a/plume_vulkan.cpp b/plume_vulkan.cpp
+index e30271a..a622724 100644
+--- a/plume_vulkan.cpp
++++ b/plume_vulkan.cpp
+@@ -4700,12 +4700,30 @@ namespace plume {
+ 
+     // VulkanInterface
+ 
++#if defined(PLUME_CUSTOM_VULKAN_LOADER)
++    // Set by the host before the interface is constructed when it has loaded a
++    // Vulkan implementation itself rather than letting volk dlopen the system
++    // one. Null means "behave exactly as an unmodified build", which is why the
++    // whole mechanism is behind a define: nothing changes unless someone opts in.
++    static PFN_vkGetInstanceProcAddr customVulkanLoader = nullptr;
++
++    void SetCustomVulkanLoader(PFN_vkGetInstanceProcAddr getInstanceProcAddr) {
++        customVulkanLoader = getInstanceProcAddr;
++    }
++#endif
++
+ #if PLUME_SDL_VULKAN_ENABLED
+     VulkanInterface::VulkanInterface(RenderWindow sdlWindow) {
+ #else
+     VulkanInterface::VulkanInterface() {
+ #endif
++#   if defined(PLUME_CUSTOM_VULKAN_LOADER)
++        VkResult res = (customVulkanLoader != nullptr)
++            ? (volkInitializeCustom(customVulkanLoader), VK_SUCCESS)
++            : volkInitialize();
++#   else
+         VkResult res = volkInitialize();
++#   endif
+         if (res != VK_SUCCESS) {
+             fprintf(stderr, "volkInitialize failed with error code 0x%X.\n", res);
+             return;
+diff --git a/plume_vulkan.h b/plume_vulkan.h
+index 5e74185..050c47a 100644
+--- a/plume_vulkan.h
++++ b/plume_vulkan.h
+@@ -458,6 +458,14 @@ namespace plume {
+         bool endCapture() override;
+     };
+ 
++#if defined(PLUME_CUSTOM_VULKAN_LOADER)
++    // Installs a vkGetInstanceProcAddr obtained from somewhere other than volk's
++    // own dlopen of the system Vulkan loader. Must be called before constructing
++    // VulkanInterface; passing null (the default) leaves initialisation exactly
++    // as it is in a build without this define.
++    void SetCustomVulkanLoader(PFN_vkGetInstanceProcAddr getInstanceProcAddr);
++#endif
++
+     struct VulkanInterface : RenderInterface {
+         VkInstance instance = VK_NULL_HANDLE;
+         VkApplicationInfo appInfo = {};

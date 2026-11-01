@@ -94,3 +94,9 @@ build-linux/
 # (tools/sort_dump.sh). Texture packs live in the game's mods folder, never here. See docs/TEXTURE_PACKS.md.
 dump/
 texture_work/
+
+# Android test build output (ADR 007)
+build-android/
+*.apk
+android/.gradle/
+android/app/build/

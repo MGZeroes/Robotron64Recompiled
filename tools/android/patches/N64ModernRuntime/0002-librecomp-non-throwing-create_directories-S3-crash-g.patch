@@ -1,0 +1,59 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ogdanimal <306057786+ogdanimal@users.noreply.github.com>
+Date: Tue, 21 Jul 2026 20:47:11 -0400
+Subject: [PATCH 2/3] librecomp: non-throwing create_directories (S3 crash
+ guard)
+
+read_save_file() and initialize_mods() called the throwing
+std::filesystem::create_directories, so a vanished storage path (SD card
+removed) produced an uncaught filesystem_error -> std::terminate. Both now use
+the std::error_code overload:
+- read_save_file: on failure, falls through to the open, which fails cleanly and
+  zero-fills the save buffer (existing else branch).
+- initialize_mods: swallows the error rather than aborting pre-window.
+
+Completes the host-side S3 fix in the Goemon64Recomp app (config.cpp).
+
+Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
+---
+ librecomp/src/pi.cpp     | 8 ++++++--
+ librecomp/src/recomp.cpp | 7 +++++--
+ 2 files changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/librecomp/src/pi.cpp b/librecomp/src/pi.cpp
+index 43509ba..acaac51 100644
+--- a/librecomp/src/pi.cpp
++++ b/librecomp/src/pi.cpp
+@@ -226,8 +226,12 @@ size_t get_save_size(recomp::SaveType save_type) {
+ void read_save_file() {
+     std::filesystem::path save_file_path = ultramodern::get_save_file_path();
+ 
+-    // Ensure the save file directory exists.
+-    std::filesystem::create_directories(save_file_path.parent_path());
++    // Ensure the save file directory exists. Non-throwing: if the dir can't be
++    // created (e.g. the SD/storage path vanished), fall through to the open
++    // below, which fails cleanly and clears the save buffer to zeroes rather
++    // than letting an uncaught filesystem_error abort the process.
++    std::error_code ec;
++    std::filesystem::create_directories(save_file_path.parent_path(), ec);
+ 
+     // Read the save file if it exists.
+     std::ifstream save_file = recomp::open_input_file_with_backup(save_file_path, std::ios_base::binary);
+diff --git a/librecomp/src/recomp.cpp b/librecomp/src/recomp.cpp
+index 0feb748..c74e5d1 100644
+--- a/librecomp/src/recomp.cpp
++++ b/librecomp/src/recomp.cpp
+@@ -91,8 +91,11 @@ bool recomp::register_game(const recomp::GameEntry& entry) {
+ 
+ void recomp::mods::initialize_mods() {
+     N64Recomp::live_recompiler_init();
+-    std::filesystem::create_directories(config_path / mods_directory);
+-    std::filesystem::create_directories(config_path / mod_config_directory);
++    // Non-throwing: a failure to create the mods dirs (e.g. the storage path
++    // vanished) must not std::terminate on an uncaught filesystem_error.
++    std::error_code ec;
++    std::filesystem::create_directories(config_path / mods_directory, ec);
++    std::filesystem::create_directories(config_path / mod_config_directory, ec);
+     mod_context->set_mods_config_path(config_path / "mods.json");
+     mod_context->set_mod_config_directory(config_path / mod_config_directory);
+ }

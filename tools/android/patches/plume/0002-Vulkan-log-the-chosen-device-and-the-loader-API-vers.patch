@@ -1,0 +1,64 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ogdanimal <the.ogdanimal@gmail.com>
+Date: Sun, 19 Jul 2026 15:07:40 -0400
+Subject: [PATCH 2/6] Vulkan: log the chosen device and the loader API version
+
+Two startup lines that make Android bug reports diagnosable without a
+back-and-forth:
+
+- The physical device actually selected, with vendor id, device API version
+  and driver version. Which GPU/driver was picked explains most rendering
+  differences between handhelds.
+- The Vulkan loader's supported API version against what we request.
+  vkEnumerateInstanceVersion is a 1.1 entry point, so a null pointer there
+  means a 1.0 loader -- the single fact that explains most "it just closes
+  on launch" reports.
+
+Diagnostics only; no behaviour change.
+---
+ plume_vulkan.cpp | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+diff --git a/plume_vulkan.cpp b/plume_vulkan.cpp
+index cd5fee1..177c2cc 100644
+--- a/plume_vulkan.cpp
++++ b/plume_vulkan.cpp
+@@ -3942,6 +3942,19 @@ namespace plume {
+             return;
+         }
+ 
++        // Identify the device that was actually chosen. Bug reports that include
++        // this line are usually diagnosable on sight.
++        {
++            VkPhysicalDeviceProperties chosenProperties;
++            vkGetPhysicalDeviceProperties(physicalDevice, &chosenProperties);
++            fprintf(stderr, "[plume] Using device \"%s\" (vendor 0x%04X, device API %u.%u.%u, driver 0x%08X).\n",
++                chosenProperties.deviceName, chosenProperties.vendorID,
++                VK_API_VERSION_MAJOR(chosenProperties.apiVersion),
++                VK_API_VERSION_MINOR(chosenProperties.apiVersion),
++                VK_API_VERSION_PATCH(chosenProperties.apiVersion),
++                chosenProperties.driverVersion);
++        }
++
+         // Check for extensions.
+         uint32_t extensionCount;
+         vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, nullptr);
+@@ -4630,6 +4643,18 @@ namespace plume {
+             return;
+         }
+ 
++        // vkEnumerateInstanceVersion is a 1.1 entry point; a null pointer means a
++        // 1.0 loader. Reported up front because it is the single fact that
++        // explains most "it just closes on launch" reports.
++        uint32_t loaderApiVersion = VK_API_VERSION_1_0;
++        if (vkEnumerateInstanceVersion != nullptr) {
++            vkEnumerateInstanceVersion(&loaderApiVersion);
++        }
++
++        fprintf(stderr, "[plume] Vulkan loader supports %u.%u.%u, requesting %u.%u.\n",
++            VK_API_VERSION_MAJOR(loaderApiVersion), VK_API_VERSION_MINOR(loaderApiVersion), VK_API_VERSION_PATCH(loaderApiVersion),
++            VK_API_VERSION_MAJOR(VK_API_VERSION_1_2), VK_API_VERSION_MINOR(VK_API_VERSION_1_2));
++
+         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+         appInfo.pApplicationName = "plume";
+         appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);

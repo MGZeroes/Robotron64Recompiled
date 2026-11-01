@@ -1,0 +1,108 @@
+diff --git a/recompinput/CMakeLists.txt b/recompinput/CMakeLists.txt
+index 899372b..dd33e66 100644
+--- a/recompinput/CMakeLists.txt
++++ b/recompinput/CMakeLists.txt
+@@ -55,3 +55,7 @@ if (WIN32)
+ endif()
+ 
+ target_link_libraries(recompinput PUBLIC)
++
++if (ANDROID)
++    target_link_libraries(recompinput PRIVATE SDL2)
++endif()
+diff --git a/recompui/CMakeLists.txt b/recompui/CMakeLists.txt
+index 4dce8e0..d60c2a3 100644
+--- a/recompui/CMakeLists.txt
++++ b/recompui/CMakeLists.txt
+@@ -106,6 +106,8 @@ target_include_directories(recompui PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include
+ 
+ if (WIN32)
+     target_include_directories(recompui PRIVATE ${sdl2_SOURCE_DIR}/include)
++elseif (ANDROID)
++    target_link_libraries(recompui PRIVATE SDL2)
+ elseif (APPLE OR CMAKE_SYSTEM_NAME MATCHES "Linux")
+     target_include_directories(recompui PRIVATE ${SDL2_INCLUDE_DIRS})
+ endif()
+diff --git a/recompui/src/base/ui_launcher.cpp b/recompui/src/base/ui_launcher.cpp
+index 6de7a94..3f427e8 100644
+--- a/recompui/src/base/ui_launcher.cpp
++++ b/recompui/src/base/ui_launcher.cpp
+@@ -6,7 +6,9 @@
+ #include "util/file.h"
+ #include "librecomp/game.hpp"
+ #include "ultramodern/ultramodern.hpp"
++#if !defined(__ANDROID__)
+ #include "nfd.h"
++#endif
+ #include <filesystem>
+ #include "elements/ui_svg.h"
+ #include "elements/ui_config_page.h"
+diff --git a/recompui/src/renderer/rt64_render_context.cpp b/recompui/src/renderer/rt64_render_context.cpp
+index a7954c7..2a52620 100644
+--- a/recompui/src/renderer/rt64_render_context.cpp
++++ b/recompui/src/renderer/rt64_render_context.cpp
+@@ -1,3 +1,8 @@
++#if defined(__ANDROID__)
++#include "SDL.h"
++#include "SDL_syswm.h"
++#endif
++
+ #include <memory>
+ #include <cstring>
+ #include <variant>
+@@ -225,7 +230,15 @@ renderer::RT64Context::RT64Context(uint8_t* rdram, ultramodern::renderer::Window
+     RT64::Application::Core appCore{};
+ #if defined(_WIN32)
+     appCore.window = window_handle.window;
+-#elif defined(__linux__) || defined(__ANDROID__)
++#elif defined(__ANDROID__)
++    // RT64 wants the ANativeWindow; ultramodern's window handle is the SDL_Window.
++    {
++        SDL_SysWMinfo wmInfo;
++        SDL_VERSION(&wmInfo.version);
++        SDL_GetWindowWMInfo(window_handle, &wmInfo);
++        appCore.window = wmInfo.info.android.window;
++    }
++#elif defined(__linux__)
+     appCore.window = window_handle;
+ #elif defined(__APPLE__)
+     appCore.window.window = window_handle.window;
+diff --git a/recompui/src/util/file.cpp b/recompui/src/util/file.cpp
+index 7ee84ed..62344a6 100644
+--- a/recompui/src/util/file.cpp
++++ b/recompui/src/util/file.cpp
+@@ -1,7 +1,9 @@
+ #include "file.h"
+ 
+ #include <SDL.h>
++#if !defined(__ANDROID__)
+ #include "nfd.h"
++#endif
+ #include "RmlUi/Core.h"
+ 
+ #include "recompui/program_config.h"
+@@ -20,6 +22,16 @@
+ #endif
+ 
+ namespace recompui {
++#if defined(__ANDROID__)
++    // No native file dialog on Android: mods and ROMs go in the app folder with adb for now.
++    static void perform_file_dialog_operation(const std::function<void(bool, const std::filesystem::path&)>& callback) {
++        callback(false, {});
++    }
++
++    static void perform_file_dialog_operation_multiple(const std::function<void(bool, const std::list<std::filesystem::path>&)>& callback) {
++        callback(false, {});
++    }
++#else
+     static void perform_file_dialog_operation(const std::function<void(bool, const std::filesystem::path&)>& callback) {
+         nfdnchar_t* native_path = nullptr;
+         nfdresult_t result = NFD_OpenDialogN(&native_path, nullptr, 0, nullptr);
+@@ -57,6 +69,7 @@ namespace recompui {
+ 
+         callback(success, paths);
+     }
++#endif
+ 
+     std::filesystem::path file::get_app_folder_path() {
+         // directly check for portable.txt (windows and native linux binary)

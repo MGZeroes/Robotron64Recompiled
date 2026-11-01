@@ -1,0 +1,48 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ogdanimal <306057786+ogdanimal@users.noreply.github.com>
+Date: Fri, 24 Jul 2026 20:49:42 -0400
+Subject: [PATCH 5/6] Log the descriptor indexing capability at device creation
+
+Android startup already logs dualSrcBlend, which is what made the issue #15
+Mali root cause readable straight from a user's logcat. The Adreno 630 launch
+crash points at the same blind spot for VK_EXT_descriptor_indexing: nothing in
+the log revealed that the device lacks it while rt64 uses it unconditionally.
+
+Print the extension's presence, the three sub-features the capability is
+derived from, and the derived value itself. The line sits next to that
+derivation rather than with the other feature bits so the two cannot drift,
+and the sub-features are printed individually to tell "extension absent" apart
+from "extension present, one sub-feature missing".
+
+Logging only; no behaviour change.
+
+Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+---
+ plume_vulkan.cpp | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/plume_vulkan.cpp b/plume_vulkan.cpp
+index 45b9e74..e30271a 100644
+--- a/plume_vulkan.cpp
++++ b/plume_vulkan.cpp
+@@ -4164,6 +4164,20 @@ namespace plume {
+             createDeviceChain = &indexingFeatures;
+         }
+ 
++#if defined(__ANDROID__)
++        // Logged here rather than with the other feature bits above because this is the exact
++        // expression that becomes capabilities.descriptorIndexing, so the two cannot drift.
++        // The sub-features are printed individually to distinguish "extension absent" (all zero)
++        // from "extension present but one sub-feature missing".
++        fprintf(stderr, "[plume] descriptorIndexingExt=%d partiallyBound=%d variableDescriptorCount=%d runtimeDescriptorArray=%d sampledImageArrayNonUniformIndexing=%d descriptorIndexing=%d\n",
++            (int)descriptorIndexingFound,
++            (int)indexingFeatures.descriptorBindingPartiallyBound,
++            (int)indexingFeatures.descriptorBindingVariableDescriptorCount,
++            (int)indexingFeatures.runtimeDescriptorArray,
++            (int)indexingFeatures.shaderSampledImageArrayNonUniformIndexing,
++            (int)descriptorIndexingSupported);
++#endif
++
+         const bool scalarBlockLayoutSupported = layoutFeatures.scalarBlockLayout;
+         if (scalarBlockLayoutSupported) {
+             layoutFeatures.pNext = createDeviceChain;

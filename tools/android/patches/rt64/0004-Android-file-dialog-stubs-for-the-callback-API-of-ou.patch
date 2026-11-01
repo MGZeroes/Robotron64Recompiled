@@ -1,0 +1,39 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Android-patch <noreply@example.invalid>
+Date: Sun, 1 Nov 2026 10:56:32 +0100
+Subject: [PATCH] Android: file dialog stubs for the callback API of our pinned
+ rt64
+
+---
+ src/gui/rt64_file_dialog.cpp | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/src/gui/rt64_file_dialog.cpp b/src/gui/rt64_file_dialog.cpp
+index a489934..1caa6d9 100644
+--- a/src/gui/rt64_file_dialog.cpp
++++ b/src/gui/rt64_file_dialog.cpp
+@@ -27,18 +27,18 @@ namespace RT64 {
+     void FileDialog::initialize() {}
+     void FileDialog::finish() {}
+ 
+-    std::filesystem::path FileDialog::getDirectoryPath() {
+-        return {};
++    void FileDialog::getDirectoryPath(const Callback &callback) {
++        callback({});
+     }
+ 
+-    std::filesystem::path FileDialog::getOpenFilename(const std::vector<FileFilter> &filters) {
++    void FileDialog::getOpenFilename(const std::vector<FileFilter> &filters, const Callback &callback) {
+         (void)filters;
+-        return {};
++        callback({});
+     }
+ 
+-    std::filesystem::path FileDialog::getSaveFilename(const std::vector<FileFilter> &filters) {
++    void FileDialog::getSaveFilename(const std::vector<FileFilter> &filters, const Callback &callback) {
+         (void)filters;
+-        return {};
++        callback({});
+     }
+ #else
+     void FileDialog::initialize() {

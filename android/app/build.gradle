@@ -1,0 +1,49 @@
+// Android test build (ADR 007): only packages what tools/build_android.sh built, so no native build here.
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'io.github.mgzeroes.robotron64'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'io.github.mgzeroes.robotron64'
+        minSdk 28
+        targetSdk 34
+        versionCode 1
+        versionName '0.0.1-test'
+        ndk {
+            abiFilters 'arm64-v8a'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = [project.property('nativeLibs')]
+            java.srcDirs += [project.property('sdlJava')]
+            assets.srcDirs = ["${buildDir}/game-assets"]
+        }
+    }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+}
+
+// The game finds these relative to the app folder: assets/... and recompcontrollerdb.txt.
+def stageGameAssets = tasks.register('stageGameAssets', Copy) {
+    into "${buildDir}/game-assets"
+    into('assets') {
+        from project.property('gameAssets')
+    }
+    from project.property('controllerDb')
+}
+tasks.named('preBuild').configure { dependsOn stageGameAssets }

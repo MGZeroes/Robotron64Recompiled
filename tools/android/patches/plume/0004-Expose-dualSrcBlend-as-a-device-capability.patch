@@ -1,0 +1,92 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ogdanimal <306057786+ogdanimal@users.noreply.github.com>
+Date: Thu, 23 Jul 2026 19:27:51 -0400
+Subject: [PATCH 4/6] Expose dualSrcBlend as a device capability
+
+Mali (ARM) GPUs do not support the dualSrcBlend feature. plume passes the
+device's own queried feature set straight to vkCreateDevice, so the feature
+is enabled iff supported, and RT64's raster pipelines were unconditionally
+asking for VK_BLEND_FACTOR_SRC1_ALPHA regardless. On Mali the driver accepts
+the invalid pipeline and returns VK_SUCCESS, then blends undefined -- the
+result is a fully white screen with no API error anywhere.
+
+Report the feature so callers can pick a single source fallback, and add it
+to the Android startup diagnostics so this is visible in a bug report without
+needing a round trip to the reporter. D3D12 and Metal always support dual
+source blending and report it as such.
+
+Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
+---
+ plume_d3d12.cpp                | 1 +
+ plume_metal.cpp                | 1 +
+ plume_render_interface_types.h | 4 ++++
+ plume_vulkan.cpp               | 6 ++++--
+ 4 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/plume_d3d12.cpp b/plume_d3d12.cpp
+index 2cdcf18..c732b42 100644
+--- a/plume_d3d12.cpp
++++ b/plume_d3d12.cpp
+@@ -3862,6 +3862,7 @@ namespace plume {
+         capabilities.queryPools = true;
+         capabilities.maxTextureSize = 16384;
+         capabilities.preferHDR = description.dedicatedVideoMemory > (512 * 1024 * 1024);
++        capabilities.dualSrcBlend = true;
+         capabilities.samplerMirrorClampToEdge = true;
+ 
+         // Create descriptor heaps allocator.
+diff --git a/plume_metal.cpp b/plume_metal.cpp
+index 373c87e..1f98ec9 100644
+--- a/plume_metal.cpp
++++ b/plume_metal.cpp
+@@ -3824,6 +3824,7 @@ namespace plume {
+         capabilities.scalarBlockLayout = true;
+         capabilities.presentWait = true;
+         capabilities.preferHDR = mtl->recommendedMaxWorkingSetSize() > (512 * 1024 * 1024);
++        capabilities.dualSrcBlend = true;
+         capabilities.dynamicDepthBias = true;
+         capabilities.uma = mtl->hasUnifiedMemory();
+         capabilities.gpuUploadHeap = capabilities.uma;
+diff --git a/plume_render_interface_types.h b/plume_render_interface_types.h
+index 9dcfedf..c5183d3 100644
+--- a/plume_render_interface_types.h
++++ b/plume_render_interface_types.h
+@@ -1800,6 +1800,10 @@ namespace plume {
+         bool triangleFan = false;
+         bool dynamicDepthBias = false;
+ 
++        // Blending. Mali (ARM) GPUs do not expose dual source blending, so anything
++        // that relies on a secondary blend output needs a single source fallback.
++        bool dualSrcBlend = false;
++
+         // UMA.
+         bool uma = false;
+ 
+diff --git a/plume_vulkan.cpp b/plume_vulkan.cpp
+index 8365972..45b9e74 100644
+--- a/plume_vulkan.cpp
++++ b/plume_vulkan.cpp
+@@ -4118,12 +4118,13 @@ namespace plume {
+         vkGetPhysicalDeviceFeatures2(physicalDevice, &deviceFeatures);
+ 
+ #if defined(__ANDROID__)
+-        fprintf(stderr, "[plume] storageImageReadWithoutFormat=%d writeWithoutFormat=%d shaderInt64=%d fragmentStoresAndAtomics=%d vertexPipelineStoresAndAtomics=%d\n",
++        fprintf(stderr, "[plume] storageImageReadWithoutFormat=%d writeWithoutFormat=%d shaderInt64=%d fragmentStoresAndAtomics=%d vertexPipelineStoresAndAtomics=%d dualSrcBlend=%d\n",
+             (int)deviceFeatures.features.shaderStorageImageReadWithoutFormat,
+             (int)deviceFeatures.features.shaderStorageImageWriteWithoutFormat,
+             (int)deviceFeatures.features.shaderInt64,
+             (int)deviceFeatures.features.fragmentStoresAndAtomics,
+-            (int)deviceFeatures.features.vertexPipelineStoresAndAtomics);
++            (int)deviceFeatures.features.vertexPipelineStoresAndAtomics,
++            (int)deviceFeatures.features.dualSrcBlend);
+ #endif
+ 
+         // Check for properties.
+@@ -4359,6 +4360,7 @@ namespace plume {
+         capabilities.displayTiming = supportedOptionalExtensions.find(VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME) != supportedOptionalExtensions.end();
+         capabilities.maxTextureSize = physicalDeviceProperties.limits.maxImageDimension2D;
+         capabilities.preferHDR = memoryHeapSize > (512 * 1024 * 1024);
++        capabilities.dualSrcBlend = deviceFeatures.features.dualSrcBlend;
+         capabilities.dynamicDepthBias = true;
+         capabilities.queryPools = true;
+         capabilities.uma = (description.type == RenderDeviceType::INTEGRATED) && hasHostVisibleDeviceLocalMemory;

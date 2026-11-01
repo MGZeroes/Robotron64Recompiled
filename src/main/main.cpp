@@ -10,7 +10,9 @@
 #include <chrono>
 #include <memory>
 
+#if !defined(__ANDROID__)
 #include "nfd.h"
+#endif
 
 #include "ultramodern/ultra64.h"
 #include "ultramodern/ultramodern.hpp"
@@ -752,7 +754,16 @@ void on_launcher_init(recompui::LauncherMenu *menu) {
 
 #define REGISTER_FUNC(name) recomp::overlays::register_base_export(#name, name)
 
+#if defined(__ANDROID__)
+// SDLActivity looks this symbol up in libRobotron64.so. MainActivity.java has unpacked the assets and set
+// APP_FOLDER_PATH; assets and the controller database are found relative to the working directory.
+extern "C" int SDL_main(int argc, char** argv) {
+    if (const char* app_folder = getenv("APP_FOLDER_PATH")) {
+        std::filesystem::current_path(app_folder);
+    }
+#else
 int main(int argc, char** argv) {
+#endif
     (void)argc;
     (void)argv;
     recomp::Version project_version{};
@@ -820,7 +831,9 @@ int main(int argc, char** argv) {
 #endif
 
     // Initialize native file dialogs.
+#if !defined(__ANDROID__)
     NFD_Init();
+#endif
 
     // Initialize program settings.
     recompui::programconfig::set_program_name(robotron64::program_name);
@@ -947,7 +960,9 @@ int main(int argc, char** argv) {
         .threads_callbacks = threads_callbacks,
     });
 
+#if !defined(__ANDROID__)
     NFD_Quit();
+#endif
 
     if (preloaded) {
         release_preload(preload_context);
