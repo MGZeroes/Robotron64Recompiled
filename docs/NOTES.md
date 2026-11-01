@@ -2,6 +2,17 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-11-01 — Android test build: first look (branch `android`)
+
+- Goal: go/no-go on the user's Galaxy S26 Ultra with a controller. See ADR 007.
+- Read from the phone with `adb`: SM8850, Adreno 840, Vulkan 1.4.295, Android 17, 4 KB pages. `cmd gpu vkjson` prints
+  numbers as floats, so convert before bit shifts. All RT64 extensions are present except optional
+  `VK_KHR_present_wait`.
+- A plain diff of Goemon's `rt64` fork against upstream shows 70 files because its base is old. The Android commits
+  are few and nearly all cherry-pick cleanly onto our pins. Only applying was tested, not building.
+- plume's upstream is `renderbag/plume` (`lib/rt64/.gitmodules`), not under `rt64/`.
+- `gh` isn't installed here; `api.github.com` via curl gave the licences.
+
 ## 2026-10-31 — Levels and floors: the green floor is `swamp.flr`
 
 - The user asked about level themes and lore: was the green floor meant to be a forest? Researched the web and
