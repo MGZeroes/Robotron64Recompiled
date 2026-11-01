@@ -42,12 +42,12 @@ GPL-3.0 (GitHub API, 2026-11-01). Anything used gets credited in `CREDITS.md`.
 
 ## Result
 Go on this device (2026-11-01). On the S26 Ultra's stock driver the game reached a wave in the first launch. The user
-tested it with an Xbox controller and reports it "worked perfectly, like on Windows", which covered the sound, saving and
-resume checks I asked for. Frame rate was not measured. Only this one device has been tested.
+tested it with an Xbox controller and reports it "worked perfectly, like on Windows", in reply to a request to check
+sound, saving and resume; each was not confirmed separately. Frame rate was not measured. Only this device has been tested.
 
 ## Consequences
 - Patch files need refreshing when a pin moves.
 - The Mali fallback commits are left out, so this build isn't expected to work on Mali phones.
 - The Samsung fixes listed in Zelda's release notes (0.6.3, 0.6.4) have no details yet. Look at them if the phone
   fails at startup or on ROM reads.
-- `CMakeLists.txt` and RecompFrontend changes are still ahead and may be the larger part of the work.
+- The CMake and RecompFrontend changes turned out small: `if (ANDROID)` branches and one RecompFrontend patch.
