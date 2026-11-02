@@ -4,6 +4,10 @@ Running log, newest at top. Failed attempts stay in.
 
 ## 2026-11-02 — Android: reinstalls had silently failed; fullscreen confirmed
 
+- Later the same day: saving confirmed. The user saved and loaded across a restart, and
+  `saves/robotron64.us.controller_pak_1.bin` (4142 bytes) exists on the phone and survived an `adb install -r` update.
+  The user chose landscape only. The icon robot was too high, so it is now centred on its drawing (`ROBOT_CENTER`); the
+  trimmed foreground measures 224×210 centred on the 432 px canvas.
 - Correction to the entry below: the icon build was never on the phone, and the connection had dropped rather than the
   phone being unplugged. `dumpsys package` showed the first APK (2026-11-01 10:59) was still installed. My command piped
   `adb install` through `tail -1`, which hid the failure, and I reported the install as done.

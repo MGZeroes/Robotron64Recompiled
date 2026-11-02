@@ -43,8 +43,9 @@ GPL-3.0 (GitHub API, 2026-11-01). Anything used gets credited in `CREDITS.md`.
 ## Result
 Go on this device (2026-11-01). On the S26 Ultra's stock driver the game reached a wave in the first launch. The user
 tested it with an Xbox controller and reports it "worked perfectly, like on Windows", in reply to a request to check
-sound, saving and resume; each was not confirmed separately, and no save file existed on the phone afterwards, so saving
-is unconfirmed. Frame rate was not measured. Only this device has been tested.
+sound, saving and resume; each was not confirmed separately. No save file existed after that test, so saving was tested
+again and works: save, restart, load (2026-11-02). Landscape only, by the user's choice. Frame rate was not measured. Only
+this device has been tested.
 
 ## Consequences
 - Patch files need refreshing when a pin moves.
