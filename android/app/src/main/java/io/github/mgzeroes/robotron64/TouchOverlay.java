@@ -72,10 +72,11 @@ public class TouchOverlay extends View {
 
         float radius = BUTTON_RADIUS_DP * density;
         float top = 2 * radius;
+        // At the edges: the game shows its score at the top centre and the lives at the top right.
         placeButton(BUTTON_L, 3 * radius, top, radius);
-        placeButton(BUTTON_START, width / 2f, top, radius);
-        placeButton(BUTTON_B, width - 6 * radius, top, radius);
+        placeButton(BUTTON_START, 6 * radius, top, radius);
         placeButton(BUTTON_A, width - 3 * radius, top, radius);
+        placeButton(BUTTON_B, width - 3 * radius, top + 2.6f * radius, radius);
     }
 
     private void placeButton(int id, float x, float y, float radius) {

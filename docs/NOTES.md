@@ -2,6 +2,15 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-11-02 — Android touch controls work
+
+- A virtual SDL gamepad fed by a small Java overlay (ADR 008). No RecompFrontend patch was needed.
+- The user tested on the S26 Ultra: moving and aiming feel right; the pause menu works by stick and A/B; the overlay hides and
+  returns when the Xbox controller connects and disconnects; Home and back works. A simulated tap on "Start Game" also
+  worked, so the launcher is tappable through SDL's touch-to-mouse events.
+- First layout put START on the score and B on the lives counter. Moved: L and START top left, A and B at the right edge.
+- A sleeping Xbox controller leaves Android's input device list, so the overlay comes back without any action.
+
 ## 2026-11-02 — Android test build merged into master
 
 - Fast-forward of `android` onto `master` (`892dc5a`), no history rewritten. The Windows build linked on that same commit

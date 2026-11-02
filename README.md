@@ -108,7 +108,7 @@ to make one with RT64's in-game inspector and `tools/texture_pack.ps1`. Packs ar
 repository contains no game assets.
 
 ## Android (test build)
-An experimental build for ARM64 phones. It needs a controller: there are no touch controls.
+An experimental build for ARM64 phones. It has on-screen controls, which hide while a controller is connected.
 Tested on one phone so far, a Galaxy S26 Ultra with Adreno 840 (docs/decisions/007-android-test-build.md). Mali GPUs are
 not expected to work yet.
 
