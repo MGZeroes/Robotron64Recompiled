@@ -2,6 +2,15 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-11-02 — Version is now 0.9.0, kept in CMakeLists.txt
+
+- The launcher still showed v0.1.0 while the tags had reached v0.9: the number was hardcoded in `main.cpp`, and Gradle had its
+  own. Now `project(... VERSION)` is the one source; `main.cpp` and the Android app read it. Rule in CLAUDE.md.
+- The definition is on the game target only. A global one would recompile all of RecompiledFuncs on each bump.
+- Raising it is safe for mods: the check is `get_project_version() < minimum_recomp_version` (`librecomp/src/mods.cpp`), and
+  the pack template asks for 0.1.0.
+- Tag `v0.9-android` moved onto this commit (local only; there is no remote).
+
 ## 2026-11-02 — Android touch controls work
 
 - A virtual SDL gamepad fed by a small Java overlay (ADR 008). No RecompFrontend patch was needed.

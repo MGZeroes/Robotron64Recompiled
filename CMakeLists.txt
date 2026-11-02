@@ -4,7 +4,8 @@ if (APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "Minimum OS X deployment version")
 endif()
 
-project(Robotron64Recompiled LANGUAGES C CXX)
+# The one place for the version: launcher, config files, mod checks and the Android app read it from here.
+project(Robotron64Recompiled VERSION 0.9.0 LANGUAGES C CXX)
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -230,6 +231,9 @@ else()
     add_executable(Robotron64Recompiled)
     set(ROBOTRON_ICON_FILE_TO_C file_to_c)
 endif()
+
+# Only on this target: a global definition would recompile all of RecompiledFuncs on every version bump.
+target_compile_definitions(Robotron64Recompiled PRIVATE ROBOTRON64_VERSION="${PROJECT_VERSION}")
 
 set (SOURCES
     ${CMAKE_SOURCE_DIR}/src/main/launcher_animation.cpp

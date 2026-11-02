@@ -81,10 +81,14 @@ build_apk() {
     sync_tree
     echo "== apk"
     rsync -a --delete "$ROOT/android/" /build/android/
+    local version
+    version=$(sed -n 's/^project(Robotron64Recompiled VERSION \([0-9.]*\).*/\1/p' "$TREE/CMakeLists.txt")
+    [ -n "$version" ] || { echo "error: no version found in CMakeLists.txt" >&2; exit 1; }
     export GRADLE_USER_HOME=/build/gradle
     # Keeps the debug signing key in the volume. A new key per container makes Android refuse updates.
     export ANDROID_USER_HOME=/build/android-user
     (cd /build/android && gradle --no-daemon -q assembleDebug \
+        -PappVersion="$version" \
         -PnativeLibs=/build/jniLibs \
         -PsdlJava="$OUT/_deps/sdl2-src/android-project/app/src/main/java" \
         -PgameAssets="$TREE/assets" \
