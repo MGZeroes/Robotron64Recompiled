@@ -24,4 +24,7 @@ Own code; nothing copied from the Goemon overlay.
 - No RecompFrontend patch and no desktop change, other than the `__ANDROID__` call in `update_gfx`.
 - Input is sent once per `update_gfx` call, not on each touch event. It felt right in the user's test.
 - No layout editor, sensitivity setting or vibration yet. Button positions are fixed around the one-player HUD.
-- Tested on the S26 Ultra: moving and aiming, pause menu, switching to and from the Xbox controller, Home and back.
+- Tested on the S26 Ultra: moving and aiming, pause menu, switching to and from the Xbox controller. The "Home and back" result
+  from that test doesn't hold: on 2026-11-02 Home at the launcher went black on that code. Fixed in ADR 009.
+- In menus the buttons cover menu items and take their touches, because buttons are checked first (`TouchOverlay.pointerDown`).
+  Open, see NOTES.

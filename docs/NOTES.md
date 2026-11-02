@@ -2,6 +2,24 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-11-02 — Android file picker for the ROM and mods
+
+- The launcher's ROM button and "Install Mods" now open Android's system picker instead of a stub (ADR 009). The chosen file is
+  copied to the cache because the game reads paths, then the normal ROM and mod code runs.
+- First phone test: the wrong-ROM error appeared, then a black screen with the game still running. The log showed `No such device`
+  from Vulkan after `surfaceDestroyed`: RT64 kept the destroyed surface. This wasn't the picker's fault; Home at the launcher did
+  the same. We never carried the Goemon code that calls plume's `setRenderWindow`. RecompFrontend patch 0002 adds it (ADR 009).
+- **Correction:** the "Home and back works" entry below doesn't hold for that code. I recorded the user's answer without checking
+  the log. Why that test looked fine is unknown; Home during gameplay wasn't re-run on the old build.
+- With the fix, the user confirmed: wrong file, correct ROM (also after closing the app), Home during gameplay, installing
+  `robotron64-hud.rtz`. Not tested: overwrite prompt, several files at once, Drive, the pack's look in game.
+- `git archive` applies `core.autocrlf`: pass `-c core.autocrlf=false` when generating a patch from an archived copy.
+- The app was gone from the phone before this test (`firstInstallTime` was the new install), so its old saves and settings are
+  gone too. Cause unknown.
+- **Next: the touch overlay gets in the way of menus** (user report, screenshot of the Mods menu). A covers the close X, so the
+  menu can't be closed by touch. L and START cover General, Graphics and the first mod entry; the right stick covers Configure.
+  Buttons are hit-tested before the menu, with a reach of 1.3× their radius.
+
 ## 2026-11-02 — Version is now 0.9.0, kept in CMakeLists.txt
 
 - The launcher still showed v0.1.0 while the tags had reached v0.9: the number was hardcoded in `main.cpp`, and Gradle had its

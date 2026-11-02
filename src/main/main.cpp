@@ -45,6 +45,7 @@
 #include "robotron64_game.h"
 #include "robotron64_launcher.h"
 #if defined(__ANDROID__)
+#include "robotron64_files.h"
 #include "robotron64_touch.h"
 #endif
 #include "recomp_data.h"
@@ -324,6 +325,7 @@ ultramodern::renderer::WindowHandle create_window(ultramodern::gfx_callbacks_t::
 void update_gfx(void*) {
 #if defined(__ANDROID__)
     robotron64::touch::update();
+    robotron64::files::update();
 #endif
     recompinput::handle_events();
 }

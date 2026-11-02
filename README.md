@@ -117,12 +117,17 @@ After the recompile step above and a native build (`RecompiledPatches/` must exi
 ```powershell
 .\tools\build_android.ps1                 # runs in Docker; output: build-android\Robotron64-debug.apk
 adb install -r build-android\Robotron64-debug.apk
+```
+
+Then copy your ROM to the phone and choose it with the launcher's ROM button, which opens Android's file picker. "Install Mods"
+works the same way, with a `.rtz` or zip file (a pack folder can't be picked). Pushing the ROM also still works:
+
+```powershell
 adb shell mkdir -p /sdcard/Android/data/io.github.mgzeroes.robotron64/files
 adb push baserom.us.z64 /sdcard/Android/data/io.github.mgzeroes.robotron64/files/robotron64.us.z64
 ```
 
-There is no ROM picker yet, so the ROM goes in with `adb`, as above. The first build downloads several GB (Android SDK and
-NDK). Never share the APK: it contains recompiled game code.
+The first build downloads several GB (Android SDK and NDK). Never share the APK: it contains recompiled game code.
 
 ## License
 GPL-3.0 (see [LICENSE](LICENSE)). Credits: [CREDITS.md](CREDITS.md).

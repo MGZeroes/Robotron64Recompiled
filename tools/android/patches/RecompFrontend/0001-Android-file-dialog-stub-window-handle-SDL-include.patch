@@ -81,24 +81,31 @@ index 7ee84ed..62344a6 100644
  #include "RmlUi/Core.h"
  
  #include "recompui/program_config.h"
-@@ -20,6 +22,16 @@
+@@ -19,7 +21,23 @@
+ #include "apple/rt64_apple.h"
  #endif
  
++#if defined(__ANDROID__)
++// The system file picker, in the game's src/main/android_files.cpp. The callback runs later, on the SDL event thread.
++void robotron64_pick_files(bool multiple, std::function<void(bool, const std::list<std::filesystem::path>&)> callback);
++#endif
++
  namespace recompui {
 +#if defined(__ANDROID__)
-+    // No native file dialog on Android: mods and ROMs go in the app folder with adb for now.
 +    static void perform_file_dialog_operation(const std::function<void(bool, const std::filesystem::path&)>& callback) {
-+        callback(false, {});
++        robotron64_pick_files(false, [callback](bool success, const std::list<std::filesystem::path>& paths) {
++            callback(success, success ? paths.front() : std::filesystem::path{});
++        });
 +    }
 +
 +    static void perform_file_dialog_operation_multiple(const std::function<void(bool, const std::list<std::filesystem::path>&)>& callback) {
-+        callback(false, {});
++        robotron64_pick_files(true, callback);
 +    }
 +#else
      static void perform_file_dialog_operation(const std::function<void(bool, const std::filesystem::path&)>& callback) {
          nfdnchar_t* native_path = nullptr;
          nfdresult_t result = NFD_OpenDialogN(&native_path, nullptr, 0, nullptr);
-@@ -57,6 +69,7 @@ namespace recompui {
+@@ -57,6 +76,7 @@ namespace recompui {
  
          callback(success, paths);
      }

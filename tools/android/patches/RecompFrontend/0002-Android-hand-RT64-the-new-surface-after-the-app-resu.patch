@@ -1,0 +1,98 @@
+diff --git a/recompinput/src/input_events.cpp b/recompinput/src/input_events.cpp
+index c76a1dc..2a5d607 100644
+--- a/recompinput/src/input_events.cpp
++++ b/recompinput/src/input_events.cpp
+@@ -4,6 +4,13 @@
+ #include "recompinput/profiles.h"
+ #include "recompui/config.h"
+ #include "ultramodern/ultramodern.hpp"
++#if defined(__ANDROID__)
++#include "SDL_syswm.h"
++
++namespace recompui::renderer {
++    void android_set_resume_window(void* native_window);
++}
++#endif
+ 
+ static struct {
+     std::list<std::filesystem::path> files_dropped;
+@@ -238,6 +245,25 @@ bool sdl_event_filter(void* userdata, SDL_Event* event) {
+         // Always queue button up events to avoid missing them during binding.
+         recompui::queue_event(*event);
+         break;
++#if defined(__ANDROID__)
++    case SDL_APP_WILLENTERBACKGROUND:
++        ultramodern::set_app_paused(true);
++        queue_if_enabled(event);
++        break;
++    case SDL_APP_DIDENTERFOREGROUND: {
++        // The surface was recreated, so RT64 needs the new one. Before unpausing, so the next frame already rebuilds it.
++        // Window 1 is the game's only window.
++        SDL_SysWMinfo wm_info;
++        SDL_VERSION(&wm_info.version);
++        SDL_Window* window = SDL_GetWindowFromID(1);
++        if (window != nullptr && SDL_GetWindowWMInfo(window, &wm_info) && wm_info.info.android.window != nullptr) {
++            recompui::renderer::android_set_resume_window(wm_info.info.android.window);
++        }
++        ultramodern::set_app_paused(false);
++        queue_if_enabled(event);
++        break;
++    }
++#endif
+     default:
+         queue_if_enabled(event);
+         break;
+diff --git a/recompui/src/renderer/rt64_render_context.cpp b/recompui/src/renderer/rt64_render_context.cpp
+index 2a52620..287ab58 100644
+--- a/recompui/src/renderer/rt64_render_context.cpp
++++ b/recompui/src/renderer/rt64_render_context.cpp
+@@ -1,6 +1,8 @@
+ #if defined(__ANDROID__)
+ #include "SDL.h"
+ #include "SDL_syswm.h"
++#include <android/native_window.h>
++#include <atomic>
+ #endif
+ 
+ #include <memory>
+@@ -26,6 +28,23 @@ static RT64::UserConfiguration::Antialiasing device_max_msaa = RT64::UserConfigu
+ static bool sample_positions_supported = false;
+ static bool high_precision_fb_enabled = false;
+ 
++#if defined(__ANDROID__)
++// Holds a reference to the window, which setRenderWindow takes over.
++static std::atomic<ANativeWindow*> pending_resume_window{nullptr};
++
++// Android destroys the surface while the app is in the background. Called on the SDL event thread with the new one; only
++// the graphics thread touches RT64, so it picks the window up in update_screen.
++namespace recompui::renderer {
++    void android_set_resume_window(void* native_window) {
++        ANativeWindow* window = static_cast<ANativeWindow*>(native_window);
++        ANativeWindow_acquire(window);
++        if (ANativeWindow* superseded = pending_resume_window.exchange(window)) {
++            ANativeWindow_release(superseded);
++        }
++    }
++}
++#endif
++
+ static uint8_t DMEM[0x1000];
+ static uint8_t IMEM[0x1000];
+ 
+@@ -369,6 +388,16 @@ void renderer::RT64Context::send_dummy_workload(uint32_t fb_address) {
+ }
+ 
+ void renderer::RT64Context::update_screen() {
++#if defined(__ANDROID__)
++    if (ANativeWindow* window = pending_resume_window.exchange(nullptr)) {
++        if (app->swapChain != nullptr) {
++            app->swapChain->setRenderWindow(window);
++        }
++        else {
++            ANativeWindow_release(window);
++        }
++    }
++#endif
+     check_refresh_rate_changes();
+     app->updateScreen();
+ }
