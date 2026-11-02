@@ -5,7 +5,7 @@ if (APPLE)
 endif()
 
 # The one place for the version: launcher, config files, mod checks and the Android app read it from here.
-project(Robotron64Recompiled VERSION 0.10.0 LANGUAGES C CXX)
+project(Robotron64Recompiled VERSION 1.0.0 LANGUAGES C CXX)
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
