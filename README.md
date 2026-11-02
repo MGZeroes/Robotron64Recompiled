@@ -15,6 +15,9 @@ Where a release has packages, they're on the Releases page. Unpack the one for y
 the game and choose your ROM in the launcher. The packages contain no ROM and no game assets; they do contain the game's code in
 recompiled form. The ROM must be Robotron 64 (USA) rev 0, SHA-1 `44d158bc2aeefb111a620b61e043b2703e6c5808`.
 
+- **Windows** needs Microsoft's Visual C++ Redistributable (x64), which many PCs already have.
+- **Linux** needs glibc 2.38 or newer (Ubuntu 24.04 has it), a Vulkan driver, and the system's SDL2, GTK3 and FreeType libraries.
+
 To build it yourself, read on.
 
 ## Requirements (Windows)

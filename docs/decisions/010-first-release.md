@@ -32,7 +32,16 @@ the machine: ADR 005 keeps game builds out of CI, and the README said never to s
 | Linux tar.gz | binary, `assets/`, `recompcontrollerdb.txt`, `LICENSE`, `CREDITS.md`, `licenses/`. Needs system libraries (README) |
 | Android APK | native libraries, `assets/`, controller database and `licenses/` inside the APK, plus the release signature |
 
-None of them contains a ROM, game assets or texture packs.
+None of them contains a ROM, game assets or texture packs. A scan on 2026-11-02 compared every non-trivial 4 KB block of the ROM
+(1,860 blocks) against each large binary and found no matches, so no long stretch of raw ROM data is embedded.
+
+Linux and Android binaries are packaged without debug info; exported symbols stay. Windows has no PDB in its package. The exe still
+contains 19 source paths starting `E:/RecompProjects/Robotron64/` from logging macros. They hold no personal data, so we kept them
+rather than rebuild everything with path mapping. The Linux and Android binaries contain `/work/` and `/build/` paths the same way.
+
+Requirements, read from the binaries: Windows imports the Visual C++ runtime (`MSVCP140`, `VCRUNTIME140`,
+`MSVCP140_ATOMIC_WAIT`), which isn't bundled. Linux needs glibc 2.38, because it's built on Ubuntu 24.04, plus system SDL2, GTK3 and
+FreeType.
 
 ## Open before builds go public
 1. **Copyright.** The builds contain the game's code, translated from the ROM, even though players supply their own ROM. Other

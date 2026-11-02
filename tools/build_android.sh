@@ -99,6 +99,11 @@ build_apk() {
     )
     mkdir -p "$ROOT/build-android"
     if [ "${ROBOTRON_RELEASE:-}" = 1 ]; then
+        # The native build keeps debug info for the debug APK; copies without it go into the release.
+        rm -rf /build/jniLibs-release
+        cp -r /build/jniLibs /build/jniLibs-release
+        "$ANDROID_NDK"/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip --strip-debug /build/jniLibs-release/arm64-v8a/*.so
+        gradle_args+=(-PnativeLibs=/build/jniLibs-release)
         (cd /build/android && gradle --no-daemon -q assembleRelease "${gradle_args[@]}" \
             -PreleaseKeystore=/signing/release.jks -PreleasePasswordFile=/signing/keystore-password.txt)
         local apk="$ROOT/build-android/Robotron64-$version.apk"

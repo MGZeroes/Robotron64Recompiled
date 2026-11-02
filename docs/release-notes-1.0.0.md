@@ -6,9 +6,10 @@ recompiled, so it runs natively instead of through an emulator.
 **You need your own Robotron 64 (USA) rev 0 ROM,** SHA-1 `44d158bc2aeefb111a620b61e043b2703e6c5808`. The downloads contain no ROM.
 
 ## Install
-- **Windows:** unzip, run `Robotron64Recompiled.exe`, and choose your ROM in the launcher.
-- **Linux (x86-64):** unpack, run `./Robotron64Recompiled` from that folder, and choose your ROM. Needs a Vulkan driver plus the
-  system libraries listed in the README.
+- **Windows:** unzip, run `Robotron64Recompiled.exe`, and choose your ROM in the launcher. If it reports a missing `MSVCP140` or
+  `VCRUNTIME140` file, install Microsoft's Visual C++ Redistributable (x64).
+- **Linux (x86-64):** unpack, run `./Robotron64Recompiled` from that folder, and choose your ROM. Needs glibc 2.38 or newer (Ubuntu
+  24.04 has it), a Vulkan driver, and the system's SDL2, GTK3 and FreeType libraries.
 - **Android (ARM64, experimental):** install the APK and choose your ROM with the launcher's ROM button.
 
 Check a download against `SHA256SUMS.txt` if you want to confirm it's intact.

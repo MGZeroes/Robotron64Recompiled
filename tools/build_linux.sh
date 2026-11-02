@@ -30,8 +30,14 @@ cmake --build "$BUILD" --target Robotron64Recompiled -j "$(nproc)"
 
 echo "== package"
 python3 "$ROOT/tools/collect_licenses.py" "$BUILD/licenses"
+# The package gets a stripped copy; exported symbols stay, so mods still link.
+rm -rf "$BUILD/package"
+mkdir -p "$BUILD/package"
+cp "$BUILD/Robotron64Recompiled" "$BUILD/package/"
+strip --strip-unneeded "$BUILD/package/Robotron64Recompiled"
 tar -czf "$BUILD/Robotron64Recompiled-linux-x64.tar.gz" \
-    -C "$BUILD" Robotron64Recompiled licenses \
+    -C "$BUILD/package" Robotron64Recompiled \
+    -C "$BUILD" licenses \
     -C "$ROOT" assets recompcontrollerdb.txt LICENSE CREDITS.md
 file "$BUILD/Robotron64Recompiled"
 if ldd "$BUILD/Robotron64Recompiled" | grep -q "not found"; then
