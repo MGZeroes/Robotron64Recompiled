@@ -1,10 +1,16 @@
 package io.github.mgzeroes.robotron64;
 
 import android.content.res.AssetManager;
+import android.hardware.input.InputManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.system.ErrnoException;
 import android.system.Os;
 import android.util.Log;
+import android.view.InputDevice;
+import android.view.MotionEvent;
+import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
@@ -19,11 +25,13 @@ import java.io.OutputStream;
 
 // Android test build (ADR 007). Unpacks the UI assets into the app's files folder and points the game at it
 // before SDL starts its native main. The ROM is copied there with adb as robotron64.us.z64.
-public class MainActivity extends SDLActivity {
+public class MainActivity extends SDLActivity implements InputManager.InputDeviceListener {
     private static final String TAG = "Robotron64";
 
     // What the game needs; the root of the APK's assets also lists Android's own files.
     private static final String[] GAME_ASSETS = { "assets", "recompcontrollerdb.txt" };
+
+    private TouchOverlay touchOverlay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +52,69 @@ public class MainActivity extends SDLActivity {
         attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
         getWindow().setAttributes(attributes);
         hideSystemBars();
+
+        if (!mBrokenLibraries) {
+            touchOverlay = new TouchOverlay(this);
+            ((ViewGroup) getContentView()).addView(touchOverlay, new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            InputManager inputManager = (InputManager) getSystemService(INPUT_SERVICE);
+            inputManager.registerInputDeviceListener(this, new Handler(Looper.getMainLooper()));
+            updateTouchOverlay();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (touchOverlay != null) {
+            ((InputManager) getSystemService(INPUT_SERVICE)).unregisterInputDeviceListener(this);
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onPause() {
+        if (touchOverlay != null) {
+            touchOverlay.releaseAll();
+        }
+        super.onPause();
+    }
+
+    @Override
+    public void onInputDeviceAdded(int deviceId) {
+        updateTouchOverlay();
+    }
+
+    @Override
+    public void onInputDeviceRemoved(int deviceId) {
+        updateTouchOverlay();
+    }
+
+    @Override
+    public void onInputDeviceChanged(int deviceId) {
+        updateTouchOverlay();
+    }
+
+    // The on-screen controls are for when no controller is connected.
+    private void updateTouchOverlay() {
+        boolean controller = hasController();
+        if (controller) {
+            touchOverlay.releaseAll();
+        }
+        touchOverlay.setVisibility(controller ? android.view.View.GONE : android.view.View.VISIBLE);
+        TouchOverlay.nativeSetEnabled(!controller);
+    }
+
+    // Requires a real analog stick: phones have button devices that also call themselves gamepads.
+    private boolean hasController() {
+        for (int id : InputDevice.getDeviceIds()) {
+            InputDevice device = InputDevice.getDevice(id);
+            if (device != null && !device.isVirtual()
+                    && (device.getSources() & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK
+                    && device.getMotionRange(MotionEvent.AXIS_X, InputDevice.SOURCE_JOYSTICK) != null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

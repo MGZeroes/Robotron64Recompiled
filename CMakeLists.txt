@@ -410,6 +410,7 @@ endif()
 if (ANDROID)
     # rt64 fetched SDL2; the SDL2 target carries its include paths.
     target_link_libraries(Robotron64Recompiled PRIVATE freetype SDL2 android log vulkan)
+    target_sources(Robotron64Recompiled PRIVATE ${CMAKE_SOURCE_DIR}/src/main/android_touch.cpp)
 endif()
 
 # TODO fix the rt64 CMake script so that this doesn't need to be duplicated here
