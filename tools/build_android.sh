@@ -82,6 +82,8 @@ build_apk() {
     echo "== apk"
     rsync -a --delete "$ROOT/android/" /build/android/
     export GRADLE_USER_HOME=/build/gradle
+    # Keeps the debug signing key in the volume. A new key per container makes Android refuse updates.
+    export ANDROID_USER_HOME=/build/android-user
     (cd /build/android && gradle --no-daemon -q assembleDebug \
         -PnativeLibs=/build/jniLibs \
         -PsdlJava="$OUT/_deps/sdl2-src/android-project/app/src/main/java" \

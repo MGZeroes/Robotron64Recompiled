@@ -2,6 +2,24 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-11-02 — Android: reinstalls had silently failed; fullscreen confirmed
+
+- Correction to the entry below: the icon build was never on the phone, and the connection had dropped rather than the
+  phone being unplugged. `dumpsys package` showed the first APK (2026-11-01 10:59) was still installed. My command piped
+  `adb install` through `tail -1`, which hid the failure, and I reported the install as done.
+- Cause: `INSTALL_FAILED_UPDATE_INCOMPATIBLE`. Gradle made a new debug key in `~/.android` of each throwaway container.
+  Fixed with `ANDROID_USER_HOME=/build/android-user` in `tools/build_android.sh`, so the key stays in the Docker volume.
+  `apksigner` shows the APK's certificate matches that key. The first install with it needed an uninstall, which wipes
+  the app folder, so settings were pulled to `build-android/phone-backup/` (gitignored) and pushed back with the ROM.
+- `saves/` on the phone was empty before that uninstall, and that is where `controller_pak.cpp` writes. So no save had
+  been written on the phone, and saving on Android is still unconfirmed.
+- Fullscreen confirmed on the new build: the surface is 3120×1440 at (0,0) in the log and in `dumpsys SurfaceFlinger`, with
+  no bars in a screenshot. It also locks the game to landscape; the first build could rotate to portrait. The stray system
+  files are gone from the app folder.
+- The 3 AdrenoVK "Shader compilation failed" lines came back on this fresh install, and did not appear on a later launch
+  of an existing install. So they go with a first launch without a pipeline cache (`.rt64/`), not one specific launch.
+  Still not known which pipelines they are.
+
 ## 2026-11-01 — Android test build runs on the S26 Ultra
 
 - First launch reached the copyright screen and a wave, on the stock driver, with the Xbox controller. The user reports
