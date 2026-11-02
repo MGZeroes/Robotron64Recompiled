@@ -13,7 +13,7 @@ jobs:
     name: No ROM-derived files tracked
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Check tracked files
         run: |
           bad=$(git ls-files | grep -E '\.(z64|n64|v64|elf|map)$|(^|/)baserom|^RecompiledFuncs/|^rsp/.*\.cpp$|^syms/|^build-elf/' || true)
@@ -27,7 +27,7 @@ jobs:
     name: Tools (Linux)
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
       - name: Install dependencies
@@ -45,7 +45,7 @@ jobs:
     name: Tools (Windows)
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
       - name: Build N64Recomp and RSPRecomp

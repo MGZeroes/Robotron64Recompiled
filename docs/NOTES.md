@@ -2,6 +2,11 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-11-02 — First CI run; checkout v5
+
+- Pushed to the private GitHub repo. CI run #1 on `aae2cca` passed all three jobs, with one warning each: `actions/checkout@v4`
+  targets Node 20. Moved to `@v5`, whose `action.yml` says `using: node24`. Not yet confirmed by a CI run.
+
 ## 2026-11-02 — Version 0.10.0
 
 - Raised for the file picker, the resume fix and the overlay changes, tagged `v0.10-android-files`. `v0.9-android` stays where it
