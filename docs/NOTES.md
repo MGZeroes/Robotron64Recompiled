@@ -19,8 +19,7 @@ Running log, newest at top. Failed attempts stay in.
 - With the fix, the user confirmed: wrong file, correct ROM (also after closing the app), Home during gameplay, installing
   `robotron64-hud.rtz`. Not tested: overwrite prompt, several files at once, Drive, the pack's look in game.
 - `git archive` applies `core.autocrlf`: pass `-c core.autocrlf=false` when generating a patch from an archived copy.
-- The app was gone from the phone before this test (`firstInstallTime` was the new install), so its old saves and settings are
-  gone too. Cause unknown.
+- The app was gone from the phone before this test because the user uninstalled it for the ROM picker test.
 - The user then found the touch overlay in the way of menus: A covered the close X, so the menu couldn't be closed by touch; L
   and START covered tabs and the first mod. Now the overlay hides in the launcher and settings menus, there's a MENU button for
   touch-only play, and on-screen B really is N64 B (it was C-Right). See ADR 008. The user tested the build: "everything seems
