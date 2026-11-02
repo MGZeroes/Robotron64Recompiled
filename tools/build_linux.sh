@@ -2,7 +2,7 @@
 # Native Linux build of Robotron64Recompiled. Runs inside the Docker build image (ADR 003/005);
 # on Windows use:  .\tools\build_elf.ps1 -Script tools/build_linux.sh
 # Needs the recompiler output first (tools/recomp.sh). Output: build-linux/, plus a tarball with the
-# binary, assets/ and recompcontrollerdb.txt.
+# binary, assets/, recompcontrollerdb.txt and the licences.
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
@@ -29,9 +29,10 @@ echo "== build"
 cmake --build "$BUILD" --target Robotron64Recompiled -j "$(nproc)"
 
 echo "== package"
+python3 "$ROOT/tools/collect_licenses.py" "$BUILD/licenses"
 tar -czf "$BUILD/Robotron64Recompiled-linux-x64.tar.gz" \
-    -C "$BUILD" Robotron64Recompiled \
-    -C "$ROOT" assets recompcontrollerdb.txt
+    -C "$BUILD" Robotron64Recompiled licenses \
+    -C "$ROOT" assets recompcontrollerdb.txt LICENSE CREDITS.md
 file "$BUILD/Robotron64Recompiled"
 if ldd "$BUILD/Robotron64Recompiled" | grep -q "not found"; then
     ldd "$BUILD/Robotron64Recompiled" | grep "not found" >&2

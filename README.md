@@ -6,9 +6,16 @@ statically recompiled to C and runs on [N64ModernRuntime](https://github.com/N64
 rendered by [RT64](https://github.com/rt64/rt64), with menus/input from
 [RecompFrontend](https://github.com/N64Recomp/RecompFrontend).
 
-**Status: early work in progress. Playable: play-tested through wave 26 (35 min, bonus stage, game over), with saving and analog aiming.** Progress log: [docs/NOTES.md](docs/NOTES.md).
+**Status: 1.0. Playable: play-tested through wave 26 (35 min, bonus stage, game over), with saving and analog aiming.** Progress log: [docs/NOTES.md](docs/NOTES.md).
 
-This repository contains **no game code or assets**. You need your own Robotron 64 (USA) ROM.
+This repository contains **no game code or assets**. You need your own Robotron 64 (USA) ROM, whichever way you play.
+
+## Download and play
+Where a release has packages, they're on the Releases page. Unpack the one for your system (on Android, install the APK), start
+the game and choose your ROM in the launcher. The packages contain no ROM and no game assets; they do contain the game's code in
+recompiled form. The ROM must be Robotron 64 (USA) rev 0, SHA-1 `44d158bc2aeefb111a620b61e043b2703e6c5808`.
+
+To build it yourself, read on.
 
 ## Requirements (Windows)
 - Git, CMake ≥ 3.20, Ninja, Python 3
@@ -107,8 +114,8 @@ folder and switched on and off in the Mods menu. [docs/TEXTURE_PACKS.md](docs/TE
 to make one with RT64's in-game inspector and `tools/texture_pack.ps1`. Packs are shared separately; this
 repository contains no game assets.
 
-## Android (test build)
-An experimental build for ARM64 phones. It has on-screen controls, which hide while a controller is connected and in the
+## Android (experimental)
+A build for ARM64 phones. It has on-screen controls, which hide while a controller is connected and in the
 launcher and settings menus, which work by tapping.
 Tested on one phone so far, a Galaxy S26 Ultra with Adreno 840 (docs/decisions/007-android-test-build.md). Mali GPUs are
 not expected to work yet.
@@ -128,7 +135,22 @@ adb shell mkdir -p /sdcard/Android/data/io.github.mgzeroes.robotron64/files
 adb push baserom.us.z64 /sdcard/Android/data/io.github.mgzeroes.robotron64/files/robotron64.us.z64
 ```
 
-The first build downloads several GB (Android SDK and NDK). Never share the APK: it contains recompiled game code.
+The first build downloads several GB (Android SDK and NDK).
+
+## Release packages
+```powershell
+.\tools\make_release_key.ps1      # once; back up what it creates
+.\tools\package_release.ps1       # needs a clean git tree; output: dist\
+```
+Packages contain recompiled game code, so never commit them. [ADR 010](docs/decisions/010-first-release.md) covers what's in them
+and what to check before sharing them.
+
+## Contributing
+Never commit a ROM, extracted assets, generated recompiled code (`RecompiledFuncs/`, `rsp/*.cpp`), or an ELF or map built from the
+ROM. CI checks for the common cases, and `.gitignore` covers them. Dependencies are git submodules at pinned commits
+([ADR 002](docs/decisions/002-dependency-pins.md)). Older notes and decision records mention a `CLAUDE.md`: those were the project's
+working rules, which aren't part of the repository any more.
 
 ## License
-GPL-3.0 (see [LICENSE](LICENSE)). Credits: [CREDITS.md](CREDITS.md).
+GPL-3.0 (see [LICENSE](LICENSE)). Credits: [CREDITS.md](CREDITS.md). Robotron 64 and its characters belong to their owners; this
+project isn't affiliated with or endorsed by them.

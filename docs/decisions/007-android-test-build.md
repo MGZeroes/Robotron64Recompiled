@@ -48,6 +48,7 @@ again and works: save, restart, load (2026-11-02). Landscape only, by the user's
 this device has been tested.
 
 ## Consequences
+- This started as a test, and ADR 010 makes it part of the 1.0 release as an experimental build, still with these patch files.
 - Patch files need refreshing when a pin moves.
 - The Mali fallback commits are left out, so this build isn't expected to work on Mali phones.
 - The Samsung fixes listed in Zelda's release notes (0.6.3, 0.6.4) have no details yet. Look at them if the phone

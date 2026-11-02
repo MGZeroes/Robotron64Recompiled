@@ -18,7 +18,7 @@ jobs:
         run: |
           bad=$(git ls-files | grep -E '\.(z64|n64|v64|elf|map)$|(^|/)baserom|^RecompiledFuncs/|^rsp/.*\.cpp$|^syms/|^build-elf/' || true)
           if [ -n "$bad" ]; then
-            echo "ROM-derived files are tracked (CLAUDE.md rule 1):"
+            echo "ROM-derived files are tracked, which this repo must never contain:"
             echo "$bad"
             exit 1
           fi

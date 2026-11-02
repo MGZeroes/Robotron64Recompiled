@@ -2,6 +2,14 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-11-02 — Preparing the 1.0 release and a public repo
+
+- Added release packaging, an Android release key and licence collection. See ADR 010.
+- Reading the licences found two problems. RT64's `dxil.dll` and `dxcompiler.dll` come from DXC v1.7.2212, and that release's
+  `LICENSE-MS.txt` forbids distributing them, so packages use the pair from v1.8.2505.1. `Suplexmentary Comic NC.ttf` says "All
+  rights reserved", has no licence, and nothing loads it, so it was removed. It's still in git history.
+- `CLAUDE.md` moved out of the repo (kept locally, gitignored), and `KICKOFF_PROMPT.md` was deleted, both by the user's choice.
+
 ## 2026-11-02 — First CI run; checkout v5
 
 - Pushed to the private GitHub repo. CI run #1 on `aae2cca` passed all three jobs, with one warning each: `actions/checkout@v4`

@@ -1,4 +1,4 @@
-// Android test build (ADR 007): only packages what tools/build_android.sh built, so no native build here.
+// Only packages what tools/build_android.sh built, so no native build here (ADR 007).
 plugins {
     id 'com.android.application'
 }
@@ -19,6 +19,24 @@ android {
         versionName appVersion
         ndk {
             abiFilters 'arm64-v8a'
+        }
+    }
+
+    // Only tools/build_android.sh -Release passes these; the key stays outside the repo (ADR 010).
+    if (project.hasProperty('releaseKeystore')) {
+        signingConfigs {
+            release {
+                def password = file(project.property('releasePasswordFile')).text.trim()
+                storeFile file(project.property('releaseKeystore'))
+                storePassword password
+                keyAlias 'robotron64'
+                keyPassword password
+            }
+        }
+        buildTypes {
+            release {
+                signingConfig signingConfigs.release
+            }
         }
     }
 
@@ -49,5 +67,8 @@ def stageGameAssets = tasks.register('stageGameAssets', Copy) {
         from project.property('gameAssets')
     }
     from project.property('controllerDb')
+    into('licenses') {
+        from project.property('licenses')
+    }
 }
 tasks.named('preBuild').configure { dependsOn stageGameAssets }

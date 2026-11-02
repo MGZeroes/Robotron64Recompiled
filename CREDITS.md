@@ -8,7 +8,7 @@ Robotron 64: Recompiled stands entirely on other people's work.
 - **[RT64](https://github.com/rt64/rt64)** by Dario (DarioSamo) and contributors — N64 graphics renderer (MIT), including the texture pack support, inspector and texture tools that docs/TEXTURE_PACKS.md uses.
 - **[RecompFrontend](https://github.com/N64Recomp/RecompFrontend)** by the N64Recomp contributors — shared menus and input (GPL-3.0).
 
-## Android test build
+## Android build
 - **[Goemon64Recomp-Android](https://github.com/ogdanimal/Goemon64Recomp-Android)** by ogdanimal — the Android commits for
   RT64, plume and N64ModernRuntime in `tools/android/patches/` come from its forks (MIT and GPL-3.0), and its build setup
   was the model for ours.
@@ -27,8 +27,12 @@ Robotron 64: Recompiled stands entirely on other people's work.
 - **[WCWvsNWOWorldTourRecomp](https://github.com/jessetbh/WCWvsNWOWorldTourRecomp)** and **[rush-2049-recomp](https://github.com/n64hub/rush-2049-recomp)** — how RecompFrontend's multiplayer mode is used in practice (option switching single/multiplayer mode, the keyboard-profile issue).
 
 ## Bundled third-party assets (from the template)
-- Inter, Noto Emoji, Suplexmentary Comic NC fonts and PromptFont — see `assets/` (PromptFont license in `assets/promptfont/LICENSE.txt`).
+- Inter, Noto Emoji and PromptFont fonts (SIL OFL 1.1) — see `assets/` (PromptFont license in `assets/promptfont/LICENSE.txt`).
 - SlotMap — `lib/SlotMap/`.
+
+## In the release packages
+- **[DirectX Shader Compiler](https://github.com/microsoft/DirectXShaderCompiler)** by Microsoft — `dxil.dll` and `dxcompiler.dll` in the Windows package, v1.8.2505.1 (see ADR 010).
+- Each package has a `licenses/` folder with the licences of the components above and the libraries they include (`tools/collect_licenses.py`). On Android they're inside the APK.
 
 ## Launcher and icon art
 - **[Orbitron](https://github.com/theleagueof/orbitron)** by Matt McInerney and The Orbitron Project Authors — launcher wordmark font, SIL Open Font License 1.1 (`assets/Orbitron-OFL.txt`; from google/fonts commit `8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5`).
@@ -38,7 +42,7 @@ Robotron 64: Recompiled stands entirely on other people's work.
 
 ## The game
 Robotron 64 © 1998 Crave Entertainment / Player 1; Robotron: 2084 © Williams Electronics.
-This project contains no game code or assets; you must supply your own legally obtained ROM.
+This repository contains no game code or assets, and the release packages contain no ROM or game assets but do contain the game's code in recompiled form. You must supply your own legally obtained ROM.
 
 ## Build tooling
 - **[spimdisasm](https://github.com/Decompollaborate/spimdisasm)** and **[rabbitizer](https://github.com/Decompollaborate/rabbitizer)** by Decompollaborate — function boundaries (run through the decomp's `make analyze`).

@@ -195,7 +195,7 @@ When you're done, turn the developer tools off again:
 
 ## Rules for this repository
 
-- Never commit pack folders, dumped textures or `.rtz` files here (CLAUDE.md rule 1).
+- Never commit pack folders, dumped textures or `.rtz` files here.
 - The helper script and the empty template (`tools/texture_pack_template/`) are part of the repository.
 - Packs are their authors' work, based on the game's art. Share them separately and credit the original
   game.

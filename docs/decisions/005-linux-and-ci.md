@@ -31,7 +31,8 @@ The template's CI can't be used as it is:
   GitHub remote exists.
 
 ## Consequences
-- **No game build in CI:** CI never touches the ROM or produces game binaries, so there's no legal exposure.
+- **No game build in CI:** CI never touches the ROM or produces game binaries, so CI adds no legal exposure. Release packages are
+  built locally, and ADR 010 covers those.
 - **Linux run untested:** runtime problems on Linux (Vulkan, input, file paths, the pak file location) stay unknown
   until someone runs it.
 - **Docker image grows:** the image gains the GUI development libraries, which costs a few hundred MB.

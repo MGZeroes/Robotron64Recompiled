@@ -73,7 +73,7 @@ RSPRecomp
 # Controller mappings file
 gamecontrollerdb.txt
 
-# --- Robotron 64 Recompiled additions (CLAUDE.md hard rule 1: no copyrighted/derived material) ---
+# --- Robotron 64 Recompiled additions: no copyrighted or ROM-derived material ---
 # ROMs in any byte order
 *.z64
 *.n64
@@ -95,8 +95,16 @@ build-linux/
 dump/
 texture_work/
 
-# Android test build output (ADR 007)
+# Android build output (ADR 007)
 build-android/
 *.apk
 android/.gradle/
 android/app/build/
+
+# Release packages contain recompiled game code; signing keys stay outside the repo (ADR 010)
+dist/
+*.jks
+*.keystore
+
+# Local working notes for the assistant
+CLAUDE.md

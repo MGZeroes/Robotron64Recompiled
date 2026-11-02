@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Android test build (ADR 007). Runs inside the Android Docker image; on Windows use:
-#   .\tools\build_android.ps1
+# Android build (ADR 007, release signing in ADR 010). Runs inside the Android Docker image; on Windows use:
+#   .\tools\build_android.ps1 [-Release]
 # Needs the recompiler output first (tools/recomp.sh). Submodules stay untouched: lib/ is copied to the
 # volume at /build, where the patches in tools/android/patches/ are applied.
 # Steps: all (default), native, apk.
@@ -87,15 +87,35 @@ build_apk() {
     export GRADLE_USER_HOME=/build/gradle
     # Keeps the debug signing key in the volume. A new key per container makes Android refuse updates.
     export ANDROID_USER_HOME=/build/android-user
-    (cd /build/android && gradle --no-daemon -q assembleDebug \
-        -PappVersion="$version" \
-        -PnativeLibs=/build/jniLibs \
-        -PsdlJava="$OUT/_deps/sdl2-src/android-project/app/src/main/java" \
-        -PgameAssets="$TREE/assets" \
-        -PcontrollerDb="$TREE/recompcontrollerdb.txt")
+    python3 "$ROOT/tools/collect_licenses.py" /build/licenses
+    cp "$ROOT/CREDITS.md" /build/licenses/
+    local gradle_args=(
+        -PappVersion="$version"
+        -PnativeLibs=/build/jniLibs
+        -PsdlJava="$OUT/_deps/sdl2-src/android-project/app/src/main/java"
+        -PgameAssets="$TREE/assets"
+        -PcontrollerDb="$TREE/recompcontrollerdb.txt"
+        -Plicenses=/build/licenses
+    )
     mkdir -p "$ROOT/build-android"
-    cp /build/android/app/build/outputs/apk/debug/app-debug.apk "$ROOT/build-android/Robotron64-debug.apk"
-    ls -la "$ROOT/build-android/Robotron64-debug.apk"
+    if [ "${ROBOTRON_RELEASE:-}" = 1 ]; then
+        (cd /build/android && gradle --no-daemon -q assembleRelease "${gradle_args[@]}" \
+            -PreleaseKeystore=/signing/release.jks -PreleasePasswordFile=/signing/keystore-password.txt)
+        local apk="$ROOT/build-android/Robotron64-$version.apk"
+        cp /build/android/app/build/outputs/apk/release/app-release.apk "$apk"
+        local tools
+        tools=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+        "$tools/apksigner" verify --print-certs "$apk"
+        if "$tools/aapt" dump badging "$apk" | grep -q application-debuggable; then
+            echo "error: the release APK is debuggable" >&2
+            exit 1
+        fi
+    else
+        (cd /build/android && gradle --no-daemon -q assembleDebug "${gradle_args[@]}")
+        local apk="$ROOT/build-android/Robotron64-debug.apk"
+        cp /build/android/app/build/outputs/apk/debug/app-debug.apk "$apk"
+    fi
+    ls -la "$apk"
 }
 
 case "$STEP" in
