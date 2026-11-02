@@ -10,19 +10,22 @@ import android.view.View;
 // android_touch.cpp, which feeds a virtual SDL gamepad. Numbers below match SDL_GameControllerButton.
 public class TouchOverlay extends View {
     private static final int BUTTON_A = 0;
-    private static final int BUTTON_B = 1;
+    // RecompFrontend's default bindings put the N64's B and menu Back on the X position; SDL's B is C-Right.
+    private static final int BUTTON_B = 2;
+    // Opens the settings menu during play.
+    private static final int BUTTON_MENU = 4;
     private static final int BUTTON_START = 6;
     private static final int BUTTON_L = 9;
 
     private static final float STICK_RADIUS_DP = 70;
     private static final float STICK_MARGIN_DP = 130;
     private static final float BUTTON_RADIUS_DP = 30;
+    private static final float LABEL_SIZE_DP = 14;
     private static final float DEAD_ZONE = 0.12f;
     private static final int NO_POINTER = -1;
 
     private static native void nativeSetState(int buttons, float leftX, float leftY, float rightX, float rightY);
     static native void nativeSetEnabled(boolean enabled);
-    private static native boolean nativeIsMenuOpen();
 
     private static final class Stick {
         int pointer = NO_POINTER;
@@ -45,7 +48,8 @@ public class TouchOverlay extends View {
     private final Stick moveStick = new Stick();
     private final Stick aimStick = new Stick();
     private final Button[] buttons = {
-        new Button(BUTTON_L, "L"), new Button(BUTTON_START, "START"), new Button(BUTTON_B, "B"), new Button(BUTTON_A, "A"),
+        new Button(BUTTON_L, "L"), new Button(BUTTON_START, "START"), new Button(BUTTON_MENU, "MENU"),
+        new Button(BUTTON_B, "B"), new Button(BUTTON_A, "A"),
     };
     private final float density;
     private final Paint fill = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -61,7 +65,6 @@ public class TouchOverlay extends View {
         outline.setStrokeWidth(2 * density);
         text.setColor(0xB0FFFFFF);
         text.setTextAlign(Paint.Align.CENTER);
-        text.setTextSize(14 * density);
     }
 
     @Override
@@ -75,6 +78,7 @@ public class TouchOverlay extends View {
         // At the edges: the game shows its score at the top centre and the lives at the top right.
         placeButton(BUTTON_L, 3 * radius, top, radius);
         placeButton(BUTTON_START, 6 * radius, top, radius);
+        placeButton(BUTTON_MENU, 8.3f * radius, top, 0.7f * radius);
         placeButton(BUTTON_A, width - 3 * radius, top, radius);
         placeButton(BUTTON_B, width - 3 * radius, top + 2.6f * radius, radius);
     }
@@ -102,6 +106,8 @@ public class TouchOverlay extends View {
         for (Button button : buttons) {
             canvas.drawCircle(button.x, button.y, button.radius, button.pointer != NO_POINTER ? outline : fill);
             canvas.drawCircle(button.x, button.y, button.radius, outline);
+            // In proportion, so the label stays inside a smaller button.
+            text.setTextSize(LABEL_SIZE_DP * button.radius / BUTTON_RADIUS_DP);
             canvas.drawText(button.label, button.x, button.y + text.getTextSize() / 3, text);
         }
     }
@@ -119,9 +125,7 @@ public class TouchOverlay extends View {
         switch (action) {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN:
-                if (!pointerDown(event.getPointerId(index), event.getX(index), event.getY(index))) {
-                    return false;
-                }
+                pointerDown(event.getPointerId(index), event.getX(index), event.getY(index));
                 break;
             case MotionEvent.ACTION_MOVE:
                 for (int i = 0; i < event.getPointerCount(); i++) {
@@ -144,8 +148,7 @@ public class TouchOverlay extends View {
         return true;
     }
 
-    // Returns false when the touch isn't for the overlay, so it reaches the menu underneath.
-    private boolean pointerDown(int pointer, float x, float y) {
+    private void pointerDown(int pointer, float x, float y) {
         for (Button button : buttons) {
             float dx = x - button.x;
             float dy = y - button.y;
@@ -153,11 +156,8 @@ public class TouchOverlay extends View {
             float reach = button.radius * 1.3f;
             if (dx * dx + dy * dy <= reach * reach) {
                 button.pointer = pointer;
-                return true;
+                return;
             }
-        }
-        if (nativeIsMenuOpen()) {
-            return false;
         }
         Stick stick = x < getWidth() / 2f ? moveStick : aimStick;
         if (stick.pointer == NO_POINTER) {
@@ -165,7 +165,6 @@ public class TouchOverlay extends View {
             stick.centerX = stick.knobX = x;
             stick.centerY = stick.knobY = y;
         }
-        return true;
     }
 
     private void moveStickPointer(Stick stick, MotionEvent event, int index) {

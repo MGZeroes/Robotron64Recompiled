@@ -26,5 +26,9 @@ Own code; nothing copied from the Goemon overlay.
 - No layout editor, sensitivity setting or vibration yet. Button positions are fixed around the one-player HUD.
 - Tested on the S26 Ultra: moving and aiming, pause menu, switching to and from the Xbox controller. The "Home and back" result
   from that test doesn't hold: on 2026-11-02 Home at the launcher went black on that code. Fixed in ADR 009.
-- In menus the buttons cover menu items and take their touches, because buttons are checked first (`TouchOverlay.pointerDown`).
-  Open, see NOTES.
+- The overlay hides while a launcher or settings menu is open (`recompui::is_context_capturing_input`), since those work by tapping.
+  At first it stayed visible and its buttons took touches, so A on the close X stopped the menu being closed by touch. The game's
+  own menus keep the overlay, because they need the buttons.
+- A small MENU button sends `SDL_CONTROLLER_BUTTON_BACK`, the default binding for the settings menu.
+- On-screen B sends `SDL_CONTROLLER_BUTTON_X`, because RecompFrontend binds the N64's B and menu Back there; SDL's B is C-Right.
+- Rebinding controls needs a controller, because the on-screen buttons aren't there on the Controls tab.

@@ -6,6 +6,7 @@
 #include <atomic>
 #include <cstdint>
 #include <cstdio>
+#include <optional>
 
 #include <jni.h>
 
@@ -16,7 +17,7 @@
 
 namespace {
     // TouchOverlay.java uses these numbers too, so an SDL update must not change them silently.
-    static_assert(SDL_CONTROLLER_BUTTON_A == 0 && SDL_CONTROLLER_BUTTON_B == 1);
+    static_assert(SDL_CONTROLLER_BUTTON_A == 0 && SDL_CONTROLLER_BUTTON_X == 2 && SDL_CONTROLLER_BUTTON_BACK == 4);
     static_assert(SDL_CONTROLLER_BUTTON_START == 6 && SDL_CONTROLLER_BUTTON_LEFTSHOULDER == 9);
     static_assert(SDL_CONTROLLER_AXIS_LEFTX == 0 && SDL_CONTROLLER_AXIS_LEFTY == 1);
     static_assert(SDL_CONTROLLER_AXIS_RIGHTX == 2 && SDL_CONTROLLER_AXIS_RIGHTY == 3);
@@ -26,9 +27,25 @@ namespace {
     std::atomic<uint32_t> touch_buttons{0};
     std::array<std::atomic<float>, stick_axes> touch_axes{};
     std::atomic<bool> pad_wanted{false};
-    std::atomic<bool> menu_open{false};
 
     SDL_Joystick* pad = nullptr;
+
+    // The launcher and settings menus work by tapping, so the overlay hides while one is open.
+    void report_menu_state() {
+        static std::optional<bool> reported;
+        bool menu_open = recompui::is_context_capturing_input();
+        if (reported == menu_open) {
+            return;
+        }
+        reported = menu_open;
+
+        JNIEnv* env = static_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
+        jobject activity = static_cast<jobject>(SDL_AndroidGetActivity());
+        jclass activity_class = env->GetObjectClass(activity);
+        env->CallVoidMethod(activity, env->GetMethodID(activity_class, "setMenuOpen", "(Z)V"), static_cast<jboolean>(menu_open));
+        env->DeleteLocalRef(activity_class);
+        env->DeleteLocalRef(activity);
+    }
 
     void attach_pad() {
         SDL_VirtualJoystickDesc desc{};
@@ -64,7 +81,7 @@ namespace {
 }
 
 void robotron64::touch::update() {
-    menu_open.store(recompui::is_context_capturing_input(), std::memory_order_relaxed);
+    report_menu_state();
 
     bool wanted = pad_wanted.load(std::memory_order_relaxed);
     if (wanted && pad == nullptr) {
@@ -99,9 +116,5 @@ extern "C" {
 
     JNIEXPORT void JNICALL Java_io_github_mgzeroes_robotron64_TouchOverlay_nativeSetEnabled(JNIEnv*, jclass, jboolean enabled) {
         pad_wanted.store(enabled, std::memory_order_relaxed);
-    }
-
-    JNIEXPORT jboolean JNICALL Java_io_github_mgzeroes_robotron64_TouchOverlay_nativeIsMenuOpen(JNIEnv*, jclass) {
-        return menu_open.load(std::memory_order_relaxed);
     }
 }

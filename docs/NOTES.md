@@ -16,9 +16,13 @@ Running log, newest at top. Failed attempts stay in.
 - `git archive` applies `core.autocrlf`: pass `-c core.autocrlf=false` when generating a patch from an archived copy.
 - The app was gone from the phone before this test (`firstInstallTime` was the new install), so its old saves and settings are
   gone too. Cause unknown.
-- **Next: the touch overlay gets in the way of menus** (user report, screenshot of the Mods menu). A covers the close X, so the
-  menu can't be closed by touch. L and START cover General, Graphics and the first mod entry; the right stick covers Configure.
-  Buttons are hit-tested before the menu, with a reach of 1.3× their radius.
+- The user then found the touch overlay in the way of menus: A covered the close X, so the menu couldn't be closed by touch; L
+  and START covered tabs and the first mod. Now the overlay hides in the launcher and settings menus, there's a MENU button for
+  touch-only play, and on-screen B really is N64 B (it was C-Right). See ADR 008. The user tested the build: "everything seems
+  fine". Checked by screenshot with 200 ms presses (`adb shell input swipe x y x y 200`): MENU opens settings and hides the overlay,
+  the close X works, the overlay returns. An instant `input tap` did nothing in the same places, though the user's touches may
+  have collided with that run. A press and release between two `update_gfx` calls would be lost, as ADR 008 expects. MENU against
+  the score and lives during a wave wasn't checked by screenshot.
 
 ## 2026-11-02 — Version is now 0.9.0, kept in CMakeLists.txt
 

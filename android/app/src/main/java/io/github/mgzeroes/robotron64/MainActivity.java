@@ -45,6 +45,8 @@ public class MainActivity extends SDLActivity implements InputManager.InputDevic
     private static native void nativePickDone(String folder, String[] paths);
 
     private TouchOverlay touchOverlay;
+    // The app starts in the launcher, so the overlay doesn't flash there at launch.
+    private boolean menuOpen = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,13 +109,22 @@ public class MainActivity extends SDLActivity implements InputManager.InputDevic
         updateTouchOverlay();
     }
 
-    // The on-screen controls are for when no controller is connected.
+    // Called from android_touch.cpp.
+    public void setMenuOpen(boolean open) {
+        runOnUiThread(() -> {
+            menuOpen = open;
+            updateTouchOverlay();
+        });
+    }
+
+    // The on-screen controls are for when no controller is connected, and not for menus, which work by tapping.
     private void updateTouchOverlay() {
         boolean controller = hasController();
-        if (controller) {
+        boolean show = !controller && !menuOpen;
+        if (!show) {
             touchOverlay.releaseAll();
         }
-        touchOverlay.setVisibility(controller ? android.view.View.GONE : android.view.View.VISIBLE);
+        touchOverlay.setVisibility(show ? android.view.View.VISIBLE : android.view.View.GONE);
         TouchOverlay.nativeSetEnabled(!controller);
     }
 
