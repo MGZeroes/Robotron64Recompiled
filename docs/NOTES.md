@@ -2,6 +2,11 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-11-02 — Android test build merged into master
+
+- Fast-forward of `android` onto `master` (`892dc5a`), no history rewritten. The Windows build linked on that same commit
+  right before the merge. Touch controls come next, on their own branch.
+
 ## 2026-11-02 — Android: reinstalls had silently failed; fullscreen confirmed
 
 - Later the same day: saving confirmed. The user saved and loaded across a restart, and
