@@ -2,6 +2,11 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-11-02 — Version 0.10.0
+
+- Raised for the file picker, the resume fix and the overlay changes, tagged `v0.10-android-files`. `v0.9-android` stays where it
+  was.
+
 ## 2026-11-02 — Android file picker for the ROM and mods
 
 - The launcher's ROM button and "Install Mods" now open Android's system picker instead of a stub (ADR 009). The chosen file is
