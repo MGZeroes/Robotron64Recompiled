@@ -18,7 +18,7 @@ wave-20 bonus stage. Good for testing later waves quickly.
 
 ## Menus
 - ✅ Title menu: rotating head, ONE PLAYER / TWO PLAYER / LOAD GAME / SETUP
-- ⬜ SETUP: every option changes and returns
+- ✅ SETUP: every option changes and returns
 - ✅ LOAD GAME / password entry
 - ✅ Pause (Start) and resume in game
 
@@ -72,5 +72,5 @@ wave-20 bonus stage. Good for testing later waves quickly.
 - ✅ No "NO CONTROLLER PAK" warning at boot
 - ✅ Save, then load in the same session
 - ✅ Save survives a full restart (LOAD GAME lists and loads it)
-- ⬜ Pak manager: delete a note
-- ⬜ Damaged or missing save file falls back to an empty pak (the `.bak` copy is used first)
+- ✅ Pak manager: delete a note
+- ✅ Damaged or missing save file falls back to an empty pak (the `.bak` copy is used first)
