@@ -38,8 +38,7 @@ cmd /c "`"$vcvars`" >nul && set" | ForEach-Object {
 }
 $env:Path = "$LlvmDir;$env:Path"
 
-# clang-cl, as in the template's CMakeSettings.json (clang_cl_x64): the CMake files pass MSVC-style
-# flags (/W4, /SUBSYSTEM) that the GNU-style clang++ driver rejects.
+# clang-cl: the CMake files pass MSVC-style flags (/W4, /SUBSYSTEM) that the GNU-style clang++ driver rejects.
 $clangCl = (Join-Path $LlvmDir "clang-cl.exe").Replace("\", "/")
 $console = if ($NoConsole) { "OFF" } else { "ON" }
 

@@ -3,9 +3,8 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 
-# Input elf and rom files
+# Input elf files
 *.elf
-*.z64
 
 # Output C files
 RecompiledFuncs/
@@ -16,17 +15,11 @@ build/
 build-cmake/
 *.o
 
-# Flatpak build process
-repo/
-
 # Windows build output
 *.exe
 *.dll
 *.lib
 *.pdb
-
-# Nix build output
-/result/
 
 # User-specific files
 *.rsuser
