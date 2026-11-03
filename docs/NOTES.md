@@ -12,9 +12,12 @@ Running log, newest at top. Failed attempts stay in.
   no game functions; Linux and Windows hold 49 and 5 stray `func_` strings. The Android library still has its symbol table and exports
   1,306 `func_XXXXXXXX` labels and 183 SDK function names (`osPiStartDma`-style), because `build_android.sh` uses `--strip-debug` and
   nothing hides its exports. These are names only. See ADR 010.
-- Template leftovers: the issue template is rewritten for this game. `flatpak/` can't build (it calls `n_aspMain.us.toml`, which was
-  renamed, and still has `[Robotron]` placeholders) and `.github/linux/*.desktop` is used by nothing. Both are unchanged until the user
-  decides. `.github/macos/` is referenced by `CMakeLists.txt` and is untested.
+- Template leftovers: the issue template is rewritten for this game. `flatpak/` couldn't build (it called `n_aspMain.us.toml`, which was
+  renamed, and still had `[Robotron]` placeholders), so it's removed with the `RECOMP_FLATPAK` option and code. Also removed because
+  nothing used them: `.github/linux/*.desktop`, `icons/README.md`, `launch.vs.json`, `CMakeSettings.json`. `.github/macos/` stays because
+  `CMakeLists.txt` uses it; it's untested.
+- The user chose to keep builds public and keep the icon and launcher art (ADR 010). The released 1.0.0 packages stay as they are: the
+  removed code was compiled out of them.
 
 ## 2026-11-03 — Code cleanup before the 1.0 tag
 

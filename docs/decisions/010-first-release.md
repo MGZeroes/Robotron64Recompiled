@@ -1,6 +1,7 @@
 # 010 — First release: packages, signing and going public
 
-Date: 2026-11-02. Status: packaging accepted; publishing the builds publicly is **not decided yet**. This isn't legal advice.
+Date: 2026-11-02. Status: accepted. On 2026-11-03 the user chose to keep builds public when the repository goes public, and to keep
+the icon and launcher art. This isn't legal advice.
 
 ## Context
 The user wants a 1.0.0 release for Windows, Linux and Android, and wants the repository ready to go public. Until now no build left
@@ -46,7 +47,10 @@ Requirements, read from the binaries: Windows imports the Visual C++ runtime (`M
 `MSVCP140_ATOMIC_WAIT`), which isn't bundled. Linux needs glibc 2.38, because it's built on Ubuntu 24.04, plus system SDL2, GTK3 and
 FreeType.
 
-## Open before builds go public
+## Open points accepted by the user
+These aren't resolved. The user accepts them, as projects like Zelda64Recomp publish builds in the same way. That doesn't show it's
+safe, and not selling the builds doesn't remove the risk, since copyright also covers free distribution.
+
 1. **Copyright.** The builds contain the game's code, translated from the ROM, even though players supply their own ROM. Other
    recomp projects publish builds, which doesn't show it's safe. The lower-risk option is a public repository with source only,
    where players build their own.
@@ -55,8 +59,8 @@ FreeType.
    the build instructions regenerate it from the player's own ROM. Whether that's enough is unresolved.
 3. **Decomp licence.** `frankischilling/robotron64` has no licence (`docs/RESEARCH.md`). It supplies symbols and function boundaries
    at build time. Checked in the 1.0.0 packages: Linux and Windows hold only a few stray `func_` strings, but the Android library
-   keeps its symbol table and exports 1,306 `func_XXXXXXXX` labels and 183 SDK function names. To remove them, hide the exports and
-   strip fully, then rebuild and re-test the APK.
+   keeps its symbol table and exports 1,306 `func_XXXXXXXX` labels and 183 SDK function names. Optional for a later release: hide the
+   exports and strip fully, then rebuild and re-test the APK.
 4. **History.** Going public publishes all history too. After a force-push, GitHub can still serve the old commits by hash, including
    the purged files, and old Actions runs remain. Delete and recreate the repository with the rewritten history, or ask GitHub Support
    to purge them.
