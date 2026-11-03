@@ -2,6 +2,11 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-11-03 — README screenshots
+
+- Added five of the user's screenshots to the README, in `docs/images/`. They're 1280×672 JPEGs without metadata, 400 KB in total.
+  They show the game's art and stay in git history, by the user's choice.
+
 ## 2026-11-03 — Checks before going public
 
 - 1.0.0 is released on the private repo. The repository isn't public yet, and whether to publish builds is still open (ADR 010).

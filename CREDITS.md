@@ -42,7 +42,7 @@ Robotron 64: Recompiled stands entirely on other people's work.
 
 ## The game
 Robotron 64 © 1998 Crave Entertainment / Player 1; Robotron: 2084 © Williams Electronics.
-This repository contains no game code or assets, and the release packages contain no ROM or game assets but do contain the game's code in recompiled form. You must supply your own legally obtained ROM.
+The screenshots in `docs/images/` show the game running. This repository contains no game code or assets, and the release packages contain no ROM or game assets but do contain the game's code in recompiled form. You must supply your own legally obtained ROM.
 
 ## Build tooling
 - **[spimdisasm](https://github.com/Decompollaborate/spimdisasm)** and **[rabbitizer](https://github.com/Decompollaborate/rabbitizer)** by Decompollaborate — function boundaries (run through the decomp's `make analyze`).

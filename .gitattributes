@@ -4,5 +4,6 @@
 *.sh text eol=lf
 *.ttf binary
 *.png binary
+*.jpg binary
 *.ico binary
 *.z64 binary
