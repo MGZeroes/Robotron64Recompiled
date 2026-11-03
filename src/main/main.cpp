@@ -83,7 +83,7 @@ ultramodern::gfx_callbacks_t::gfx_data_t create_gfx() {
     SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
     SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
 
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC) > 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC) != 0) {
         exit_error("Failed to initialize SDL2: %s\n", SDL_GetError());
     }
 
@@ -643,7 +643,7 @@ bool preload_executable(PreloadContext& context) {
         fprintf(stderr, "Failed to create file mapping of executable!");
         CloseHandle(context.handle);
         context = {};
-        return EXIT_FAILURE;
+        return false;
     }
 
     context.view = MapViewOfFile(context.mapping_handle, FILE_MAP_READ, 0, 0, 0);
@@ -700,7 +700,7 @@ void release_preload(PreloadContext& context) {
     context = {};
 }
 
-#elif defined(__linux__) || defined(APPLE)
+#elif defined(__linux__) || defined(__APPLE__)
 
 struct PreloadContext {
 
