@@ -14,8 +14,8 @@ the machine: ADR 005 keeps game builds out of CI, and the README said never to s
 - **Packages come from one clean commit,** through `tools/package_release.ps1`, into the gitignored `dist/`.
 - **`CLAUDE.md` is local only and `KICKOFF_PROMPT.md` is deleted.** Both were also purged from git history, with the font below, on
   2026-11-03. That changed every commit hash.
-- **The tested packages are the release.** They were built from `80d6b5d`, a hash the purge replaced. The docs changes and the commit
-  reorder after it didn't touch the code, and the binaries embed the version but no commit hash, so they weren't rebuilt.
+- **Release packages come from the tagged code.** The user fully tested the packages from `80d6b5d`, a hash the purge replaced. A code
+  cleanup followed, so the packages were rebuilt from the final code for a shorter re-test.
 
 ## Licences found while packaging
 - **DXC:** Windows can't start without `dxil.dll` and `dxcompiler.dll`. RT64 supplies a v1.7.2212 build, and the

@@ -2,6 +2,20 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-11-03 — Code cleanup before the 1.0 tag
+
+- Removed template code nothing calls or registers: most of `recomp_api.cpp`, the object extension API, empty debug and ROM
+  decompression files, unused config getters, and headers without definitions. Registered mod exports are unchanged.
+- The object extension API was never registered, so mods couldn't reach it. Its host functions and `patches/` declarations are gone.
+- Kept: `patches/dummy.c` (the patch ELF needs a source), `patches/graphics.h` (declares the registered exports for `main.cpp`),
+  `patches/ui_funcs.h`, `include/overloaded.h` and `include/promptfont.h` (RecompFrontend includes them), `recomp_data_api.cpp`.
+- Fixed three error checks in `main.cpp`: SDL_Init's result, a failed file mapping that counted as preloaded, and `APPLE`. None was
+  seen failing in play.
+- Settings now label L and R "Change camera", because that's what they do (`docs/GAME.md`, Input).
+- Moving a hook and editing comments in the TOML left the recompiler's output byte-identical (same hash over `RecompiledFuncs`,
+  `RecompiledPatches`, `rsp`).
+- These changes replace the packages from `80d6b5d`, so all three were rebuilt and need the user's short re-test.
+
 ## 2026-11-03 — 1.0.0 packages tested; docs split; history purged
 
 - The user tested all three packages built from `80d6b5d` (Windows, Linux, Android) and reports that they work, including the first
@@ -9,8 +23,7 @@ Running log, newest at top. Failed attempts stay in.
   to `docs/GAME.md`.
 - The Android backup held a 0-byte `robotron64-hud.rtz` from the debug install. The pack works on the release install, so Install Mods
   isn't the suspect, but where the empty file came from is unknown.
-- README now covers playing only; the detail moved to `docs/PLAYING.md` and `docs/BUILDING.md`. `tools/` and `CMakeLists.txt` messages
-  still say "(README)", because changing them would make the code differ from the tested build. The README links to the build guide.
+- README now covers playing only; the detail moved to `docs/PLAYING.md` and `docs/BUILDING.md`.
 - By the user's choice, `CLAUDE.md`, `KICKOFF_PROMPT.md` and `assets/Suplexmentary Comic NC.ttf` were purged from history with
   git-filter-repo, in a separate clone. All hashes changed. Older hashes in this file were updated, except `80d6b5d` above and in
   ADR 010, which names the commit the packages came from before the rewrite.
