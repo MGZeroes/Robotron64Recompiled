@@ -42,8 +42,8 @@ In PowerShell, from the repository folder:
 
 If Windows says running scripts is disabled, allow your own scripts once with
 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`, or call the script as
-`powershell -ExecutionPolicy Bypass -File .\tools\texture_pack.ps1 ...` (as for the build scripts in the
-README).
+`powershell -ExecutionPolicy Bypass -File .\tools\texture_pack.ps1 ...` (as for the build scripts in
+[BUILDING.md](BUILDING.md)).
 
 - **`-Init`** creates the pack folder `mods\robotron64-hud` with a `mod.json`, an empty `rt64.json` and a
   short readme. The name is also the mod's id.
