@@ -25,7 +25,7 @@ Running log, newest at top. Failed attempts stay in.
 
 ## 2026-11-02 — First CI run; checkout v5
 
-- Pushed to the private GitHub repo. CI run #1 on `aae2cca` passed all three jobs, with one warning each: `actions/checkout@v4`
+- Pushed to the private GitHub repo. CI run #1 on `8d594f0` passed all three jobs, with one warning each: `actions/checkout@v4`
   targets Node 20. Moved to `@v5`, whose `action.yml` says `using: node24`. Not yet confirmed by a CI run.
 
 ## 2026-11-02 — Version 0.10.0
@@ -74,7 +74,7 @@ Running log, newest at top. Failed attempts stay in.
 
 ## 2026-11-02 — Android test build merged into master
 
-- Fast-forward of `android` onto `master` (`892dc5a`), no history rewritten. The Windows build linked on that same commit
+- Fast-forward of `android` onto `master` (`abae28f`), no history rewritten. The Windows build linked on that same commit
   right before the merge. Touch controls come next, on their own branch.
 
 ## 2026-11-02 — Android: reinstalls had silently failed; fullscreen confirmed
@@ -258,7 +258,7 @@ Running log, newest at top. Failed attempts stay in.
   of Midway's designs (CREDITS names the owners). Candidates were drawn from the user's references (PAL box
   art, poster, menu screenshot): the box-art robot, a green Grunt (dropped after the first sheet) and the
   hero's head.
-- I misread "the head fits good into the main menu" as picking the head for the app icon (`ef0c5fa`). The user
+- I misread "the head fits good into the main menu" as picking the head for the app icon (`b78b1fc`). The user
   meant: the head goes into the launcher like the game's menu, the robot is the app icon. Fixed with
   follow-up commits, no history rewrite.
 - `icons/app.svg`: the robot on the box art's navy sky and blue grid floor. First drafts were drawn freehand
