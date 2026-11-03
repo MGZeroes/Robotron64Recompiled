@@ -17,7 +17,6 @@ namespace robotron64 {
         }
     }
 
-    // TODO: Move loading configs to the runtime once we have a way to allow per-project customization.
     void init_config();
 
     // "Analog aiming" option: the right stick drives the game's second-controller aim stick.

@@ -1,6 +1,5 @@
-// libultra functions Robotron 64 calls that N64ModernRuntime does not provide.
-// N64Recomp skips these by name (ignored/reimplemented lists), so the recompiled code calls
-// the *_recomp versions below. See docs/NOTES.md (Phase 2/3) for how each was identified.
+// Host helpers: libultra functions the runtime doesn't provide, which the recompiled code calls as *_recomp because
+// N64Recomp skips them by name, and the widescreen hooks (robotron64.us.toml). See docs/NOTES.md.
 
 #include <algorithm>
 
@@ -136,8 +135,8 @@ extern "C" int32_t robotron64_hud_x(int32_t x, int32_t y) {
 // Object culling, called from the three draw-routine hooks (robotron64.us.toml) with abs(camera x) and
 // abs(camera y). Dividing them widens the game's cull cone to match the view: horizontally by the widening
 // factor, and in the first-person view (first_person.cpp) by its wider lens in both directions. The
-// test uses the object's centre, so objects vanished while still half on screen (hidden by TV
-// overscan on hardware); the margin keeps them drawn until they have left the view.
+// test uses the object's centre, so objects vanish half on screen (hidden by TV overscan on hardware); the margin
+// keeps them drawn until they leave the view.
 constexpr float cull_margin = 1.2f;
 
 float robotron64_first_person_cull_x(uint8_t* rdram);

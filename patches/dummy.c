@@ -1,6 +1,6 @@
 #include "patches.h"
 
-// User Task: Add game-specific RECOMP_PATCH definitions here or in newsource files inside this directory.
+// Placeholder: the patch ELF needs one source. Game changes are hooks in robotron64.us.toml.
 
 int dummy() {
     return 1;

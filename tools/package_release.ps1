@@ -2,7 +2,7 @@
 .SYNOPSIS
     Builds the Windows, Linux and Android release packages from one clean commit (ADR 010).
 .DESCRIPTION
-    Needs the recompile steps (README), Docker Desktop and the key from tools/make_release_key.ps1.
+    Needs the recompile steps (docs/BUILDING.md), Docker Desktop and the key from tools/make_release_key.ps1.
     The Linux and Android parts run in Docker. Output goes to dist/, which is gitignored: the packages
     contain recompiled game code, so they must never be committed.
 .EXAMPLE

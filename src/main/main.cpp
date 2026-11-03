@@ -68,7 +68,6 @@ const std::string version_string = ROBOTRON64_VERSION;
 
 template<typename... Ts>
 void exit_error(const char* str, Ts ...args) {
-    // TODO pop up an error
     ((void)fprintf(stderr, str, args), ...);
     assert(false);
         
@@ -172,17 +171,13 @@ bool get_n64_input(int controller_num, uint16_t* buttons, float* x, float* y) {
     return recompinput::profiles::get_n64_input(player, buttons, x, y);
 }
 
-// Player input profiles in One per player mode. recompinput's assignment commit (players.cpp) sets only the
-// profile of the assigned device: a controller player keeps the keyboard profile it had (Keyboard (SP) for
-// player 1), and a keyboard player gets an empty "Keyboard (Player N)" profile while its controller profile
-// stays at index 0, which is Keyboard (SP), so the keyboard drove both players. After each assignment
-// change: the keyboard drives only the player it was assigned to (their "Keyboard (Player N)" profile,
-// which config.cpp fills with the normal bindings), or player 1 with Keyboard (SP) when nobody took it;
-// every other keyboard profile is -1 (skipped). Controller profiles that would point at a keyboard
-// profile get the SP controller profile, which reads nothing without a pad.
-// Runs on the game thread before input is read, once the assignment has been unchanged for two polls so a
-// commit in progress on the UI thread is never half-applied. Profiles picked later on the player cards
-// are kept until the next assignment.
+// One per player: recompinput's assignment commit (players.cpp) sets only the assigned device's profile, and a
+// controller profile left at index 0 is Keyboard (SP), so the keyboard would drive both players. After each
+// assignment the keyboard drives only its assigned player (their "Keyboard (Player N)" profile, filled by
+// config.cpp), or player 1 with Keyboard (SP) if unassigned; other keyboard profiles are -1 (skipped), and
+// controller profiles that would point at a keyboard get the SP controller profile.
+// Runs on the game thread and waits for two unchanged polls, so a commit on the UI thread is never half-applied.
+// Profiles picked later on the player cards are kept until the next assignment.
 static void update_player_profiles() {
     using namespace recompinput;
     static std::array<uintptr_t, 5> applied{};
@@ -348,9 +343,8 @@ static uint32_t discarded_output_frames;
 constexpr uint32_t bytes_per_frame = input_channels * sizeof(float);
 
 void queue_samples(int16_t* audio_data, size_t sample_count) {
-    // An N64 audio buffer is a few thousand samples. Anything far larger means the game computed a
-    // bad size (see the osAiGetLength hook in robotron64.us.toml); drop it instead of reading past
-    // the buffer, and log it while that is being investigated.
+    // An N64 audio buffer is a few thousand samples; drop anything far larger instead of reading past it.
+    // The osAiGetLength hook in robotron64.us.toml fixes the known cause.
     constexpr size_t max_sane_sample_count = 0x8000;
     if (sample_count > max_sane_sample_count) {
         static int bad_chunk_logs = 0;
@@ -509,7 +503,6 @@ RspUcodeFunc* get_rsp_microcode(const OSTask* task) {
 extern "C" void recomp_entrypoint(uint8_t * rdram, recomp_context * ctx);
 gpr get_entrypoint_address();
 
-// array of supported GameEntry objects
 std::vector<recomp::GameEntry> supported_games = {
     {
         // XXH3-64 of Robotron 64 (USA) rev 0, SHA-1 44d158bc2aeefb111a620b61e043b2703e6c5808 (docs/GAME.md).
@@ -520,8 +513,6 @@ std::vector<recomp::GameEntry> supported_games = {
         .mod_game_id = "robotron64",
         // The game only saves to the Controller Pak (docs/GAME.md); no cartridge save hardware.
         .save_type = recomp::SaveType::None,
-        // TODO icon
-        // .thumbnail_bytes = std::span<const char>(icon_bytes),
         .is_enabled = true,
         .decompression_routine = nullptr,
         .has_compressed_code = false,
@@ -530,12 +521,9 @@ std::vector<recomp::GameEntry> supported_games = {
     },
 };
 
-// Until the game starts, the runtime's VI thread queues one dummy workload per VI for the graphics
-// thread (ultramodern/src/events.cpp), and RecompFrontend draws each one with a full RT64 sync
-// (rt64_render_context.cpp, send_dummy_workload). On this host the graphics thread fell behind, so
-// after a long stay in the launcher the first game display lists waited behind the backlog and
-// Start appeared to hang (docs/NOTES.md). The dummy frames only keep the window alive, so this
-// wrapper forwards at most one every 100 ms and drops the rest, which also drains a backlog fast.
+// Until the game starts, the VI thread queues a dummy workload per VI (ultramodern/src/events.cpp) and
+// RecompFrontend draws each with a full RT64 sync (rt64_render_context.cpp). A backlog delays the first display
+// lists after Start (docs/NOTES.md), and these frames only keep the window alive, so forward at most one per 100 ms.
 class ThrottledRenderContext : public ultramodern::renderer::RendererContext {
 public:
     explicit ThrottledRenderContext(std::unique_ptr<ultramodern::renderer::RendererContext> inner)
@@ -567,7 +555,6 @@ private:
     std::chrono::steady_clock::time_point last_dummy{};
 };
 
-// TODO: move somewhere else
 namespace robotron64 {
     // Thread IDs from the decomp: src/boot/startup.c, src/boot/scheduler.c,
     // src/game/audio_startup.c, src/game/controller_service_setup.c.
@@ -791,10 +778,8 @@ int main(int argc, char** argv) {
     }
 
 #ifdef _WIN32
-    // Set up high resolution timing period.
     timeBeginPeriod(1);
 
-    // Process arguments.
     for (int i = 1; i < argc; i++)
     {
         if (strcmp(argv[i], "--show-console") == 0)
@@ -811,7 +796,6 @@ int main(int argc, char** argv) {
         }
     }
 
-    // Set up console output to accept UTF-8 on windows
     SetConsoleOutputCP(CP_UTF8);
 
     // Change to a font that supports Japanese characters
@@ -839,37 +823,30 @@ int main(int argc, char** argv) {
     std::filesystem::current_path("/var/data", ec);
 #endif
 
-    // Initialize native file dialogs.
 #if !defined(__ANDROID__)
     NFD_Init();
 #endif
 
-    // Initialize program settings.
     recompui::programconfig::set_program_name(robotron64::program_name);
     recompui::programconfig::set_program_id(robotron64::program_id);
     
-    // Initialize SDL audio and set the output frequency.
     SDL_InitSubSystem(SDL_INIT_AUDIO);
     if (!reset_audio(48000)) {
         // It is not possible to initialize without an audio device.
         return EXIT_FAILURE;
     }
 
-    // Source controller mappings file
     std::u8string controller_db_path = (recompui::file::get_program_path() / "recompcontrollerdb.txt").u8string();
     if (SDL_GameControllerAddMappingsFromFile(reinterpret_cast<const char *>(controller_db_path.c_str())) < 0) {
         fprintf(stderr, "Failed to load controller mappings: %s\n", SDL_GetError());
     }
 
-    // Register fonts.
     recompui::register_primary_font("InterVariable.ttf", "Inter Variable");
     // Launcher wordmark (launcher_animation.cpp). SIL OFL 1.1, see assets/Orbitron-OFL.txt.
     recompui::register_extra_font("Orbitron.ttf");
 
-    // Register configuration path.
     recomp::register_config_path(recompui::file::get_app_folder_path());
 
-    // Register supported games and patches
     for (const auto& game : supported_games) {
         recomp::register_game(game);
     }
@@ -877,8 +854,6 @@ int main(int argc, char** argv) {
     REGISTER_FUNC(recomp_get_window_resolution);
     REGISTER_FUNC(recomp_get_target_aspect_ratio);
     REGISTER_FUNC(recomp_get_target_framerate);
-    // REGISTER_FUNC(recomp_get_gyro_deltas);
-    // REGISTER_FUNC(recomp_get_mouse_deltas);
     recompui::register_ui_exports();
     recomputil::register_data_api_exports();
     recomptheme::set_custom_theme();
@@ -975,7 +950,6 @@ int main(int argc, char** argv) {
     }
 
 #ifdef _WIN32
-    // End high resolution timing period.
     timeEndPeriod(1);
 #endif
 

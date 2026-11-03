@@ -143,7 +143,7 @@ namespace {
         return pages;
     }
 
-    // Reads `count` bytes from game memory at `addr` (RDRAM is stored byteswapped per word).
+    // Reads N bytes from game memory at `addr` (RDRAM is stored byteswapped per word).
     template <size_t N>
     std::array<u8, N> read_bytes(uint8_t* rdram, gpr addr) {
         std::array<u8, N> out{};
@@ -172,7 +172,7 @@ namespace {
         return (gpr)(int32_t)MEM_W(index * 4, ctx->r29);
     }
 
-    // Every call goes through here: the pak only exists on channel 0 (OSPfs.channel at offset 8).
+    // The pak only exists on channel 0 (OSPfs.channel at offset 8).
     bool pak_ready(uint8_t* rdram, gpr pfs) {
         if (MEM_W(8, pfs) != 0) {
             return false;

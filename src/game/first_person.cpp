@@ -188,7 +188,7 @@ extern "C" int robotron64_first_person_move(uint8_t* rdram, recomp_context* ctx)
     return 1;
 }
 
-// Object draw loop (0x8003A988, after the enabled check), $s5 = object: the eye is inside the player's
+// Object draw loop (0x8003A990, after the enabled check), $s5 = object: the eye is inside the player's
 // model, so skip it along with its floor ring and aim pose.
 extern "C" int robotron64_first_person_hide(int32_t object) {
     return object == player_object;

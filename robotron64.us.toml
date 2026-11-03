@@ -19,7 +19,7 @@ renamed = []
 
 # libultra internals that are only reachable from functions the runtime reimplements (or from
 # each other), so recompiling them would only leave unresolved calls to other libultra
-# internals. Call graph checked 2026-10-27; see docs/NOTES.md (Phase 2).
+# internals. Call graph checked 2026-10-27; see docs/NOTES.md.
 ignored = [
     "func_80064EC8",        # VI manager thread body (osCreateViManager is reimplemented)
     "func_8006E2C4",        # 64DD (leo) interrupt handler
@@ -40,15 +40,21 @@ ignored = [
 # hardware a retrace always arrives before the first task; under the runtime the first graphics or
 # audio task can come first, and the scheduler then dereferences NULL. If it is still NULL, point
 # it at profiling slot 0 (D_8014B9E0, zeroed BSS), as the first retrace would; the first real
-# retrace then advances to slot 1 as usual. The slots only hold timing statistics.
-# (A first version waited with yield_self_1ms until the retrace thread set it; that deadlocked at
-# game start.) Both hook addresses are branch labels, not delay slots.
+# retrace then advances to slot 1 as usual. The slots only hold timing statistics. Don't wait for the
+# retrace thread instead: that deadlocks at game start. Both hook addresses are branch labels, not
+# delay slots.
 
 # Audio task thread: 0x800509DC is `lw $t6, 0($s5)`, with $s5 = &D_8014BE40.
 [[patches.hook]]
 func = "func_80050928"
 before_vram = 0x800509DC
 text = "if (MEM_W(0, ctx->r21) == 0) { MEM_W(0, ctx->r21) = (int32_t)0x8014B9E0; }"
+
+# Graphics task thread: 0x80050C6C is `lw $t8, 0($s2)`, with $s2 = &D_8014BE40.
+[[patches.hook]]
+func = "func_80050BD0"
+before_vram = 0x80050C6C
+text = "if (MEM_W(0, ctx->r18) == 0) { MEM_W(0, ctx->r18) = (int32_t)0x8014B9E0; }"
 
 # Music switch busy-wait (decomp src/game/audio_generation.c:61-64, func_80051680):
 #   func_80053EBC(id); while (func_80053CC0(id) == 3) { }
@@ -66,8 +72,7 @@ text = "{ void yield_self(uint8_t*); yield_self(rdram); }"
 # Real hardware never reports more than the game has submitted, but the runtime reports the host
 # audio queue, which can be larger. The subtraction then wraps and count becomes up to 0xFFF0
 # frames, overflowing the audio buffers (crashed in the host's queue_samples). Clamp the reported
-# length (v0) to what keeps count >= 0x10. Confirmed 2026-10-27 with a logging version of this
-# hook: the runtime reported up to 6821 bytes against a limit of 2112.
+# length (v0) to what keeps count >= 0x10. The runtime reported up to 6821 bytes against a limit of 2112.
 [[patches.hook]]
 func = "func_800521C8"
 before_vram = 0x80052218
@@ -141,7 +146,7 @@ text = "{ int32_t robotron64_hud_x(int32_t, int32_t); ctx->r4 = (gpr)(int32_t)ro
 # z+500 >= 2|y|: a fixed square cone that matches the 4:3 view, so objects near the edges of an
 # Expand view vanish. Each hook runs right after the abs(x) call returns (the instruction after the
 # jal's delay slot, `lw $t3, 0x30($s0)`, followed by `sll $t2, $v0, 1`) and shrinks |x| in v0 by the
-# view widening factor (ultra_extensions.cpp). The y and behind-camera checks are unchanged.
+# view widening factor (ultra_extensions.cpp). The behind-camera check is unchanged; |y| is hooked below.
 [[patches.hook]]
 func = "func_8003D43C"
 before_vram = 0x8003D5D0
@@ -227,12 +232,6 @@ text = "{ void robotron64_coop_select_object(uint8_t*, int32_t); int robotron64_
 func = "func_800371FC"
 before_vram = 0x800371FC
 text = "{ void robotron64_coop_hud_wave(uint8_t*); robotron64_coop_hud_wave(rdram); }"
-
-# Graphics task thread: 0x80050C6C is `lw $t8, 0($s2)`, with $s2 = &D_8014BE40.
-[[patches.hook]]
-func = "func_80050BD0"
-before_vram = 0x80050C6C
-text = "if (MEM_W(0, ctx->r18) == 0) { MEM_W(0, ctx->r18) = (int32_t)0x8014B9E0; }"
 
 # First-person camera (option First-Person Camera, src/game/first_person.cpp): the game's finished but
 # unused camera view 8 "FIRST". Addresses from the disassembly (build/analysis/cpu); none is a delay slot.

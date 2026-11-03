@@ -6,8 +6,6 @@ LD      ?= ld.lld
 # Robotron 64 decomp submodule (frankischilling/robotron64).
 DECOMP_DIR ?= ../decomp
 
-# User Task: Add, remove, or adjust decomp header directories if your
-# decompilation repository uses a different layout.
 DECOMP_INCLUDE_DIRS := \
 	-I$(DECOMP_DIR)/include \
 	-I$(DECOMP_DIR)/src \

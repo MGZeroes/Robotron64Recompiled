@@ -149,17 +149,13 @@ extern "C" void robotron64_coop_target_end(uint8_t* rdram) {
     }
 }
 
-// Revive (player behavior func_80033974, 0x80033D80): style 3 stands the player up where they died, as a
-// shrunken body still attached to a grabbing enemy and often inside the crowd that killed them, which
-// kills them again as soon as the blink ends. Instead:
-// - if an enemy is close, move them to a free spot from the game's spawn-spot finder func_80027ED4
-//   (actor_spawn_position.c: random arena point clear of every actor); otherwise they stay put;
-// - restore the body (detach, normal scale as set at creation 0x80028678, no velocity);
-// - play the drop-in players do at wave start: the per-actor part of func_80035CC8(0)
-//   (scene_actor_mode_list.c). Anim 6 carries the fall; when it ends the frame tick calls
-//   func_80029194, which stands the player up (anim 8) and restarts field48. The revive code has already
-//   set flag 0x4000 (invulnerable), which the behavior clears 1 s after landing; the behavior does
-//   nothing in anim 6, so there is no control during the fall.
+// Revive (func_80033974, 0x80033D80): style 3 stands the player up where they died, shrunken, attached to the
+// grabbing enemy and often inside the crowd, which kills them again. Instead:
+// - if an enemy is close, move them with the spawn finder func_80027ED4 (actor_spawn_position.c);
+// - restore the body (detach, scale from 0x80028678, no velocity);
+// - play the wave-start drop-in, the per-actor part of func_80035CC8(0) (scene_actor_mode_list.c). Anim 6 carries
+//   the fall with no control, then func_80029194 stands them up (anim 8) and restarts field48. The revive already
+//   set 0x4000 (invulnerable), cleared 1 s after landing.
 // Calls use a copy of ctx so the caller's registers stay intact.
 static bool enemy_near(uint8_t* rdram, int32_t x, int32_t y) {
     for (int32_t a = word(rdram, actor_list); a != 0; a = MEM_W(actor_next, (gpr)a)) {

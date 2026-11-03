@@ -2,7 +2,7 @@
 .SYNOPSIS
     Native Windows build: LLVM clang + Ninja, with MSVC headers/libs from Visual Studio.
 .DESCRIPTION
-    Needs RecompiledFuncs/, rsp/aspMain.cpp and syms/ from the recompile steps (README).
+    Needs RecompiledFuncs/, rsp/aspMain.cpp and syms/ from the recompile steps (docs/BUILDING.md).
     Imports the VS x64 developer environment, then configures and builds build-cmake/.
 .EXAMPLE
     .\tools\build.ps1                     # RelWithDebInfo with a console window (bring-up default)
@@ -20,7 +20,7 @@ $BuildDir = Join-Path $Root "build-cmake"
 
 foreach ($required in "RecompiledFuncs\funcs.h", "rsp\aspMain.cpp", "syms\robotron64.us.syms.toml") {
     if (-not (Test-Path (Join-Path $Root $required))) {
-        Write-Host "Missing $required - run the recompile steps first (README)." -ForegroundColor Red
+        Write-Host "Missing $required - run the recompile steps first (docs/BUILDING.md)." -ForegroundColor Red
         exit 1
     }
 }

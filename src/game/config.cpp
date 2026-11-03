@@ -116,7 +116,7 @@ static void add_general_options(recomp::config::Config &config) {
 
     // The game has a finished first-person camera (view FIRST) that was left out of the L/R camera cycle.
     // first_person.cpp puts it back after OVERHEAD. See docs/GAME.md (Camera).
-    // Values: the saved 1 ("On" before Modern existed) keeps meaning the tank-control view.
+    // Saved values: 1 must stay Classic.
     static EnumOptionVector first_person_options = {
         {0, "Off", "Off"},
         {1, "Classic", "Classic"},
@@ -144,9 +144,8 @@ static void add_general_options(recomp::config::Config &config) {
 }
 
 static void set_control_descriptions() {
-    // Mapping from the decomp (docs/controller-input-mapping.md, func_8003C1A8): the stick, D-pad and
-    // C buttons feed the movement/firing direction groups; Start, A and B are separate bits; an L or R
-    // press toggles a game flag. Refine as play-testing confirms what each input does.
+    // Mapping from decomp/docs/controller-input-mapping.md (func_8003C1A8). L or R alone cycles the camera
+    // (docs/GAME.md, Input).
     recompinput::set_game_input_description(recompinput::GameInput::Y_AXIS_POS, "Move up");
     recompinput::set_game_input_description(recompinput::GameInput::Y_AXIS_NEG, "Move down");
     recompinput::set_game_input_description(recompinput::GameInput::X_AXIS_NEG, "Move left");
@@ -154,8 +153,8 @@ static void set_control_descriptions() {
     recompinput::set_game_input_description(recompinput::GameInput::A,          "A button");
     recompinput::set_game_input_description(recompinput::GameInput::B,          "B button");
     recompinput::set_game_input_description(recompinput::GameInput::Z,          "Z trigger");
-    recompinput::set_game_input_description(recompinput::GameInput::L,          "Toggle (L)");
-    recompinput::set_game_input_description(recompinput::GameInput::R,          "Toggle (R)");
+    recompinput::set_game_input_description(recompinput::GameInput::L,          "Change camera (L)");
+    recompinput::set_game_input_description(recompinput::GameInput::R,          "Change camera (R)");
     recompinput::set_game_input_description(recompinput::GameInput::START,      "Start / pause");
     // RecompFrontend's default controller mapping also puts the C buttons on the right stick
     // (recompinput/src/input_mapping.cpp); with Analog Aiming on, the right stick aims directly instead.

@@ -8,7 +8,6 @@ single_file_output = true
 # Allow absolute symbols to be used as jump targets.
 use_absolute_symbols = true
 # Point the recompiler at the game's symbols (tools/gen_syms.py) so it can resolve relocations.
-# No data symbols file yet; add data_reference_syms_files once a patch needs game data symbols.
 func_reference_syms_file = "syms/robotron64.us.syms.toml"
 # Tell the recompiler to write the output binary. Doing this instead of using objcopy allows the recompiler to patch MIPS32 relocs.
 output_binary_path = "patches/patches.bin"
@@ -16,5 +15,5 @@ output_binary_path = "patches/patches.bin"
 unpaired_lo16_warnings = false
 # Allow exporting functions and events for mods to use.
 allow_exports = true
-# # Enable strict patch mode, validates that patched symbols exist and that non-patch functions aren't symbols.
+# Enable strict patch mode, validates that patched symbols exist and that non-patch functions aren't symbols.
 strict_patch_mode = true
