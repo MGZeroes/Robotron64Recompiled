@@ -54,7 +54,9 @@ FreeType.
    `tools/android/patches/` cover the project's code. The recompiled C is also compiled into the binary and can't be published, and
    the build instructions regenerate it from the player's own ROM. Whether that's enough is unresolved.
 3. **Decomp licence.** `frankischilling/robotron64` has no licence (`docs/RESEARCH.md`). It supplies symbols and function boundaries
-   at build time. Symbol names may appear in unstripped binaries: check the Linux binary before publishing it.
+   at build time. Checked in the 1.0.0 packages: Linux and Windows hold only a few stray `func_` strings, but the Android library
+   keeps its symbol table and exports 1,306 `func_XXXXXXXX` labels and 183 SDK function names. To remove them, hide the exports and
+   strip fully, then rebuild and re-test the APK.
 4. **History.** Going public publishes all history too. After a force-push, GitHub can still serve the old commits by hash, including
    the purged files, and old Actions runs remain. Delete and recreate the repository with the rewritten history, or ask GitHub Support
    to purge them.

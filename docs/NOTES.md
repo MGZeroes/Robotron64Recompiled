@@ -2,6 +2,20 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-11-03 — Checks before going public
+
+- 1.0.0 is released on the private repo. The repository isn't public yet, and whether to publish builds is still open (ADR 010).
+- History scan of all refs at `8205868`: no ROM blocks (1,860 tested), secrets, personal email or user paths; commit identities are
+  noreply; the purged files are gone; `rsp/.gitignore` is the only file under generated paths. Commits after that hash only change docs
+  and the issue template. Re-run it on the final repo.
+- Symbol names, from the 1.0.0 packages: no `decomp/` paths or the decomp's name in any of them. Linux has no symbol table and exports
+  no game functions; Linux and Windows hold 49 and 5 stray `func_` strings. The Android library still has its symbol table and exports
+  1,306 `func_XXXXXXXX` labels and 183 SDK function names (`osPiStartDma`-style), because `build_android.sh` uses `--strip-debug` and
+  nothing hides its exports. These are names only. See ADR 010.
+- Template leftovers: the issue template is rewritten for this game. `flatpak/` can't build (it calls `n_aspMain.us.toml`, which was
+  renamed, and still has `[Robotron]` placeholders) and `.github/linux/*.desktop` is used by nothing. Both are unchanged until the user
+  decides. `.github/macos/` is referenced by `CMakeLists.txt` and is untested.
+
 ## 2026-11-03 — Code cleanup before the 1.0 tag
 
 - Removed template code nothing calls or registers: most of `recomp_api.cpp`, the object extension API, empty debug and ROM
@@ -296,8 +310,8 @@ Running log, newest at top. Failed attempts stay in.
 ## 2026-10-29 — Launcher look and app icon
 
 - **Research (other ports):** Banjo and Harvest Moon animate hand-drawn fan SVGs in the launcher update
-  callback; Snowboard Kids 2 and Dinosaur Planet use credited fan art; WCW committed the official logo (not
-  for us). No port shows ROM textures in the launcher.
+  callback; Snowboard Kids 2 and Dinosaur Planet use credited fan art. No port we looked at shows ROM
+  textures in the launcher.
 - **Renderer limits:** recompui's RmlUi render interface has no shader/filter hooks, so RCSS gradients,
   shadows and blur don't draw. SVGs are rasterised by lunasvg, so soft shading goes into the SVGs.
   `<img>` only shows byte-queued images; SVGs load from `assets/`.
