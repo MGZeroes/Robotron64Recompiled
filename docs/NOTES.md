@@ -14,7 +14,8 @@ Running log, newest at top. Failed attempts stay in.
 - Settings now label L and R "Change camera", because that's what they do (`docs/GAME.md`, Input).
 - Moving a hook and editing comments in the TOML left the recompiler's output byte-identical (same hash over `RecompiledFuncs`,
   `RecompiledPatches`, `rsp`).
-- These changes replace the packages from `80d6b5d`, so all three were rebuilt and need the user's short re-test.
+- These changes replace the packages from `80d6b5d`, so all three were rebuilt. The user re-tested the new packages and reports that
+  everything works. Only this note changed afterwards, so they weren't rebuilt.
 
 ## 2026-11-03 — 1.0.0 packages tested; docs split; history purged
 
