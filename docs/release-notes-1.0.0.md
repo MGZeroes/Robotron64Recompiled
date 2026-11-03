@@ -26,6 +26,7 @@ Check a download against `SHA256SUMS.txt` if you want to confirm it's intact.
 - On Android: on-screen controls, controller support, and picking the ROM and mods with the system file picker.
 
 ## Known limits
+- **Linux** has been tested on one setup.
 - **Android** has been tested on one phone (Galaxy S26 Ultra with Adreno 840). Mali GPUs aren't expected to work. "Open Mods Folder"
   does nothing there, and in two-player mode the on-screen buttons overlap parts of the HUD.
 - **Simultaneous two-player** is experimental.

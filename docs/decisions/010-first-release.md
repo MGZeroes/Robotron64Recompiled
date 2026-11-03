@@ -12,7 +12,10 @@ the machine: ADR 005 keeps game builds out of CI, and the README said never to s
   certificate. Android only accepts an update signed with the same key, so losing the key means uninstalling, which deletes the
   app's saves on the phone. The change from the debug key needs one uninstall.
 - **Packages come from one clean commit,** through `tools/package_release.ps1`, into the gitignored `dist/`.
-- **`CLAUDE.md` is local only and `KICKOFF_PROMPT.md` is deleted.** Both stay readable in git history.
+- **`CLAUDE.md` is local only and `KICKOFF_PROMPT.md` is deleted.** Both were also purged from git history, with the font below, on
+  2026-11-03. That changed every commit hash.
+- **The tested packages are the release.** They were built from `80d6b5d`, a hash the purge replaced. The docs changes and the commit
+  reorder after it didn't touch the code, and the binaries embed the version but no commit hash, so they weren't rebuilt.
 
 ## Licences found while packaging
 - **DXC:** Windows can't start without `dxil.dll` and `dxcompiler.dll`. RT64 supplies a v1.7.2212 build, and the
@@ -21,7 +24,7 @@ the machine: ADR 005 keeps game builds out of CI, and the README said never to s
   "distributables file list" that isn't in the zip; they require end users to agree to terms protecting Microsoft; and they include
   an indemnity to Microsoft. Developer builds still use RT64's pair. The swap only counts as working once the Windows package has
   been play-tested.
-- **Suplexmentary Comic NC font:** "All rights reserved", no licence, and nothing loads it. Removed from the tree; still in history.
+- **Suplexmentary Comic NC font:** "All rights reserved", no licence, and nothing loads it. Removed from the tree and from history.
 - **Everything else:** `tools/collect_licenses.py` copies each licence into the packages and fails if a listed file goes missing.
   The list was made by reading the source tree, so a library that keeps its notice somewhere unusual could still be missing.
 
@@ -29,7 +32,7 @@ the machine: ADR 005 keeps game builds out of CI, and the README said never to s
 | Package | Contents |
 |---|---|
 | Windows zip | exe, `SDL2.dll`, the DXC pair, `assets/`, `recompcontrollerdb.txt`, `LICENSE`, `CREDITS.md`, `licenses/` |
-| Linux tar.gz | binary, `assets/`, `recompcontrollerdb.txt`, `LICENSE`, `CREDITS.md`, `licenses/`. Needs system libraries (README) |
+| Linux tar.gz | binary, `assets/`, `recompcontrollerdb.txt`, `LICENSE`, `CREDITS.md`, `licenses/`. Needs system libraries (see README) |
 | Android APK | native libraries, `assets/`, controller database and `licenses/` inside the APK, plus the release signature |
 
 None of them contains a ROM, game assets or texture packs. A scan on 2026-11-02 compared every non-trivial 4 KB block of the ROM
@@ -52,7 +55,9 @@ FreeType.
    the build instructions regenerate it from the player's own ROM. Whether that's enough is unresolved.
 3. **Decomp licence.** `frankischilling/robotron64` has no licence (`docs/RESEARCH.md`). It supplies symbols and function boundaries
    at build time. Symbol names may appear in unstripped binaries: check the Linux binary before publishing it.
-4. **History.** Going public publishes all history too, including the two removed files above.
+4. **History.** Going public publishes all history too. After a force-push, GitHub can still serve the old commits by hash, including
+   the purged files, and old Actions runs remain. Delete and recreate the repository with the rewritten history, or ask GitHub Support
+   to purge them.
 
 ## Before making the repository public
 - Re-run the history scan for secrets, personal data and ROM content.

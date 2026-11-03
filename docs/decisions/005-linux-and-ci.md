@@ -25,7 +25,7 @@ The template's CI can't be used as it is:
 ## Decision (by the user)
 - **Linux (a).** `tools/build_linux.sh` builds the game in the `ubuntu:24.04` build image (SDL2 2.30, Freetype and
   GTK3 from apt). The patch ELF is also built there with clang's MIPS backend. The build counts as verified when it
-  links and `ldd` resolves every library. Nobody has run it yet.
+  links and `ldd` resolves every library. It wasn't run until the 1.0.0 package, which the user tested on 2026-11-03.
 - **CI (a).** `.github/workflows/ci.yml` checks that no ROM-derived files are tracked, builds N64Recomp/RSPRecomp
   on Linux and Windows, and syntax-checks the tool scripts. The template workflows are removed. It runs once a
   GitHub remote exists.
@@ -33,6 +33,6 @@ The template's CI can't be used as it is:
 ## Consequences
 - **No game build in CI:** CI never touches the ROM or produces game binaries, so CI adds no legal exposure. Release packages are
   built locally, and ADR 010 covers those.
-- **Linux run untested:** runtime problems on Linux (Vulkan, input, file paths, the pak file location) stay unknown
-  until someone runs it.
+- **Linux run tested late:** runtime problems on Linux (Vulkan, input, file paths, the pak file location) stayed unknown until the
+  1.0.0 test. That test covers one setup, so other distributions are still unknown.
 - **Docker image grows:** the image gains the GUI development libraries, which costs a few hundred MB.

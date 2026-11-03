@@ -2,12 +2,25 @@
 
 Running log, newest at top. Failed attempts stay in.
 
+## 2026-11-03 — 1.0.0 packages tested; docs split; history purged
+
+- The user tested all three packages built from `80d6b5d` (Windows, Linux, Android) and reports that they work, including the first
+  ever Linux run and the HUD pack on Android. `docs/TESTING.md` is removed now that its list is all green; its password shortcut moved
+  to `docs/GAME.md`.
+- The Android backup held a 0-byte `robotron64-hud.rtz` from the debug install. The pack works on the release install, so Install Mods
+  isn't the suspect, but where the empty file came from is unknown.
+- README now covers playing only; the detail moved to `docs/PLAYING.md` and `docs/BUILDING.md`. `tools/` and `CMakeLists.txt` messages
+  still say "(README)", because changing them would make the code differ from the tested build. The README links to the build guide.
+- By the user's choice, `CLAUDE.md`, `KICKOFF_PROMPT.md` and `assets/Suplexmentary Comic NC.ttf` were purged from history with
+  git-filter-repo, in a separate clone. All hashes changed. Older hashes in this file were updated, except `80d6b5d` above and in
+  ADR 010, which names the commit the packages came from before the rewrite.
+
 ## 2026-11-02 — Preparing the 1.0 release and a public repo
 
 - Added release packaging, an Android release key and licence collection. See ADR 010.
 - Reading the licences found two problems. RT64's `dxil.dll` and `dxcompiler.dll` come from DXC v1.7.2212, and that release's
   `LICENSE-MS.txt` forbids distributing them, so packages use the pair from v1.8.2505.1. `Suplexmentary Comic NC.ttf` says "All
-  rights reserved", has no licence, and nothing loads it, so it was removed. It's still in git history.
+  rights reserved", has no licence, and nothing loads it, so it was removed.
 - `CLAUDE.md` moved out of the repo (kept locally, gitignored), and `KICKOFF_PROMPT.md` was deleted, both by the user's choice.
 
 ## 2026-11-02 — First CI run; checkout v5
@@ -529,7 +542,7 @@ The user tested the build containing the changes below.
 - **Controls.** The C buttons are labelled "Fire … (right stick)". RecompFrontend's default mapping already puts
   them on the right stick (`recompinput/src/input_mapping.cpp:44-47`), so twin-stick works without new code.
 - **Log.** The diagnostic `printf` is gone from the `osAiGetLength` clamp hook.
-- **Docs.** README (controls, recommended settings) and the new `docs/TESTING.md` checklist.
+- **Docs.** README (controls, recommended settings) and a new play-test checklist, `docs/TESTING.md` (removed at 1.0).
 
 **Not changed: the default graphics settings.** Expand and Display are hard-coded in
 `RecompFrontend/recompui/src/config/ui_config_tab_graphics.cpp:291,307`, and no setter was found. The README

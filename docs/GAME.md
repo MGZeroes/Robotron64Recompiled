@@ -52,6 +52,7 @@ Facts as we learn them, each with a source. "Decomp" = frankischilling/robotron6
 | Fact | Value | Source |
 |---|---|---|
 | Save | Controller Pak, one 4 KiB file | decomp `docs/save-game.md` |
+| Test shortcut | Password `BQJDNQMBHC` (LOAD GAME) starts at wave 21 with 155000 points, just after the wave-20 bonus stage | play-test |
 | Runtime Pak support | N64ModernRuntime only has stubs (`librecomp/src/pak.cpp` returns `PFS_ERR_NOPACK`). We replace them with `src/game/controller_pak.cpp`: a file-API-level pak on channel 0 with 16 notes and 123 × 256-byte pages, stored in `%LOCALAPPDATA%\Robotron64Recompiled\saves\robotron64.us.controller_pak_1.bin` (+ `.bak`). | runtime `cdf5abb`; our code |
 | Pak use by the game | Channel 0 only. One 0x1000-byte note: company `0x345A`, game code `0x4E525845`. It's created on the first write-open (`func_8004C3AC`) and read or written whole. The pak menu lists up to 16 notes (`osPfsFileState`) and can delete them. Calls: InitPak, IsPlug, FindFile, AllocateFile, DeleteFile, FileState, FreeBlocks, NumFiles, ReadWriteFile, `__osGetId`. | decomp `src/game/pak_file_*.c`, `controller_pak_*.c`; `RecompiledFuncs` call list |
 | Threads | main (pri 10), PI manager (150), game loop (10), thread @ `0x80051380` (110), 3 scheduler threads | decomp `docs/startup.md` |
