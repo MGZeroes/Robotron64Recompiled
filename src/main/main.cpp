@@ -815,14 +815,6 @@ int main(int argc, char** argv) {
     SDL_setenv("SDL_AUDIODRIVER", "wasapi", true);
 #endif
 
-#if defined(__linux__) && defined(RECOMP_FLATPAK)
-    // When using Flatpak, applications tend to launch from the home directory by default.
-    // Mods might use the current working directory to store the data, so we switch it to a directory
-    // with persistent data storage and write permissions under Flatpak to ensure it works.
-    std::error_code ec;
-    std::filesystem::current_path("/var/data", ec);
-#endif
-
 #if !defined(__ANDROID__)
     NFD_Init();
 #endif

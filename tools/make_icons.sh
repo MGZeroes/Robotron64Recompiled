@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Renders the app icon from icons/app.svg (and icons/app-small.svg for 16-32 px) into
-# icons/app.png (512 px: Linux window icon, Flatpak, macOS bundle), icons/app.ico (Windows exe and
+# icons/app.png (512 px: Linux window icon, macOS bundle), icons/app.ico (Windows exe and
 # window icon) and the Android launcher icon layers. Runs inside the Docker build image (ADR 003); on Windows use:
 #   .\tools\build_elf.ps1 -Script tools/make_icons.sh
 set -euo pipefail
