@@ -23,13 +23,6 @@ namespace robotron64 {
     // "Analog aiming" option: the right stick drives the game's second-controller aim stick.
     bool analog_aim_enabled();
 
-    // "Two Player Mode" option: Simultaneous starts TWO PLAYER in the game's unused co-op mode.
-    bool simultaneous_two_player_enabled();
-
-    // "Controllers" option: One per player puts recompinput in multiplayer mode (players assigned in
-    // Settings > Controls), so player 2 has their own pad. See main.cpp get_n64_input.
-    bool controllers_per_player_enabled();
-
     // "First-Person Camera" option: L/R camera cycling also reaches the game's cut FIRST view (single player),
     // with the game's tank controls (Classic) or left stick walk / right stick turn / A-B fire (Modern).
     // See first_person.cpp.

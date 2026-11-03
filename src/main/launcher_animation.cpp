@@ -16,7 +16,6 @@
 #include "recompui/config.h"
 #include "ultramodern/ultramodern.hpp"
 
-#include <array>
 #include <chrono>
 #include <cmath>
 

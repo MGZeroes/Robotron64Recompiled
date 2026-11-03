@@ -1,10 +1,10 @@
+#include <algorithm>
+#include <cmath>
 #include <cstdio>
 #include <cassert>
-#include <unordered_map>
 #include <vector>
 #include <array>
 #include <filesystem>
-#include <numeric>
 #include <stdexcept>
 #include <cinttypes>
 #include <chrono>
@@ -41,8 +41,6 @@
 #include "recompinput/recompinput.h"
 #include "recompinput/profiles.h"
 #include "robotron64_config.h"
-#include "robotron64_support.h"
-#include "robotron64_game.h"
 #include "robotron64_launcher.h"
 #if defined(__ANDROID__)
 #include "robotron64_files.h"
@@ -529,7 +527,6 @@ std::vector<recomp::GameEntry> supported_games = {
         .has_compressed_code = false,
         .entrypoint_address = get_entrypoint_address(),
         .entrypoint = recomp_entrypoint,
-        .on_init_callback = robotron64::game_on_init,
     },
 };
 
@@ -778,8 +775,6 @@ extern "C" int SDL_main(int argc, char** argv) {
 #else
 int main(int argc, char** argv) {
 #endif
-    (void)argc;
-    (void)argv;
     recomp::Version project_version{};
     if (!recomp::Version::from_string(version_string, project_version)) {
         ultramodern::error_handling::message_box(("Invalid version string: " + version_string).c_str());
@@ -890,9 +885,6 @@ int main(int argc, char** argv) {
 
     robotron64::register_game_overlays();
     robotron64::register_game_patches();
-
-    // Register extensions for two types: Props and ActorMarkers.
-    recomputil::init_extended_object_data(2);
 
     recompinput::players::set_single_player_mode(true);
 

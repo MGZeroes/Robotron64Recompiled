@@ -4,24 +4,10 @@
 #include "recompinput/recompinput.h"
 #include "recompinput/players.h"
 #include "recompinput/profiles.h"
-#include "robotron64_support.h"
-#include "ultramodern/config.hpp"
-#include "librecomp/files.hpp"
 #include "librecomp/config.hpp"
 #include "util/file.h"
 #include <atomic>
 #include <filesystem>
-#include <fstream>
-#include <iomanip>
-
-#if defined(_WIN32)
-#include <Shlobj.h>
-#elif defined(__linux__)
-#include <unistd.h>
-#include <pwd.h>
-#elif defined(__APPLE__)
-#include "apple/rt64_apple.h"
-#endif
 
 static std::atomic_bool analog_aim = true;
 
@@ -30,16 +16,6 @@ bool robotron64::analog_aim_enabled() {
 }
 
 static std::atomic_bool simultaneous_two_player = false;
-
-bool robotron64::simultaneous_two_player_enabled() {
-    return simultaneous_two_player.load();
-}
-
-static std::atomic_bool controllers_per_player = false;
-
-bool robotron64::controllers_per_player_enabled() {
-    return controllers_per_player.load();
-}
 
 static std::atomic<uint32_t> first_person = static_cast<uint32_t>(robotron64::FirstPersonMode::Classic);
 
@@ -135,9 +111,7 @@ static void add_general_options(recomp::config::Config &config) {
     );
     config.add_option_change_callback(robotron64::configkeys::general::controllers,
         [](recomp::config::ConfigValueVariant cur_value, recomp::config::ConfigValueVariant, recomp::config::OptionChangeContext) {
-            bool per_player = std::get<uint32_t>(cur_value) != 0;
-            controllers_per_player.store(per_player);
-            recompinput::players::set_single_player_mode(!per_player);
+            recompinput::players::set_single_player_mode(std::get<uint32_t>(cur_value) == 0);
         });
 
     // The game has a finished first-person camera (view FIRST) that was left out of the L/R camera cycle.
@@ -167,31 +141,6 @@ static void add_general_options(recomp::config::Config &config) {
         [](recomp::config::ConfigValueVariant cur_value, recomp::config::ConfigValueVariant, recomp::config::OptionChangeContext) {
             first_person.store(std::get<uint32_t>(cur_value));
         });
-}
-
-template <typename T = uint32_t>
-T get_general_config_enum_value(const std::string& option_id) {
-    return static_cast<T>(std::get<uint32_t>(recompui::config::get_general_config().get_option_value(option_id)));
-}
-
-template <typename T = uint32_t>
-T get_general_config_number_value(const std::string& option_id) {
-    return static_cast<T>(std::get<double>(recompui::config::get_general_config().get_option_value(option_id)));
-}
-
-template <typename T = uint32_t>
-T get_graphics_config_enum_value(const std::string& option_id) {
-    return static_cast<T>(std::get<uint32_t>(recompui::config::get_graphics_config().get_option_value(option_id)));
-}
-
-static void add_graphics_options(recomp::config::Config &config) {
-    // User Task: Add game-specific graphics options.
-}
-
-static void set_control_defaults() {
-    using namespace recompinput;
-
-    // TODO default controls overrides
 }
 
 static void set_control_descriptions() {
@@ -235,10 +184,8 @@ void robotron64::init_config() {
     auto &general_config = recompui::config::create_general_tab(general_options);
     add_general_options(general_config);
 
-    auto &graphics_config = recompui::config::create_graphics_tab();
-    add_graphics_options(graphics_config);
+    recompui::config::create_graphics_tab();
 
-    set_control_defaults();
     set_control_descriptions();
     recompui::config::create_controls_tab();
 
