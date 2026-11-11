@@ -10,9 +10,8 @@ This repository contains **no game code or assets**. You need your own Robotron 
 
 ![A late wave in widescreen, with enemies and humans across the arena](docs/images/gameplay.jpg)
 
-| | |
-|---|---|
 | ![Launcher with the Start Game, Controls, Settings, Mods and Exit menu](docs/images/launcher.jpg) | ![The game's title menu](docs/images/title-menu.jpg)
+|---|---|
 | ![Two players in the arena at the same time](docs/images/two-player.jpg) | ![The Player 1 Up screen before a wave](docs/images/level-intro.jpg)
 
 ## Features
